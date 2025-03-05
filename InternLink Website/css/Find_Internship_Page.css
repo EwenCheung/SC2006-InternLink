@@ -1,0 +1,90 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    font:14px/1.5 "Microsoft YaHei", Tahoma,"simsun",sans-serif;
+}
+
+.fl{
+    float:left;
+}
+
+.fr{
+    float:right;
+}
+
+.navigator-bar {
+    width :100%;
+    height: 60px;
+    background:rgba(233, 178, 242, 0.15);
+}
+
+.navigator-bar .main-nav{
+    width: 95%;
+    height:100%;
+    margin: 0 auto;
+    /* background: red; */
+}
+
+.navigator-bar .main-nav h1{
+    width:230px;
+    height:100%;
+    position: relative;
+}
+
+.navigator-bar .main-nav h1 a{
+    display: block;
+    position :absolute;
+    top:0;
+    bottom:0;
+    margin: auto ;
+    left: 0;
+    width: 100%;
+    height :40px;
+    background: url(../Images/Logo2.png) no-repeat left 10px center /100%;
+    background-size: contain;
+    text-indent: -1000px;
+    overflow: hidden;
+}
+
+.navigator-bar .main-nav nav{
+    width:580px;
+    height: 100%;
+    /* background:green; */
+}
+
+.navigator-bar .main-nav nav ul{
+    width:100%;
+    height: 100%;
+}
+
+.navigator-bar .main-nav nav ul li{
+    width:110px;
+    height: 100%;
+    margin-right: 5px;
+
+    /* border: 3px solid #ccc; */
+    /* border-radius: 3px; */
+    /* background-color: aqua; */
+}
+
+.navigator-bar .main-nav nav ul li :hover{
+    background-color: #d4b3d7;
+    border-radius: 5px;
+}
+
+.navigator-bar .main-nav nav ul li a{
+    font-size: 15px;
+    color: black;
+    display:block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding-top: 18px;
+    text-decoration-line: none;
+}
+
+
+
+
