@@ -36,11 +36,20 @@ body{
 
     box-shadow: 0 0 10px rgb(26, 26, 26);
 }
-div.title-showing{
+
+.logo{
+    position:absolute;
+    left:70%;
+    top:30%;
+    
+
+
+}
+.title-showing{
     font-family: Arial, Helvetica, sans-serif;
     position: absolute;
     top: 70%; 
-    left: 5%; 
+    left: 8%; 
     transform: translateY(-50%); 
     padding: 10px;
 
@@ -48,6 +57,15 @@ div.title-showing{
     font-size: large;
     font-size: 30px;
     
+}
+
+.showcase-image{
+    position:absolute;
+    top:40%;
+    left:15%;
+    transform: translateY(-50%);
+    width: 200px;
+    height:auto;
 }
 
 .box{
@@ -69,38 +87,46 @@ div.title-showing{
 .first-name-box{top:10%;}
 .last-name-box{top:20%;}
 .birthdate-box{top:30%;}
-.company-box{top:40%;}
+.school-box{top:40%;}
 .email-box{top:50%;}
 .password-box{top:60%;}
 .confirm-password-box{top:70%;}
 
 
 .sign-up-button {
+    color:white;
     position: absolute;
     bottom: 10px;
     right: 20px;
     padding: 10px;
     border-radius: 10px;
-    background-color: rgb(246, 184, 236);
+    background-color: rgb(138, 63, 171);
     cursor: pointer;
+}
+.sign-up-button a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
 }
 
 .sign-up-button:hover {
-    background-color: rgb(255, 167, 240);
+    background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    
 }
 
 .back-button {
+    color : white;
     position: absolute;
     top: 15px;
     left: 15px;
     padding: 10px;
     border-radius: 10px;
-    background-color: rgb(246, 184, 236);
+    background-color: rgb(138, 63, 171);
     cursor: pointer;
 }
 
 .back-button:hover {
-    background-color: rgb(255, 167, 240);
+    background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    
 }
