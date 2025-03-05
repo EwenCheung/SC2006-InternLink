@@ -36,7 +36,16 @@ body{
 
     box-shadow: 0 0 10px rgb(26, 26, 26);
 }
-div.title-showing{
+
+.logo{
+    position:absolute;
+    left:70%;
+    top:30%;
+    
+
+
+}
+.title-showing{
     font-family: Arial, Helvetica, sans-serif;
     position: absolute;
     top: 70%; 
