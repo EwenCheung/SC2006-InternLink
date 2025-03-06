@@ -1,0 +1,170 @@
+body {
+    background: linear-gradient(to right, rgb(253, 198, 251), rgb(135, 22, 255));
+}
+
+.choose-role {
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70vw;
+    height: 80vh;
+    min-height: 500px;
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 0 10px rgb(26, 26, 26);
+    display: flex;
+    overflow: hidden;
+}
+
+.left-section {
+    width: 45%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.divider {
+    width: 1px;
+    height: 100%;
+    background: #ddd;
+    margin: 0;
+}
+
+.right-section {
+    width: 55%;
+    padding: 40px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.signin-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.showcase-image {
+    width: 80%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.title-showing {
+    font-weight: 400;
+    font-size: 24px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.box {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+}
+
+.showcase-words {
+    flex: 0 0 150px;
+    margin-right: 15px;
+    font-size: 16px;
+    color: #333;
+    white-space: nowrap;
+}
+
+.input-field {
+    flex: 0 0 250px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+    overflow: auto;
+    resize: vertical;
+    min-height: 36px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.input-field::-webkit-scrollbar,
+.right-section::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.input-field::-webkit-scrollbar-track,
+.right-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.input-field::-webkit-scrollbar-thumb,
+.right-section::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.input-field::-webkit-scrollbar-thumb:hover,
+.right-section::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: rgb(138, 63, 171);
+    box-shadow: 0 0 5px rgba(138, 63, 171, 0.3);
+}
+
+.input-field::placeholder {
+    color: #999;
+}
+
+.sign-up-button {
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background-color: rgb(138, 63, 171);
+    cursor: pointer;
+    width: fit-content;
+    align-self: center;
+    margin-top: 15px;
+}
+
+.sign-up-button a {
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+}
+
+.sign-up-button:hover {
+    background-color: rgb(227, 125, 252);
+    box-shadow: 0 0 10px rgb(26, 26, 26);
+}
+
+.back-button {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: rgb(138, 63, 171);
+    cursor: pointer;
+    z-index: 1;
+}
+
+.back-button a {
+    text-decoration: none;
+    color: white;
+}
+
+.back-button:hover {
+    background-color: rgb(227, 125, 252);
+    box-shadow: 0 0 10px rgb(26, 26, 26);
+}

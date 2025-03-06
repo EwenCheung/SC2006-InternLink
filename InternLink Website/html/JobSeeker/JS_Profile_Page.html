@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobseeker Profile</title>
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/Navigator_Bar.css">
+    <link rel="stylesheet" href="../../css/JobSeeker/JS_Profile_Page.css">
+</head>
+<body>
+    <!-- Navigator Bar -->
+    <div class="navigator-bar">
+        <div class="main-nav">
+            <h1 class="fl"><a href="Find_internship_Page.html">InternLink</a></h1>
+            <nav class="fr">
+                <ul>
+                    <li class="fl"><a href="Find_internship_Page.html">Find Internship</a></li>
+                    <li class="fl"><a href="Find_AdHoc_Page.html">Find Ad Hoc</a></li>
+                    <li class="fl"><a href="#">Messages</a></li>
+                    <li class="fl"><a href="JS_Profile_Page.html" class="active">Profile</a></li>
+                    <li class="fl settings">
+                        <a href="#">Settings</a>
+                        <div class="settings-box">
+                            <div><a href="#">Profile Settings</a></div>
+                            <div><a href="#">Account Preferences</a></div>
+                            <div class="logout"><a href="JS_Email_Login_Page.html">Log Out</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-image">
+                <div class="image-container">
+                    <img src="../../Images/Logo2.png" alt="Profile Picture" id="profileImage">
+                    <div class="image-overlay">
+                        <button class="change-photo-btn">Change Photo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="personal-info">
+                <div class="header-row">
+                    <h1 id="userName">John Doe</h1>
+                    <button class="edit-profile-btn" onclick="toggleEditMode()">Edit Profile</button>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>School</label>
+                        <p id="school" class="editable">Nanyang Technological University</p>
+                        <input type="text" class="edit-input" id="schoolInput" value="Nanyang Technological University" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Course</label>
+                        <p id="course" class="editable">Computer Science</p>
+                        <input type="text" class="edit-input" id="courseInput" value="Computer Science" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Year of Study</label>
+                        <p id="yearOfStudy" class="editable">Year 2</p>
+                        <select class="edit-input" id="yearOfStudyInput" style="display: none;">
+                            <option value="Year 1">Year 1</option>
+                            <option value="Year 2" selected>Year 2</option>
+                            <option value="Year 3">Year 3</option>
+                            <option value="Year 4">Year 4</option>
+                        </select>
+                    </div>
+                    <div class="info-item">
+                        <label>Email</label>
+                        <p id="email" class="editable">johndoe@email.com</p>
+                        <input type="email" class="edit-input" id="emailInput" value="johndoe@email.com" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Contact</label>
+                        <p id="contact" class="editable">+65 9123 4567</p>
+                        <input type="tel" class="edit-input" id="contactInput" value="+65 9123 4567" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="applications">
+            <h2>Job Applications</h2>
+            <div class="job-listings" id="applicationListings">
+                <!-- Job applications will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/jobseeker.js"></script>
+    <script src="../../js/jobseeker_profile.js"></script>
+</body>
+</html>

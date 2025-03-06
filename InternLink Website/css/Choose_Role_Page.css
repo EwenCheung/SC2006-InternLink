@@ -1,0 +1,73 @@
+body {
+    background: linear-gradient(to right, rgb(253, 198, 251), rgb(135, 22, 255));
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.choose-role {
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 0 10px rgb(26, 26, 26);
+    padding: 40px;
+    width: 500px;
+    text-align: center;
+}
+
+.logo-section {
+    margin-bottom: 40px;
+}
+
+.logo {
+    width: 250px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.title-showing {
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.buttons-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.role-button {
+    display: inline-block;
+    width: 200px;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 18px;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.jobseeker-button {
+    background-color: rgb(138, 63, 171);
+    color: white;
+}
+
+.employer-button {
+    background-color: rgb(138, 63, 171);
+    color: white;
+}
+
+.role-button:hover {
+    background-color: rgb(227, 125, 252);
+    box-shadow: 0 0 10px rgb(26, 26, 26);
+    transform: translateY(-2px);
+}

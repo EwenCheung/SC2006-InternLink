@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer Profile</title>
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/Navigator_Bar.css">
+    <link rel="stylesheet" href="../../css/Employer/EP_Profile_Page.css">
+</head>
+<body>
+    <!-- Navigator Bar -->
+    <div class="navigator-bar">
+        <div class="main-nav">
+            <h1 class="fl"><a href="Post_Internship_Page.html">InternLink</a></h1>
+            <nav class="fr">
+                <ul>
+                    <li class="fl"><a href="Post_Internship_Page.html">Post Internship</a></li>
+                    <li class="fl"><a href="Post_AdHoc_Page.html">Post Ad Hoc</a></li>
+                    <li class="fl"><a href="#">Messages</a></li>
+                    <li class="fl"><a href="EP_Profile_Page.html" class="active">Profile</a></li>
+                    <li class="fl settings">
+                        <a href="#">Settings</a>
+                        <div class="settings-box">
+                            <div><a href="#">Profile Settings</a></div>
+                            <div><a href="#">Account Preferences</a></div>
+                            <div class="logout"><a href="EP_Email_Login_Page.html">Log Out</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-image">
+                <div class="image-container">
+                    <img src="../../Images/Logo2.png" alt="Company Logo" id="profileImage">
+                    <div class="image-overlay">
+                        <button class="change-photo-btn">Change Photo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="company-info">
+                <div class="header-row">
+                    <h1 id="companyName">Tech Solutions Pte Ltd</h1>
+                    <button class="edit-profile-btn" onclick="toggleEditMode()">Edit Profile</button>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>HR Contact Name</label>
+                        <p id="hrName" class="editable">John Smith</p>
+                        <input type="text" class="edit-input" id="hrNameInput" value="John Smith" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>HR Contact</label>
+                        <p id="hrContact" class="editable">+65 9123 4567</p>
+                        <input type="text" class="edit-input" id="hrContactInput" value="+65 9123 4567" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Year Started</label>
+                        <p id="yearStarted" class="editable">2010</p>
+                        <input type="number" class="edit-input" id="yearStartedInput" value="2010" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Based Country</label>
+                        <p id="country" class="editable">Singapore</p>
+                        <input type="text" class="edit-input" id="countryInput" value="Singapore" style="display: none;">
+                    </div>
+                    <div class="info-item">
+                        <label>Employee Size</label>
+                        <p id="employeeSize" class="editable">100-500</p>
+                        <select class="edit-input" id="employeeSizeInput" style="display: none;">
+                            <option value="1-10">1-10</option>
+                            <option value="11-50">11-50</option>
+                            <option value="51-100">51-100</option>
+                            <option value="100-500" selected>100-500</option>
+                            <option value="500+">500+</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="company-posts">
+            <h2>Job Posts</h2>
+            <div class="job-listings" id="companyJobListings">
+                <!-- Company jobs will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/employer_jobs.js"></script>
+    <script src="../../js/employer_profile.js"></script>
+</body>
+</html>

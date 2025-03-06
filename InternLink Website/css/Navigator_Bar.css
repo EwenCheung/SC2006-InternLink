@@ -1,11 +1,3 @@
-*{
-    box-sizing: border-box;
-}
-
-body{
-    font:14px/1.5 "Microsoft YaHei", Tahoma,"simsun",sans-serif;
-}
-
 .fl{
     float:left;
 }
@@ -15,16 +7,19 @@ body{
 }
 
 .navigator-bar {
-    width :100%;
+    position: fixed;
+    width: 100%;
     height: 60px;
-    background:rgba(233, 178, 242, 0.15);
+    background: rgba(233, 178, 242, 0.15);
+    top: 0;
+    left: 0;
+    z-index: 1000;
 }
 
 .navigator-bar .main-nav{
     width: 90%;
     height:100%;
     margin: 0 auto;
-    /* background: red; */
 }
 
 .navigator-bar .main-nav h1{
@@ -51,7 +46,6 @@ body{
 .navigator-bar .main-nav nav{
     width:580px;
     height: 100%;
-    /* background:green; */
 }
 
 .navigator-bar .main-nav nav ul{
@@ -68,10 +62,6 @@ body{
     margin-right: 5px;
     position: relative;
     text-align: center;
-
-    /* border: 3px solid #ccc; */
-    /* border-radius: 3px; */
-    /* background-color: aqua; */
 }
 
 .navigator-bar .main-nav nav ul li a{
@@ -95,13 +85,13 @@ body{
 .navigator-bar .main-nav nav ul li .settings-box {
     position: absolute;
     top: 100%;
-    left: 50%;  /* Center relative to the parent */
-    transform: translateX(-50%); /* Shift it left by half its width */
-    width: 180px; /* Set a proper width */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-    display: none; /* Initially hidden */
+    display: none;
     padding: 5px 0;
     z-index: 1000;
 }

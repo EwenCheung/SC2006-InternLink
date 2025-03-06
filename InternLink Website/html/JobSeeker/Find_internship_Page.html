@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Internship</title>
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/Navigator_Bar.css">
+    <link rel="stylesheet" href="../../css/JobSeeker/Find_Page.css">
+</head>
+<body>
+    <!-- Navigator Bar -->
+    <div class="navigator-bar">
+        <div class="main-nav">
+            <h1 class="fl"><a href="Find_internship_Page.html">InternLink</a></h1>
+            <nav class="fr">
+                <ul>
+                    <li class="fl"><a href="Find_internship_Page.html">Find Internship</a></li>
+                    <li class="fl"><a href="Find_AdHoc_Page.html">Find Ad Hoc</a></li>
+                    <li class="fl"><a href="#">Messages</a></li>
+                    <li class="fl"><a href="JS_Profile_Page.html">Profile</a></li>
+                    <li class="fl settings">
+                        <a href="#">Settings</a>
+                        <div class="settings-box">
+                            <div><a href="#">Profile Settings</a></div>
+                            <div><a href="#">Account Preferences</a></div>
+                            <div class="logout"><a href="JS_Email_Login_Page.html">Log Out</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="search-and-filter">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" placeholder="Search for internships...">
+                <button class="search-btn" onclick="handleSearch(event)">Search</button>
+            </div>
+            <button class="filter-btn" onclick="toggleFilter(event)">Filter</button>
+        </div>
+        <div class="filter-dropdown" id="filterDropdown">
+            <div class="filter-content">
+                <div class="filter-section">
+                    <h3>Location</h3>
+                    <select>
+                        <option value="">All Locations</option>
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                        <option value="central">Central</option>
+                    </select>
+                </div>
+                <div class="filter-section">
+                    <h3>Course</h3>
+                    <select>
+                        <option value="">All Courses</option>
+                        <option value="cs">Computer Science</option>
+                        <option value="ee">Electrical Engineering</option>
+                        <option value="me">Mechanical Engineering</option>
+                        <option value="business">Business</option>
+                    </select>
+                </div>
+                <div class="filter-section">
+                    <h3>Year of Study</h3>
+                    <select>
+                        <option value="">All Years</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="job-listings" id="jobListings">
+        <!-- Jobs will be dynamically added here -->
+    </div>
+
+    <script src="../../js/jobseeker.js"></script>
+</body>
+</html>
