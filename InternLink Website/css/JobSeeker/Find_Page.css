@@ -1,3 +1,6 @@
+body{
+    background-color: #d7dbe0;
+}
 .search-and-filter {
     display: block;
     width: 100%;
@@ -39,12 +42,13 @@
 }
 
 .search-btn {
-    background-color: #007bff;
+    background-color: #840fab;
+
     color: white;
 }
 
 .search-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
 }
 
 .filter-btn {
@@ -119,7 +123,7 @@
     background: white;
     border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -193,16 +197,16 @@
 .see-details-btn {
     border: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: 7px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s;
-    background-color: #007bff;
+    background-color: #840fab;
     color: white;
 }
 
 .see-details-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
 }
 
 /* Responsive Grid */

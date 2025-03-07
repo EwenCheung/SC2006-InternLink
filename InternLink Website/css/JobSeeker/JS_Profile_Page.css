@@ -1,3 +1,6 @@
+body{
+    background-color: #d7dbe0;
+}
 .profile-container {
     max-width: 1200px;
     margin: 80px auto 30px;
@@ -59,7 +62,7 @@
 
 .change-photo-btn {
     padding: 8px 16px;
-    background-color: #007bff;
+    background-color: #353535;
     color: white;
     border: none;
     border-radius: 5px;
@@ -70,7 +73,7 @@
 }
 
 .change-photo-btn:hover {
-    background-color: #0056b3;
+    background-color: #646464;
 }
 
 .header-row {
@@ -82,7 +85,7 @@
 
 .edit-profile-btn {
     padding: 8px 16px;
-    background-color: #28a745;
+    background-color: #353535;
     color: white;
     border: none;
     border-radius: 5px;
@@ -92,7 +95,7 @@
 }
 
 .edit-profile-btn:hover {
-    background-color: #218838;
+    background-color: #646464;
 }
 
 .personal-info {
@@ -101,7 +104,7 @@
 
 .personal-info h1 {
     font-size: 28px;
-    color: #333;
+    color: #333232;
     margin-bottom: 25px;
 }
 
@@ -250,17 +253,17 @@
 
 .see-details-btn {
     padding: 6px 12px;
-    background-color: #007bff;
+    background-color: #840fab;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 7px;
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 .see-details-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
 }
 
 /* Responsive design */
