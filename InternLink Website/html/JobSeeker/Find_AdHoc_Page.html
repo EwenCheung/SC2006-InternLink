@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find Ad Hoc</title>
+    <title>Find Ad Hoc Jobs</title>
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/Navigator_Bar.css">
     <link rel="stylesheet" href="../../css/JobSeeker/Find_Page.css">
@@ -32,7 +32,6 @@
         </div>
     </div>
 
-    <!-- Search and Filter -->
     <div class="search-and-filter">
         <div class="search-container">
             <div class="search-box">
@@ -57,33 +56,30 @@
                 <div class="filter-section">
                     <h3>Duration</h3>
                     <select>
-                        <option value="">Any Duration</option>
-                        <option value="1day">1 Day</option>
-                        <option value="2-3days">2-3 Days</option>
-                        <option value="1week">1 Week</option>
-                        <option value="2weeks">2 Weeks</option>
+                        <option value="">All Durations</option>
+                        <option value="1">1 Day</option>
+                        <option value="2">2 Days</option>
+                        <option value="3">3 Days</option>
+                        <option value="4">4+ Days</option>
                     </select>
                 </div>
                 <div class="filter-section">
                     <h3>Pay Range</h3>
                     <select>
                         <option value="">All Ranges</option>
-                        <option value="0-50">$0-$50/day</option>
-                        <option value="51-100">$51-$100/day</option>
-                        <option value="101-150">$101-$150/day</option>
-                        <option value="151+">$151+/day</option>
+                        <option value="80">$80-100 per day</option>
+                        <option value="100">$100-120 per day</option>
+                        <option value="120">$120+ per day</option>
                     </select>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../../js/jobseeker.js"></script>
-
-    <!-- Job Listings -->
-    <div class="job-listings">
-        <!-- Jobs will be dynamically populated by JavaScript -->
+    <div class="job-listings" id="jobListings">
+        <!-- Jobs will be dynamically added here -->
     </div>
 
+    <script src="../../js/jobseeker_adhoc.js"></script>
 </body>
 </html>

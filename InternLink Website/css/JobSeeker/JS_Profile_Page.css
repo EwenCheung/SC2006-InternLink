@@ -241,6 +241,28 @@
     color: white;
 }
 
+.application-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.see-details-btn {
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.see-details-btn:hover {
+    background-color: #0056b3;
+}
+
 /* Responsive design */
 @media (max-width: 1200px) {
     .job-listings {

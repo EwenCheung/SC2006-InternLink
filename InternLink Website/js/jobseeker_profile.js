@@ -160,8 +160,13 @@ function displayApplications() {
                 <span class="location">📍 ${job.location}</span>
                 ${job.requirements.map(req => `<span>${req}</span>`).join('')}
             </div>
-            <div class="application-status status-${job.status}">
-                ${job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+            <div class="application-info">
+                <div class="application-status status-${job.status}">
+                    ${job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                </div>
+                <button class="see-details-btn" onclick="window.location.href='JS_JobDetails_Page.html?id=${job.id}'">
+                    See Details
+                </button>
             </div>
         `;
 
