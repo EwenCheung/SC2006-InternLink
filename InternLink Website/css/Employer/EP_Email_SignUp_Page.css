@@ -146,6 +146,7 @@ body {
 .sign-up-button:hover {
     background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    transform:translateY(-2px);
 }
 
 .back-button {
@@ -167,4 +168,5 @@ body {
 .back-button:hover {
     background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    transform: translateY(-2px);
 }
