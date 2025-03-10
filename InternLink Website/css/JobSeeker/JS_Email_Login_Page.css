@@ -66,7 +66,6 @@ body {
 
 
 .title-showing {
-    font-family: 'Roboto', cursive;
     font-weight: 400;
     font-size: 24px;
     text-align: center;
@@ -170,3 +169,5 @@ body {
 .back-button:hover {
     background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    transform: translateY(-2px);
+}

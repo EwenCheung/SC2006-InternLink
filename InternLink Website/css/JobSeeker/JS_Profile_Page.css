@@ -260,10 +260,13 @@ body{
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s;
+
 }
 
 .see-details-btn:hover {
     background-color: #c538fd;
+    transform:translateY(-2px);
+    box-shadow: 0 0 5px rgba(26,26,26);
 }
 
 /* Responsive design */

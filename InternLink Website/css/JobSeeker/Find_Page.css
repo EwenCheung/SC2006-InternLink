@@ -43,7 +43,6 @@ body{
 
 .search-btn {
     background-color: #840fab;
-
     color: white;
 }
 
@@ -52,12 +51,12 @@ body{
 }
 
 .filter-btn {
-    background-color: #6c757d;
+    background-color: #353535;
     color: white;
 }
 
 .filter-btn:hover {
-    background-color: #545b62;
+    background-color: #646464;
 }
 
 .filter-dropdown {
@@ -197,7 +196,7 @@ body{
 .see-details-btn {
     border: none;
     padding: 8px 16px;
-    border-radius: 7px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s;
@@ -207,8 +206,11 @@ body{
 
 .see-details-btn:hover {
     background-color: #c538fd;
+    transform:translateY(-2px);
+    box-shadow: 0 0 5px rgba(26,26,26);
 }
 
+/* Responsive Grid */
 /* Responsive Grid */
 @media (max-width: 1200px) {
     .job-listings {
