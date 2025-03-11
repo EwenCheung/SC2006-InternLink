@@ -221,12 +221,14 @@ body{
 }
 
 .application-status {
-    padding: 6px 12px;
-    border-radius: 15px;
+    padding: 6px 12px; 
+    border-radius: 15px; 
     font-size: 12px;
     font-weight: 500;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 0; 
+    flex: 0; 
+    align-self: center; 
 }
 
 .status-pending {
@@ -249,6 +251,7 @@ body{
     justify-content: space-between;
     align-items: center;
     margin-top: 15px;
+    gap: 10px; /* Add gap between status and button */
 }
 
 .see-details-btn {
@@ -260,7 +263,6 @@ body{
     font-size: 12px;
     cursor: pointer;
     transition: background-color 0.3s;
-
 }
 
 .see-details-btn:hover {

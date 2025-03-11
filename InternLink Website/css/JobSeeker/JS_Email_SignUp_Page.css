@@ -1,8 +1,9 @@
+@import url("https://fonts.cdnfonts.com/css/pf-din-text");
 body {
     background: linear-gradient(to right, rgb(253, 198, 251), rgb(135, 22, 255));
 }
 
-.choose-role {
+.signup-container {
     margin: 0 auto;
     position: absolute;
     top: 50%;
@@ -42,15 +43,21 @@ body {
     flex-direction: column;
 }
 
-.signin-title {
-    font-size: 24px;
+.signup-title {
+    font-size: 32px;
     font-weight: 500;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 60px;
     text-align: center;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+.form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    padding: 0 20px;
+}
 
 .showcase-image {
     width: 80%;
@@ -59,9 +66,9 @@ body {
 }
 
 .title-showing {
-    font-family: 'Playfair Display', serif;
+    font-family: 'PF Din Text', sans-serif;
     font-weight: 400;
-    font-size: 24px;
+    font-size: 32px;
     text-align: center;
     margin-top: 20px;
 }
@@ -82,7 +89,11 @@ body {
     white-space: nowrap;
 }
 
-.input-field {
+.input-field,
+#birthdate,
+#school,
+#course,
+#year-of-study {
     flex: 0 0 250px;
     padding: 8px;
     border: 1px solid #ddd;
@@ -91,33 +102,8 @@ body {
     box-sizing: border-box;
     transition: border-color 0.3s;
     overflow: auto;
-    resize: vertical;
     min-height: 36px;
     line-height: 1.4;
-    word-wrap: break-word;
-}
-
-.input-field::-webkit-scrollbar,
-.right-section::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-
-.input-field::-webkit-scrollbar-track,
-.right-section::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.input-field::-webkit-scrollbar-thumb,
-.right-section::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 3px;
-}
-
-.input-field::-webkit-scrollbar-thumb:hover,
-.right-section::-webkit-scrollbar-thumb:hover {
-    background: #555;
 }
 
 .input-field:focus {
@@ -130,7 +116,7 @@ body {
     color: #999;
 }
 
-.sign-up-button {
+.signup-button {
     color: white;
     padding: 10px 20px;
     border-radius: 10px;
@@ -138,17 +124,36 @@ body {
     cursor: pointer;
     width: fit-content;
     align-self: center;
-    margin-top: 15px;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
 }
 
-.sign-up-button a {
+.signup-button a {
     text-decoration: none;
-    color: rgb(255, 255, 255);
+    color: #ffffff;
 }
 
-.sign-up-button:hover {
+.signup-button:hover {
     background-color: rgb(227, 125, 252);
     box-shadow: 0 0 10px rgb(26, 26, 26);
+    transform: translateY(-2px);
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+}
+
+.login-link a {
+    color: rgb(138, 63, 171);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    color: rgb(227, 125, 252);
 }
 
 .back-button {
@@ -160,6 +165,8 @@ body {
     background-color: rgb(138, 63, 171);
     cursor: pointer;
     z-index: 1;
+    z-index: 1;
+
 }
 
 .back-button a {

@@ -1,3 +1,4 @@
+@import url("https://fonts.cdnfonts.com/css/pf-din-text");
 body {
     background: linear-gradient(to right, rgb(253, 198, 251), rgb(135, 22, 255));
 }
@@ -65,8 +66,9 @@ body {
 }
 
 .title-showing {
+    font-family: 'PF Din Text', sans-serif;
     font-weight: 400;
-    font-size: 24px;
+    font-size: 32px;
     text-align: center;
     margin-top: 20px;
 }

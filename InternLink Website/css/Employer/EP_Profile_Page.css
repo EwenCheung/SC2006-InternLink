@@ -59,7 +59,7 @@
 
 .change-photo-btn {
     padding: 8px 16px;
-    background-color: #007bff;
+    background-color: #353535;
     color: white;
     border: none;
     border-radius: 5px;
@@ -70,7 +70,7 @@
 }
 
 .change-photo-btn:hover {
-    background-color: #0056b3;
+    background-color: #646464;
 }
 
 .header-row {
@@ -82,7 +82,7 @@
 
 .edit-profile-btn {
     padding: 8px 16px;
-    background-color: #28a745;
+    background-color: #353535;
     color: white;
     border: none;
     border-radius: 5px;
@@ -92,7 +92,8 @@
 }
 
 .edit-profile-btn:hover {
-    background-color: #218838;
+    background-color: #646464;
+    box-shadow: 0 0 5px rgba(26,26,26);
 }
 
 .company-info {
@@ -239,21 +240,25 @@
 }
 
 .see-details-btn {
-    background-color: #007bff;
+    background-color: #840fab;
     color: white;
 }
 
 .see-details-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
+    transform: translateY(-2px);
+    box-shadow: 0 0 5px rgba(26, 26, 26);
 }
 
 .delete-btn {
-    background-color: #dc3545;
+    background-color: #c00013;
     color: white;
 }
 
 .delete-btn:hover {
-    background-color: #c82333;
+    background-color: #e13c4c;
+    transform: translateY(-2px);
+    box-shadow: 0 0 5px rgba(26, 26, 26);
 }
 
 /* Responsive design */
