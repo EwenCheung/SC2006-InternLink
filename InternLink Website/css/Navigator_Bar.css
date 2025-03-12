@@ -78,7 +78,7 @@
 
 .navigator-bar .main-nav nav ul li:hover{
     border-bottom: 7px solid #891c93;
-    background-color: linear-gradient(rgb(93, 93, 93), rgb(255, 255, 255));
+    background-color: #87368f39;
     
 }
 
