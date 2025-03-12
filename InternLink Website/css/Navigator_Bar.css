@@ -77,9 +77,9 @@
 }
 
 .navigator-bar .main-nav nav ul li:hover{
-    background-color: #c98fce;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+    border-bottom: 7px solid #891c93;
+    background-color: linear-gradient(rgb(93, 93, 93), rgb(255, 255, 255));
+    
 }
 
 /* Dropdown Toolbox (Initially Hidden) */

@@ -47,21 +47,21 @@ body {
 }
 
 .search-btn {
-    background-color: #007bff;
+    background-color: #840fab;
     color: white;
 }
 
 .search-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
 }
 
 .filter-btn {
-    background-color: #6c757d;
+    background-color: #353535;
     color: white;
 }
 
 .filter-btn:hover {
-    background-color: #545b62;
+    background-color: #646464;
 }
 
 .filter-dropdown {
@@ -187,47 +187,51 @@ body {
 .see-details-btn, .delete-btn {
     border: none;
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: 7px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s;
 }
 
 .see-details-btn {
-    background-color: #007bff;
+    background-color: #840fab;
     color: white;
 }
 
 .see-details-btn:hover {
-    background-color: #0056b3;
+    background-color: #c538fd;
+    transform:translateY(-2px);
+    box-shadow: 0 0 5px rgba(26,26,26);
 }
 
 .delete-btn {
-    background-color: #dc3545;
+    background-color: #c91628;
     color: white;
 }
 
 .delete-btn:hover {
-    background-color: #c82333;
+    background-color: #e44253;
+    transform: translateY(-2px);
+    box-shadow: 0 0 5px rgba(26,26,26);
 }
 
 .post-job-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #28a745;
+    background-color: #03b32c;
     color: white;
     padding: 12px 24px;
     border: none;
     border-radius: 50px;
     cursor: pointer;
     font-size: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 10px rgb(71, 70, 70);
     transition: background-color 0.3s, transform 0.2s;
 }
 
 .post-job-btn:hover {
-    background-color: #218838;
+    background-color: #2fd453;
     transform: translateY(-2px);
 }
 
