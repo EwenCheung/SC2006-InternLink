@@ -341,7 +341,7 @@ function createJobElement(job) {
     jobInfo += `
         </div>
         <div class="button-container">
-            <button onclick="window.location.href='EP_JobDetails_Page.html?id=${job._id}'" class="see-details-btn">See Details</button>
+            <button onclick="seeDetails('${job._id}')" class="see-details-btn">View Details</button>
             <button onclick="deleteJob('${job._id}')" class="delete-btn">Delete</button>
         </div>
     `;
