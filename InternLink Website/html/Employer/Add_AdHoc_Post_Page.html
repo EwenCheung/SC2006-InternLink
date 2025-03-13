@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Job Post</title>
-    <link rel="stylesheet" href="../../css/Employer/Post_Page.css">
+    <link rel="stylesheet" href="../../css/Employer/Add_AdHoc_Post_Page.css">
 </head>
 <body>
     <div class="container">
-        <h1>Add Job Post</h1>
+        <h1>Add AdHoc Posting</h1>
         <form id="addPostForm">
             <div class="form-group">
                 <label for="jobTitle">Job Title</label>
@@ -16,10 +16,7 @@
             </div>
             <div class="form-group">
                 <label for="jobType">Job Type</label>
-                <select id="jobType" name="jobType" required>
-                    <option value="adhoc">Ad-Hoc</option>
-                    <option value="internship">Internship</option>
-                </select>
+                <input type = "text" id = "jobType" name = "jobType" value= "AdHoc" readonly>
             </div>
             <div class="form-group">
                 <label for="jobDescription">Job Description</label>
@@ -33,12 +30,28 @@
                 <label for="jobLocation">Job Location</label>
                 <input type="text" id="jobLocation" name="jobLocation" required>
             </div>
-            <div class="form-group">
-                <label for="jobDuration">Job Duration</label>
-                <input type="text" id="jobDuration" name="jobDuration" required>
+            <div class="form-group time-container">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" name="startDate">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" name="endDate">
             </div>
-            <button type="submit">Submit</button>
-        </form>
+            <div class="form-group">
+                <label for="salary">Wage per hour</label>
+                <input type="text" id="salary" name="salary" placeholder="Enter salary">
+            </div>
+            <div class="button-container">
+                <button type="button" id="cancelButton">Cancel</button>
+                <button type="submit">Submit</button>
+            </div>
+    
     </div>
+</form>
+    </div>
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function() {
+        window.location.href = 'Post_AdHoc_Page.html';
+    });
+</script>
 </body>
 </html>

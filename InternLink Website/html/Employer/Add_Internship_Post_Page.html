@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Internship Post</title>
+    <link rel="stylesheet" href="../../css/Employer/Add_Internship_Post_Page.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Internship Posting</h1>
+        <form id="addPostForm">
+            <div class="form-group">
+                <label for="jobTitle">Job Title</label>
+                <input type="text" id="jobTitle" name="jobTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="jobType">Job Type</label>
+                <input type="text" id="jobType" name="jobType" value="Internship" readonly>
+            </div>
+            <div class="form-group">
+                <label for="jobDescription">Job Description</label>
+                <textarea id="jobDescription" name="jobDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="jobRequirements">Job Requirements</label>
+                <textarea id="jobRequirements" name="jobRequirements" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="jobLocation">Job Location</label>
+                <input type="text" id="jobLocation" name="jobLocation" required>
+            </div>
+            <div class="form-group time-container">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" name="startDate">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" name="endDate">
+            </div>
+            <div class="form-group">
+                <label for="salary">Range of Salary per month</label>
+                <input type="text" id="salary" name="salary" placeholder="Enter salary">
+            </div>
+    
+            <div class="button-container">
+                <button type="button" id="cancelButton">Cancel</button>
+                <button type="submit">Submit</button>
+            </div>
+    
+</form>
+    </div>
+<script>
+    document.getElementById('cancelButton').addEventListener('click', function() {
+        window.location.href = 'Post_Internship_Page.html';
+    });
+</script>
+</body>
+</html>
