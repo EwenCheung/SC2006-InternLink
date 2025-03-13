@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/Navigator_Bar.css">
+    <link rel="stylesheet" href="../css/messages.css">
+</head>
+<body data-role="jobseeker">
+    <!-- Navigator Bar -->
+    <div class="navigator-bar">
+        <div class="main-nav">
+            <h1 class="fl"><a href="JobSeeker/Find_internship_Page.html">InternLink</a></h1>
+            <nav class="fr">
+                <ul>
+                    <li class="fl"><a href="JobSeeker/Find_internship_Page.html">Find Internship</a></li>
+                    <li class="fl"><a href="JobSeeker/Find_AdHoc_Page.html">Find Ad Hoc</a></li>
+                    <li class="fl"><a href="messages.html" class="active">Messages</a></li>
+                    <li class="fl"><a href="JobSeeker/JS_Profile_Page.html">Profile</a></li>
+                    <li class="fl settings">
+                        <a href="#">Settings</a>
+                        <div class="settings-box">
+                            <div><a href="#">Profile Settings</a></div>
+                            <div><a href="#">Account Preferences</a></div>
+                            <div class="logout"><a href="JobSeeker/JS_Email_Login_Page.html">Log Out</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div class="users-panel">
+            <div class="search-container">
+                <input type="text" placeholder="Search contacts...">
+            </div>
+            <div class="users-list">
+            <!-- User list will be populated by JavaScript -->
+            </div>
+        </div>
+        <div class="chat-panel">
+            <div class="chat-header">
+                <img src="https://via.placeholder.com/40" alt="Current Chat User">
+                <h3>John Doe</h3>
+            </div>
+            <div class="messages-container">
+                <!-- Messages will be populated by JavaScript -->
+            </div>
+            <div class="message-input">
+                <input type="text" placeholder="Type a message...">
+                <button>Send</button>
+            </div>
+        </div>
+    </div>
+    <script src="../js/messages.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Example job listings data (replace with actual data from backend)
+// Use the same job data from jobseeker_details.js
 const jobs = [
     {
         id: "1",
@@ -9,7 +9,8 @@ const jobs = [
         requirements: ["JavaScript", "React", "Node.js"],
         yearRequired: "Year 2",
         duration: "3 months",
-        courseRequired: "Computer Science"
+        courseRequired: "Computer Science",
+        salary: "$1000/month"
     },
     {
         id: "2",
@@ -20,7 +21,8 @@ const jobs = [
         requirements: ["Python", "SQL", "Data Visualization"],
         yearRequired: "Year 3",
         duration: "6 months",
-        courseRequired: "Data Science"
+        courseRequired: "Data Science",
+        salary: "$1200/month"
     },
     {
         id: "3",
@@ -31,7 +33,8 @@ const jobs = [
         requirements: ["Social Media", "Content Creation", "Analytics"],
         yearRequired: "Year 2",
         duration: "4 months",
-        courseRequired: "Marketing"
+        courseRequired: "Marketing",
+        salary: "$900/month"
     },
     {
         id: "4",
@@ -42,7 +45,8 @@ const jobs = [
         requirements: ["Figma", "Adobe XD", "User Research"],
         yearRequired: "Year 2",
         duration: "3 months",
-        courseRequired: "Design"
+        courseRequired: "Design",
+        salary: "$1100/month"
     },
     {
         id: "5",
@@ -53,7 +57,8 @@ const jobs = [
         requirements: ["Excel", "Financial Analysis", "Bloomberg"],
         yearRequired: "Year 3",
         duration: "6 months",
-        courseRequired: "Finance"
+        courseRequired: "Finance",
+        salary: "$1300/month"
     },
     {
         id: "6",
@@ -64,7 +69,8 @@ const jobs = [
         requirements: ["AutoCAD", "SolidWorks", "3D Modeling"],
         yearRequired: "Year 3",
         duration: "4 months",
-        courseRequired: "Mechanical Engineering"
+        courseRequired: "Mechanical Engineering",
+        salary: "$1200/month"
     }
 ];
 
@@ -150,6 +156,8 @@ function displayFilteredJobs(filteredJobs) {
 function seeDetails(jobId) {
     // Store the selected job ID in localStorage
     localStorage.setItem('selectedJobId', jobId);
+    // Store the referrer page for back button
+    localStorage.setItem('jobListingReferrer', 'Find_internship_Page.html');
     // Redirect to job details page
     window.location.href = 'JS_JobDetails_Page.html';
 }

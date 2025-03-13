@@ -150,8 +150,10 @@ function displayFilteredAdhocJobs(filteredJobs) {
 function seeDetails(jobId) {
     // Store the selected job ID in localStorage
     localStorage.setItem('selectedJobId', jobId);
-    // Redirect to job details page
-    window.location.href = 'JS_JobDetails_Page.html';
+    // Store the referrer page for back button
+    localStorage.setItem('jobListingReferrer', 'Find_AdHoc_Page.html');
+    // Redirect to ad hoc job details page
+    window.location.href = 'JS_AdHocDetails_Page.html';
 }
 
 // Close filter dropdown when clicking outside

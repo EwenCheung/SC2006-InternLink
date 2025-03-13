@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Hoc Job Details - InternLink</title>
+    <link rel="stylesheet" href="../../css/reset.css">
+    <link rel="stylesheet" href="../../css/Navigator_Bar.css">
+    <link rel="stylesheet" href="../../css/Employer/EP_JobDetails_Page.css">
+</head>
+<body>
+    <!-- Navigator Bar -->
+    <div class="navigator-bar">
+        <div class="main-nav">
+            <h1 class="fl"><a href="Post_AdHoc_Page.html">InternLink</a></h1>
+            <nav class="fr">
+                <ul>
+                    <li class="fl"><a href="Post_Internship_Page.html">Post Internship</a></li>
+                    <li class="fl"><a href="Post_AdHoc_Page.html">Post Ad Hoc</a></li>
+                    <li class="fl"><a href="../messages.html">Messages</a></li>
+                    <li class="fl"><a href="EP_Profile_Page.html">Profile</a></li>
+                    <li class="fl settings">
+                        <a href="#">Settings</a>
+                        <div class="settings-box">
+                            <div><a href="#">Profile Settings</a></div>
+                            <div><a href="#">Account Preferences</a></div>
+                            <div class="logout"><a href="EP_Email_Login_Page.html">Log Out</a></div>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="job-details-container">
+        <button class="back-btn" onclick="handleBack()"><a href="../Employer/Post_AdHoc_Page.html">← Back to Listings</a></button>
+        <!-- Job Header Section -->
+        <div class="job-header">
+            <div class="company-info">
+                <img src="../../Images/Logo2.png" alt="Company Logo" class="company-logo">
+                <div class="basic-info">
+                    <h1 class="job-title">Event Assistant</h1>
+                    <h2 class="company-name">Tech Solutions Pte Ltd</h2>
+                    <div class="quick-info">
+                        <span class="location">📍 Central</span>
+                        <span class="duration">⏱️ 2 days</span>
+                        <span class="pay">💰 $100/day</span>
+                    </div>
+                </div>
+            </div>
+            <div class="deadline-info">
+                <div class="event-timer">
+                    <span class="event-label">Event Date</span>
+                    <span class="event-date">March 31, 2024</span>
+                    <span class="time-remaining">19 days away</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="main-content">
+                <!-- Company Section -->
+                <section class="company-section">
+                    <h3>About the Company</h3>
+                    <p class="company-description">
+                        Tech Solutions Pte Ltd is a leading technology company specializing in innovative software solutions.
+                        We deliver exceptional experiences through innovative solutions.
+                    </p>
+                    <div class="company-details">
+                        <div class="detail-item">
+                            <span class="label">Industry:</span>
+                            <span class="value">Event Management</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Company Size:</span>
+                            <span class="value">20-50 employees</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Website:</span>
+                            <span class="value"><a href="#" target="_blank">www.techsolutions.com</a></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">Location:</span>
+                            <span class="value">Central Business District, Singapore</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Job Details Section -->
+                <section class="job-details-section">
+                    <h3>Job Description</h3>
+                    <div class="description">
+                        <p>
+                            We are seeking enthusiastic Event Assistants for our upcoming tech conference.
+                            This is a great opportunity to gain hands-on experience in event management and
+                            expand your professional network.
+                        </p>
+                    </div>
+
+                    <h4>Responsibilities</h4>
+                    <ul class="responsibilities-list">
+                        <li>Assist with event registration and check-in</li>
+                        <li>Guide attendees and manage crowd flow</li>
+                        <li>Support event logistics and setup</li>
+                        <li>Help coordinate with vendors and speakers</li>
+                        <li>Ensure smooth event operations</li>
+                    </ul>
+
+                    <h4>Requirements</h4>
+                    <div class="requirements">
+                        <div class="skills-required">
+                            <span>Communication</span>
+                            <span>Organization</span>
+                            <span>Customer Service</span>
+                        </div>
+                        <ul class="requirements-list">
+                            <li>Strong communication skills</li>
+                            <li>Ability to work in a fast-paced environment</li>
+                            <li>Professional appearance and attitude</li>
+                            <li>Available for both event days</li>
+                        </ul>
+                    </div>
+
+                    <div class="additional-info">
+                        <h4>Benefits & Perks</h4>
+                        <ul class="benefits-list">
+                            <li>Daily pay: $100/day</li>
+                            <li>Meals provided</li>
+                            <li>Transport allowance</li>
+                            <li>Certificate of participation</li>
+                            <li>Networking opportunities</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Applicants List Section -->
+                <section class="applicants-section">
+                    <h3>Applicants <span class="applicant-count">(15)</span></h3>
+                    <div class="applicants-list">
+                        <!-- Applicants will be populated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+
+            <!-- Management Sidebar -->
+            <aside class="management-sidebar">
+                <div class="management-card">
+                    <h3>Job Status</h3>
+                    <div class="status-info">
+                        <p class="posting-date">Posted on March 1, 2024</p>
+                        <p class="applicants">15 people have applied</p>
+                        <p class="views">98 views</p>
+                    </div>
+                    <div class="manage-buttons">
+                        <button class="edit-btn" onclick="handleEdit()">Edit Post</button>
+                        <button class="delete-btn" onclick="showDeleteConfirmation()">Delete Post</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2>Delete Job Post</h2>
+            <p>Are you sure you want to delete this job post?</p>
+            <p class="warning">This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideDeleteConfirmation()">Cancel</button>
+                <button class="confirm-delete-btn" onclick="handleDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/employer_adhoc_details.js"></script>
+</body>
+</html>

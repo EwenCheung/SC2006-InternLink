@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Details - InternLink</title>
+    <title>Internship Details - InternLink</title>
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/Navigator_Bar.css">
-    <link rel="stylesheet" href="../../css/JobSeeker/JS_JobDetails_Page.css">
+    <link rel="stylesheet" href="../../css/Employer/EP_JobDetails_Page.css">
 </head>
 <body>
     <!-- Navigator Bar -->
     <div class="navigator-bar">
         <div class="main-nav">
-            <h1 class="fl"><a href="Find_internship_Page.html">InternLink</a></h1>
+            <h1 class="fl"><a href="Post_Internship_Page.html">InternLink</a></h1>
             <nav class="fr">
                 <ul>
-                    <li class="fl"><a href="Find_internship_Page.html">Find Internship</a></li>
-                    <li class="fl"><a href="Find_AdHoc_Page.html">Find Ad Hoc</a></li>
+                    <li class="fl"><a href="Post_Internship_Page.html">Post Internship</a></li>
+                    <li class="fl"><a href="Post_AdHoc_Page.html">Post Ad Hoc</a></li>
                     <li class="fl"><a href="../messages.html">Messages</a></li>
-                    <li class="fl"><a href="JS_Profile_Page.html">Profile</a></li>
+                    <li class="fl"><a href="EP_Profile_Page.html">Profile</a></li>
                     <li class="fl settings">
                         <a href="#">Settings</a>
                         <div class="settings-box">
                             <div><a href="#">Profile Settings</a></div>
                             <div><a href="#">Account Preferences</a></div>
-                            <div class="logout"><a href="JS_Email_Login_Page.html">Log Out</a></div>
+                            <div class="logout"><a href="EP_Email_Login_Page.html">Log Out</a></div>
                         </div>
                     </li>
                 </ul>
@@ -134,33 +134,46 @@
                     </div>
                 </section>
 
-                <!-- Similar Jobs Section -->
-                <section class="similar-jobs">
-                    <h3>Similar Jobs</h3>
-                    <div class="similar-jobs-list">
-                        <!-- Similar jobs will be populated by JavaScript -->
+                <!-- Applicants List Section -->
+                <section class="applicants-section">
+                    <h3>Applicants <span class="applicant-count">(25)</span></h3>
+                    <div class="applicants-list">
+                        <!-- Applicants will be populated by JavaScript -->
                     </div>
                 </section>
             </div>
 
-            <!-- Application Sidebar -->
-            <aside class="application-sidebar">
-                <div class="application-card">
-                    <h3>Apply Now</h3>
-                    <div class="application-info">
-                        <p class="deadline">Application closes on March 31, 2024</p>
+            <!-- Management Sidebar -->
+            <aside class="management-sidebar">
+                <div class="management-card">
+                    <h3>Job Status</h3>
+                    <div class="status-info">
+                        <p class="posting-date">Posted on March 1, 2024</p>
                         <p class="applicants">25 people have applied</p>
+                        <p class="views">152 views</p>
                     </div>
-                    <div class="action-buttons">
-                        <button class="apply-btn">Apply for Position</button>
-                        <button class="message-btn">Message Employer</button>
-                        <button class="share-btn">Share Job</button>
+                    <div class="manage-buttons">
+                        <button class="edit-btn" onclick="handleEdit()">Edit Post</button>
+                        <button class="delete-btn" onclick="showDeleteConfirmation()">Delete Post</button>
                     </div>
                 </div>
             </aside>
         </div>
     </div>
 
-    <script src="../../js/jobseeker_details.js"></script>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <h2>Delete Job Post</h2>
+            <p>Are you sure you want to delete this job post?</p>
+            <p class="warning">This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button class="cancel-btn" onclick="hideDeleteConfirmation()">Cancel</button>
+                <button class="confirm-delete-btn" onclick="handleDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/employer_internship_details.js"></script>
 </body>
 </html>
