@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Job Post</title>
+    <link rel="stylesheet" href="../../css/Employer/Post_Page.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Add Job Post</h1>
+        <form id="addPostForm">
+            <div class="form-group">
+                <label for="jobTitle">Job Title</label>
+                <input type="text" id="jobTitle" name="jobTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="jobType">Job Type</label>
+                <select id="jobType" name="jobType" required>
+                    <option value="adhoc">Ad-Hoc</option>
+                    <option value="internship">Internship</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="jobDescription">Job Description</label>
+                <textarea id="jobDescription" name="jobDescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="jobRequirements">Job Requirements</label>
+                <textarea id="jobRequirements" name="jobRequirements" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="jobLocation">Job Location</label>
+                <input type="text" id="jobLocation" name="jobLocation" required>
+            </div>
+            <div class="form-group">
+                <label for="jobDuration">Job Duration</label>
+                <input type="text" id="jobDuration" name="jobDuration" required>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
