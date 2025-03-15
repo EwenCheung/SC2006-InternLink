@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Ad Hoc</title>
+    <title>Find Ad Hoc Jobs</title>
     <link rel="stylesheet" href="../../css/reset.css">
     <link rel="stylesheet" href="../../css/Navigator_Bar.css">
-    <link rel="stylesheet" href="../../css/Employer/Post_Page.css">
+    <link rel="stylesheet" href="../../css/JobSeeker/Find_Page.css">
 </head>
 <body>
     <!-- Navigator Bar -->
     <div class="navigator-bar">
         <div class="main-nav">
-            <h1 class="fl"><a href="Post_Internship_Page.html">InternLink</a></h1>
+            <h1 class="fl"><a href="Find_internship_Page.html">InternLink</a></h1>
             <nav class="fr">
                 <ul>
-                    <li class="fl"><a href="Post_Internship_Page.html">Post Internship</a></li>
-                    <li class="fl"><a href="Post_AdHoc_Page.html">Post Ad Hoc</a></li>
+                    <li class="fl"><a href="Find_internship_Page.html">Find Internship</a></li>
+                    <li class="fl"><a href="Find_AdHoc_Page.html">Find Ad Hoc</a></li>
                     <li class="fl"><a href="../messages.html">Messages</a></li>
-                    <li class="fl"><a href="EP_Profile_Page.html">Profile</a></li>
+                    <li class="fl"><a href="JS_Profile_Page.html">Profile</a></li>
                     <li class="fl settings">
                         <a href="#">Settings</a>
                         <div class="settings-box">
                             <div><a href="#">Profile Settings</a></div>
                             <div><a href="#">Account Preferences</a></div>
-                            <div class="logout"><a href="EP_Email_Login_Page.html">Log Out</a></div>
+                            <div class="logout"><a href="JS_Email_Login_Page.html">Log Out</a></div>
                         </div>
                     </li>
                 </ul>
@@ -56,21 +56,20 @@
                 <div class="filter-section">
                     <h3>Duration</h3>
                     <select>
-                        <option value="">Any Duration</option>
-                        <option value="1day">1 Day</option>
-                        <option value="2-3days">2-3 Days</option>
-                        <option value="1week">1 Week</option>
-                        <option value="2weeks">2 Weeks</option>
+                        <option value="">All Durations</option>
+                        <option value="1">1 Day</option>
+                        <option value="2">2 Days</option>
+                        <option value="3">3 Days</option>
+                        <option value="4">4+ Days</option>
                     </select>
                 </div>
                 <div class="filter-section">
                     <h3>Pay Range</h3>
                     <select>
                         <option value="">All Ranges</option>
-                        <option value="0-50">$0-$50/day</option>
-                        <option value="51-100">$51-$100/day</option>
-                        <option value="101-150">$101-$150/day</option>
-                        <option value="151+">$151+/day</option>
+                        <option value="80">$80-100 per day</option>
+                        <option value="100">$100-120 per day</option>
+                        <option value="120">$120+ per day</option>
                     </select>
                 </div>
             </div>
@@ -81,11 +80,6 @@
         <!-- Jobs will be dynamically added here -->
     </div>
 
-    <!-- Post Job Button -->
-    <a href="Add_AdHoc_Post_Page.html" class="post-job-btn">
-        Post AdHoc
-    </a>
-
-    <script src="../../js/employer_jobs.js"></script>
+    <script src="../../js/jobseeker_adhoc.js" type="module"></script>
 </body>
 </html>

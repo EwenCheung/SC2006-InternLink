@@ -1,79 +1,12 @@
-// Example ad-hoc job listings data (replace with actual data from backend)
-const adhocJobs = [
-    {
-        id: "1",
-        title: "Event Assistant",
-        company: "SG Events Co",
-        location: "Central",
-        description: "Assist in organizing and managing a tech conference. Help with registration, guest coordination, and event logistics.",
-        requirements: ["Communication", "Organization", "Customer Service"],
-        yearRequired: "Any Year",
-        duration: "2 days",
-        pay: "$100/day"
-    },
-    {
-        id: "2",
-        title: "Photography Assistant",
-        company: "Creative Studios",
-        location: "East",
-        description: "Support professional photographers during a corporate event. Help with equipment setup and photo organization.",
-        requirements: ["Photography", "Equipment Handling", "Teamwork"],
-        yearRequired: "Any Year",
-        duration: "1 day",
-        pay: "$120/day"
-    },
-    {
-        id: "3",
-        title: "Market Research Assistant",
-        company: "Research Solutions",
-        location: "West",
-        description: "Conduct street surveys and data collection for market research project. Training provided.",
-        requirements: ["Communication", "Data Collection", "Basic Excel"],
-        yearRequired: "Any Year",
-        duration: "3 days",
-        pay: "$90/day"
-    },
-    {
-        id: "4",
-        title: "IT Support Assistant",
-        company: "Tech Support SG",
-        location: "North",
-        description: "Provide on-site IT support during office relocation. Help with equipment setup and basic troubleshooting.",
-        requirements: ["Basic IT", "Problem Solving", "Hardware Setup"],
-        yearRequired: "Any Year",
-        duration: "2 days",
-        pay: "$110/day"
-    },
-    {
-        id: "5",
-        title: "Food Fair Helper",
-        company: "Food Festival SG",
-        location: "Central",
-        description: "Assist in food festival operations. Responsibilities include crowd control, food stall assistance, and general coordination.",
-        requirements: ["Customer Service", "Food Handling", "Physical Work"],
-        yearRequired: "Any Year",
-        duration: "3 days",
-        pay: "$95/day"
-    },
-    {
-        id: "6",
-        title: "Content Creator",
-        company: "Digital Media Co",
-        location: "South",
-        description: "Create social media content for a one-day event. Photography and basic video editing skills required.",
-        requirements: ["Social Media", "Photography", "Video Editing"],
-        yearRequired: "Any Year",
-        duration: "1 day",
-        pay: "$150/day"
-    }
-];
+import jobListings from './jobs_data.js';
 
-// Function to display job listings
+// Function to display ad-hoc job listings
 function displayAdhocJobs() {
     const jobListings = document.getElementById('jobListings');
     jobListings.innerHTML = '';
 
-    adhocJobs.forEach(job => {
+    // Use only the adhoc array from our centralized data
+    window.jobListings.adhoc.forEach(job => {
         const jobBox = document.createElement('div');
         jobBox.className = 'job-box';
 
@@ -84,7 +17,7 @@ function displayAdhocJobs() {
             <div class="job-requirements">
                 <span class="location">📍 ${job.location}</span>
                 <span class="duration">⏱️ ${job.duration}</span>
-                <span class="pay">💰 ${job.pay}</span>
+                <span class="payment">💰 ${job.payment}</span>
                 ${job.requirements.map(req => `<span>${req}</span>`).join('')}
             </div>
             <div class="button-container">
@@ -101,7 +34,7 @@ function handleSearch(event) {
     event.preventDefault();
     const searchInput = document.querySelector('.search-box input').value.toLowerCase();
     
-    const filteredJobs = adhocJobs.filter(job => 
+    const filteredJobs = window.jobListings.adhoc.filter(job => 
         job.title.toLowerCase().includes(searchInput) ||
         job.company.toLowerCase().includes(searchInput) ||
         job.description.toLowerCase().includes(searchInput) ||
@@ -134,7 +67,7 @@ function displayFilteredAdhocJobs(filteredJobs) {
             <div class="job-requirements">
                 <span class="location">📍 ${job.location}</span>
                 <span class="duration">⏱️ ${job.duration}</span>
-                <span class="pay">💰 ${job.pay}</span>
+                <span class="payment">💰 ${job.payment}</span>
                 ${job.requirements.map(req => `<span>${req}</span>`).join('')}
             </div>
             <div class="button-container">
@@ -148,8 +81,8 @@ function displayFilteredAdhocJobs(filteredJobs) {
 
 // Function to see job details
 function seeDetails(jobId) {
-    // Store the selected job ID in localStorage
-    localStorage.setItem('selectedJobId', jobId);
+    // For demo purposes, always show the first ad-hoc job
+    localStorage.setItem('selectedJobId', window.jobListings.adhoc[0].id);
     // Store the referrer page for back button
     localStorage.setItem('jobListingReferrer', 'Find_AdHoc_Page.html');
     // Redirect to ad hoc job details page
@@ -168,5 +101,12 @@ document.addEventListener('click', (event) => {
 
 // Initialize job listings on page load
 document.addEventListener('DOMContentLoaded', () => {
+    // Make jobListings available globally
+    window.jobListings = jobListings;
     displayAdhocJobs();
 });
+
+// Export functions for use in HTML
+window.handleSearch = handleSearch;
+window.toggleFilter = toggleFilter;
+window.seeDetails = seeDetails;
