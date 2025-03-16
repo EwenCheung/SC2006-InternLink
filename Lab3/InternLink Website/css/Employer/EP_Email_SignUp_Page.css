@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(to right, rgb(253, 198, 251), rgb(135, 22, 255));
+    background: rgb(252, 242, 255);
 }
 
 .choose-role {
@@ -13,7 +13,7 @@ body {
     min-height: 500px;
     background: white;
     border-radius: 25px;
-    box-shadow: 0 0 10px rgb(26, 26, 26);
+    box-shadow: 0 0 10px rgb(145, 145, 145);
     display: flex;
     overflow: hidden;
 }
