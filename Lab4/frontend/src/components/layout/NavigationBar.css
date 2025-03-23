@@ -1,0 +1,118 @@
+.navigator-bar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 70px;
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+
+.main-nav h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.main-nav h1 a {
+  color: #4a6cf7;
+  text-decoration: none;
+}
+
+.main-nav nav ul {
+  display: flex;
+  list-style: none;
+}
+
+.main-nav nav ul li {
+  margin-left: 20px;
+  position: relative;
+}
+
+.main-nav nav ul li a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 0;
+  display: inline-block;
+  position: relative;
+}
+
+.main-nav nav ul li a:after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #4a6cf7;
+  transition: width 0.3s;
+}
+
+.main-nav nav ul li a:hover:after,
+.main-nav nav ul li a.active:after {
+  width: 100%;
+}
+
+.main-nav nav ul li a.active {
+  color: #4a6cf7;
+  font-weight: 600;
+}
+
+.settings {
+  position: relative;
+}
+
+.settings-box {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  width: 200px;
+  overflow: hidden;
+}
+
+.settings-box div {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-box div:last-child {
+  border-bottom: none;
+}
+
+.settings-box a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 5px 0;
+}
+
+.settings-box a:hover {
+  color: #4a6cf7;
+}
+
+.logout a {
+  color: #dc3545 !important;
+}
+
+.logout a:hover {
+  color: #c82333 !important;
+}

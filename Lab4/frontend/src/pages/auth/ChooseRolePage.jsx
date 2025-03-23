@@ -1,40 +1,22 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import "./ChooseRolePage.css";
 
 export default function ChooseRolePage() {
-  const navigate = useNavigate();
-
   return (
-    <div className="container mx-auto flex min-h-screen items-center justify-center">
-      <div className="grid gap-8 md:grid-cols-2">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="text-center">Job Seeker</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full" 
-              onClick={() => navigate("/auth/jobseeker/login")}
-            >
-              Continue as Job Seeker
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="choose-role">
+      <div className="logo-section">
+        <img src="/Images/Logo1.png" alt="InternLink Logo" className="logo" />
+        <h1 className="title-showing">Welcome to InternLink</h1>
+        <p className="subtitle">Choose your role to continue</p>
+      </div>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle className="text-center">Employer</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              className="w-full"
-              onClick={() => navigate("/auth/employer/login")}
-            >
-              Continue as Employer
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="buttons-section">
+        <Link to="/auth/jobseeker/login" className="role-button jobseeker-button">
+          Job Seeker
+        </Link>
+        <Link to="/auth/employer/login" className="role-button employer-button">
+          Employer
+        </Link>
       </div>
     </div>
   );

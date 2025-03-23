@@ -1,122 +1,66 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "sonner";
-
-// Layouts
-import RootLayout from "@/layouts/RootLayout";
+import { AuthProvider } from "./contexts/AuthContext";
+import { Toaster } from "./components/ui/toaster";
 
 // Auth Pages
-import ChooseRolePage from "@/pages/auth/ChooseRolePage";
-import JobSeekerLoginPage from "@/pages/auth/jobseeker/LoginPage";
-import JobSeekerRegisterPage from "@/pages/auth/jobseeker/RegisterPage";
-import EmployerLoginPage from "@/pages/auth/employer/LoginPage";
-import EmployerRegisterPage from "@/pages/auth/employer/RegisterPage";
+import ChooseRolePage from "./pages/auth/ChooseRolePage";
+import JobSeekerLoginPage from "./pages/auth/jobseeker/LoginPage";
+import JobSeekerSignupPage from "./pages/auth/jobseeker/SignupPage";
+import EmployerLoginPage from "./pages/auth/employer/LoginPage";
+import EmployerSignupPage from "./pages/auth/employer/SignupPage";
 
-// Job Seeker Pages
-import HomePage from "@/pages/HomePage";
-import FindJobsPage from "@/pages/jobs/FindJobsPage";
-import JobDetailsPage from "@/pages/jobs/JobDetailsPage";
+// JobSeeker Pages
+import FindInternshipPage from "./pages/jobseeker/FindInternshipPage";
+import FindAdHocPage from "./pages/jobseeker/FindAdhocPage";
+import JobSeekerProfilePage from "./pages/jobseeker/ProfilePage";
+import JobSeekerMessagesPage from "./pages/jobseeker/MessagesPage";
+import JobSeekerInternshipDetailsPage from "./pages/jobseeker/JobSeekerInternshipDetailsPage";
+import JobSeekerAdhocDetailsPage from "./pages/jobseeker/JobSeekerAdhocDetailsPage";
 
 // Employer Pages
-import EmployerDashboardPage from "@/pages/employer/DashboardPage";
-import PostInternshipPage from "@/pages/employer/jobs/PostInternshipPage";
-import PostAdhocPage from "@/pages/employer/jobs/PostAdhocPage";
-
-const queryClient = new QueryClient();
-
-// TODO: Replace with actual auth check
-const isAuthenticated = false;
-const userRole = "jobseeker"; // or "employer"
-
-function PrivateRoute({ children, allowedRoles = [] }) {
-  if (!isAuthenticated) {
-    return <Navigate to="/auth/choose-role" replace />;
-  }
-
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    return <Navigate to="/" replace />;
-  }
-
-  return children;
-}
+import PostInternshipPage from "./pages/employer/PostInternshipPage";
+import PostAdHocPage from "./pages/employer/PostAdHocPage";
+import EmployerProfilePage from "./pages/employer/ProfilePage";
+import EmployerMessagesPage from "./pages/employer/MessagesPage";
+import EmployerInternshipDetailsPage from "./pages/employer/EmployerInternshipDetailsPage";
+import EmployerAdhocDetailsPage from "./pages/employer/EmployerAdhocDetailsPage";
+import ViewCandidatesPage from "./pages/employer/ViewCandidatesPage";
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
-          <Route path="/" element={<RootLayout />}>
-            {/* Public Routes */}
-            <Route index element={<HomePage />} />
-            <Route path="auth">
-              <Route path="choose-role" element={<ChooseRolePage />} />
-              <Route path="jobseeker">
-                <Route path="login" element={<JobSeekerLoginPage />} />
-                <Route path="register" element={<JobSeekerRegisterPage />} />
-              </Route>
-              <Route path="employer">
-                <Route path="login" element={<EmployerLoginPage />} />
-                <Route path="register" element={<EmployerRegisterPage />} />
-              </Route>
-            </Route>
+          {/* Redirect root to choose role */}
+          <Route path="/" element={<Navigate to="/auth/choose-role" />} />
+          
+          {/* Auth Routes */}
+          <Route path="/auth/choose-role" element={<ChooseRolePage />} />
+          <Route path="/auth/jobseeker/login" element={<JobSeekerLoginPage />} />
+          <Route path="/auth/jobseeker/signup" element={<JobSeekerSignupPage />} />
+          <Route path="/auth/employer/login" element={<EmployerLoginPage />} />
+          <Route path="/auth/employer/signup" element={<EmployerSignupPage />} />
+          
+          {/* JobSeeker Routes */}
+          <Route path="/jobseeker/find-internship" element={<FindInternshipPage />} />
+          <Route path="/jobseeker/find-adhoc" element={<FindAdHocPage />} />
+          <Route path="/jobseeker/profile" element={<JobSeekerProfilePage />} />
+          <Route path="/jobseeker/messages" element={<JobSeekerMessagesPage />} />
+          <Route path="/jobseeker/internship-job-details/:id" element={<JobSeekerInternshipDetailsPage />} />
+          <Route path="/jobseeker/adhoc-job-details/:id" element={<JobSeekerAdhocDetailsPage />} />
 
-            {/* Job Seeker Routes */}
-            <Route path="jobs">
-              <Route
-                index
-                element={
-                  <PrivateRoute allowedRoles={["jobseeker"]}>
-                    <FindJobsPage />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path=":id"
-                element={
-                  <PrivateRoute allowedRoles={["jobseeker"]}>
-                    <JobDetailsPage />
-                  </PrivateRoute>
-                }
-              />
-            </Route>
-
-            {/* Employer Routes */}
-            <Route path="employer">
-              <Route
-                path="dashboard"
-                element={
-                  <PrivateRoute allowedRoles={["employer"]}>
-                    <EmployerDashboardPage />
-                  </PrivateRoute>
-                }
-              />
-              <Route path="jobs/new">
-                <Route
-                  path="internship"
-                  element={
-                    <PrivateRoute allowedRoles={["employer"]}>
-                      <PostInternshipPage />
-                    </PrivateRoute>
-                  }
-                />
-                <Route
-                  path="adhoc"
-                  element={
-                    <PrivateRoute allowedRoles={["employer"]}>
-                      <PostAdhocPage />
-                    </PrivateRoute>
-                  }
-                />
-              </Route>
-            </Route>
-
-            {/* Catch all */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
+          {/* Employer Routes */}
+          <Route path="/employer/post-internship" element={<PostInternshipPage />} />
+          <Route path="/employer/post-adhoc" element={<PostAdHocPage />} />
+          <Route path="/employer/profile" element={<EmployerProfilePage />} />
+          <Route path="/employer/messages" element={<EmployerMessagesPage />} />
+          <Route path="/employer/internship-job-details/:id" element={<EmployerInternshipDetailsPage />} />
+          <Route path="/employer/adhoc-job-details/:id" element={<EmployerAdhocDetailsPage />} />
+          <Route path="/employer/view-candidates/:jobId" element={<ViewCandidatesPage />} />
         </Routes>
-      </Router>
-      <Toaster position="top-center" />
-    </QueryClientProvider>
+        <Toaster />
+      </AuthProvider>
+    </Router>
   );
 }
 

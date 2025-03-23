@@ -1,105 +1,70 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./LoginPage.css";
 
 export default function JobSeekerLoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // TODO: Implement login logic
-    navigate("/jobs");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Here you would handle authentication with your backend
+    console.log("Login with:", email, password);
+    
+    // For now, let's just navigate to the job seeker dashboard
+    navigate("/jobseeker/find-internship");
   };
 
   return (
-    <div className="container mx-auto flex min-h-screen items-center justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Job Seeker Login</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <div className="login-container">
+      <div className="back-button">
+        <Link to="/auth/choose-role">Back to Choose Role</Link>
+      </div>
+      
+      <div className="login-content">
+        <div className="left-section">
+          <img src="/images/Logo1.png" alt="JobSeeker" className="showcase-image" />
+          <div className="title-showing">Welcome Job Seeker</div>
+        </div>
+
+        <div className="divider"></div>
+
+        <div className="right-section">
+          <div className="signin-title">Sign in as Job Seeker</div>
+          
+          <form className="form-container" onSubmit={handleSubmit}>
+            <div className="input-box">
+              <label className="showcase-words">Email:</label>
+              <input 
+                type="email" 
+                className="input-field" 
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            </div>
+
+            <div className="input-box">
+              <label className="showcase-words">Password:</label>
+              <input 
+                type="password" 
+                className="input-field" 
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-              <Button type="submit" className="w-full">
-                Sign In
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <div className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link
-              to="/auth/jobseeker/register"
-              className="text-primary hover:underline"
-            >
-              Sign up
-            </Link>
-          </div>
-          <Link
-            to="/auth/choose-role"
-            className="text-sm text-muted-foreground hover:underline"
-          >
-            Back to role selection
-          </Link>
-        </CardFooter>
-      </Card>
+            </div>
+
+            <button type="submit" className="login-button">Login</button>
+            <div className="signup-link">
+              Don't have an account? <Link to="/auth/jobseeker/signup">Sign Up</Link>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
