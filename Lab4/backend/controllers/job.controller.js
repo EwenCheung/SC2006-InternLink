@@ -12,6 +12,32 @@ export const getJobs = async (req, res) => {
     }
 };
 
+
+// Get one job by ID
+export const getOneJob = async (req, res) => {
+    const { id } = req.params;
+
+    // Check if ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({ success: false, message: "Invalid Job ID" });
+    }
+
+    try {
+        // Find job by ID
+        const findJob = await Job.findById(id);
+
+        if (!findJob) {
+            return res.status(404).json({ success: false, message: "Job not found" });
+        }
+
+        res.status(200).json({ success: true, data: findJob });
+    } catch (error) {
+        console.error("Error in Fetch Job:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+
 // Create a job
 export const createJob = async (req, res) => {
     const job = req.body; // user will send this data
