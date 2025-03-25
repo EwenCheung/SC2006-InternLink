@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 if (!universityCourses[record.university]) {
                     universityCourses[record.university] = new Set();
                 }
-                universityCourses[record.university].add(record.degree);
+                const sanitizedDegree = record.degree.replace(/[^\w\s\(\)]/gi, ''); // Remove symbols except brackets
+                universityCourses[record.university].add(sanitizedDegree);
             });
 
             uniqueUniversities.forEach(university => {
