@@ -15,9 +15,9 @@ document.addEventListener("DOMContentLoaded", async function () {
             data.result.records.forEach(record => {
                 uniqueUniversities.add(record.university);
                 if (!universityCourses[record.university]) {
-                    universityCourses[record.university] = [];
+                    universityCourses[record.university] = new Set();
                 }
-                universityCourses[record.university].push(record.degree);
+                universityCourses[record.university].add(record.degree);
             });
 
             uniqueUniversities.forEach(university => {
