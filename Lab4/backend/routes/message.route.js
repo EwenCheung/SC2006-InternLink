@@ -5,7 +5,7 @@ import {
   sendMessage, 
   deleteMessage 
 } from '../controllers/message.controller.js';
-import authenticateUser from '../middleware/auth.js';
+import authenticateUser from '../middleware/authentication.js';
 
 const router = express.Router();
 

@@ -1,5 +1,21 @@
-const jwt = require('jsonwebtoken');
-const { UnauthenticatedError, ForbiddenError } = require('../errors');
+import jwt from 'jsonwebtoken';
+// Assuming errors are defined elsewhere, we'll import them properly
+// If errors module doesn't exist, we'll create custom error classes
+const UnauthenticatedError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'UnauthenticatedError';
+    this.statusCode = 401;
+  }
+};
+
+const ForbiddenError = class extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ForbiddenError';
+    this.statusCode = 403;
+  }
+};
 
 const authenticateUser = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -32,7 +48,5 @@ const authorizeRoles = (...roles) => {
   };
 };
 
-module.exports = {
-  authenticateUser,
-  authorizeRoles
-};
+export { authenticateUser, authorizeRoles };
+export default authenticateUser;
