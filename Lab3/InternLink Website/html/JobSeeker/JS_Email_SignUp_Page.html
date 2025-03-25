@@ -35,11 +35,15 @@
                 </div>
                 <div class="box">
                     <label for="school" class="showcase-words">School</label>
-                    <input type="text" id="school" class="input-field" placeholder="Enter your school">
+                    <select id="school" class="input-field">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
                 </div>
                 <div class="box">
                     <label for="course" class="showcase-words">Course</label>
-                    <input type="text" id="course" class="input-field" placeholder="Enter your course">
+                    <select id="dropdownMenu" class="input-field">
+                        <option value="">Select your course</option>
+                    </select>
                 </div>
                 <div class="box">
                     <label for="year-of-study" class="showcase-words">Year of Study</label>
@@ -62,5 +66,7 @@
     <div class="back-button">
         <a href="Choose_Role_Page.html">Back</a>
     </div>
+
+    <script src="../../js/jobseeker_signup.js"></script>
 </body>
 </html>
