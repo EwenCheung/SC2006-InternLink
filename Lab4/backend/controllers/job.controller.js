@@ -4,7 +4,12 @@ import Job from "../models/job.model.js";
 // Get all jobs
 export const getJobs = async (req, res) => {
     try{
-        const jobs = await Job.find({});
+        const { jobType, status } = req.query;
+        const filter = {};
+        if (jobType) filter.jobType = jobType;
+        if (status) filter.status = status;
+
+        const jobs = await Job.find(Object.keys(filter).length ? filter : {});
         res.status(200).json({ success: true, data: jobs });
     } catch (error) {
         console.log("Error in Fetch Jobs:", error.message);

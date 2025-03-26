@@ -12,7 +12,9 @@
     "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
   },
   "dependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.4.7",
+    "vite": "^6.2.3"
   },
   "author": "",
   "license": "ISC"
