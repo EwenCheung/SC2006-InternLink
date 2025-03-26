@@ -1,71 +1,50 @@
-// Load environment variables first
-import * as dotenv from 'dotenv';
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors'; // Import CORS middleware
+import { connectDB } from './config/db.js';
+import jobRoutes from './routes/job.route.js';
+import { errorHandler, notFound } from './errors/errorMiddleware.js';
+
 dotenv.config();
 
-import express from 'express';
-import cors from 'cors';
-import { connectDB, getConnectionStatus } from './config/db.js';
-import jobRoutes from './routes/job.route.js';
-import applicationRoutes from './routes/application.route.js';
-import messageRoutes from './routes/message.route.js';
-import authRoutes from './routes/auth.js';
-
 const app = express();
-const PORT = process.env.PORT || 5001;
 
 // Middleware
-app.use(cors());
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5178'; // Default to localhost for development
+app.use(cors({
+  origin: allowedOrigin, // Use environment variable for origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+  credentials: true // Allow cookies and credentials
+}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'UP',
-    timestamp: new Date(),
-    dbConnected: getConnectionStatus()
-  });
-});
+// Connect to Database
+connectDB();
 
 // Routes
-app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
-app.use('/api/applications', applicationRoutes);
-app.use('/api/messages', messageRoutes);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || 'Internal Server Error',
-      status: err.status || 500
+// Error Handling Middleware
+app.use(notFound);
+app.use(errorHandler);
+
+// Dynamically Select an Available Port
+const DEFAULT_PORT = process.env.PORT || 5000;
+const PORT = parseInt(DEFAULT_PORT, 10);
+
+const startServer = (port) => {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`CORS allowed origin: ${allowedOrigin}`);
+  }).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`Port ${port} is in use. Trying port ${port + 1}...`);
+      startServer(port + 1);
+    } else {
+      console.error('Server error:', err);
     }
   });
-});
-
-// Connect to MongoDB and start server
-const startServer = async () => {
-  try {
-    await connectDB();
-    
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
-      console.log('Environment:', process.env.NODE_ENV);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
 };
 
-startServer();
-
-// Handle unhandled rejections
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
-  // Don't immediately crash on unhandled rejection
-  // This gives time for graceful shutdown if needed
-});
-
-export default app;
+startServer(PORT);
