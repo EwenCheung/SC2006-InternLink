@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Message from "../models/message.model.js";
-import User from "../models/User.js";
+import { User } from "../models/User.js";
 
 // Get conversations for a user
 export const getConversations = async (req, res) => {

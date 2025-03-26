@@ -1,67 +1,76 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
-import { Toaster } from "./components/ui/toaster";
+import React, { Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout/Layout';
+import NotFound from './components/Common/NotFound';
+import LoadingSpinner from './components/Common/LoadingSpinner';
+import ChooseRolePage from './pages/ChooseRolePage';
+import LogOutConfirmation from './pages/LogOutConfirmation';
+import JS_EmailLoginPage from './pages/JobSeeker/JS_EmailLoginPage';
+import JS_EmailSignupPage from './pages/JobSeeker/JS_EmailSignupPage';
+import JS_ViewApplicationPage from './pages/JobSeeker/JS_ViewApplicationPage';
+import JS_FindInternshipPage from './pages/JobSeeker/JS_FindInternshipPage';
+import JS_FindAdHocPage from './pages/JobSeeker/JS_FindAdHocPage';
+import JS_InternshipDetailsPage from './pages/JobSeeker/JS_InternshipDetailsPage';
+import JS_AdHocDetailsPage from './pages/JobSeeker/JS_AdHocDetailsPage';
+import JS_MessagesPage from './pages/JobSeeker/JS_MessagesPage';
+import JS_ProfilePage from './pages/JobSeeker/JS_ProfilePage';
+import EP_EmailLoginPage from './pages/Employer/EP_EmailLoginPage';
+import EP_EmailSignupPage from './pages/Employer/EP_EmailSignupPage';
+import EP_AddPostPage from './pages/Employer/EP_AddPostPage';
+import EP_PostInternshipPage from './pages/Employer/EP_PostInternshipPage';
+import EP_PostAdHocPage from './pages/Employer/EP_PostAdHocPage';
+import EP_InternshipDetailsPage from './pages/Employer/EP_InternshipDetailsPage';
+import EP_AdHocDetailsPage from './pages/Employer/EP_AdHocDetailsPage';
+import EP_ViewCandidatesPage from './pages/Employer/EP_ViewCandidatesPage';
+import EP_MessagesPage from './pages/Employer/EP_MessagesPage';
+import EP_ProfilePage from './pages/Employer/EP_ProfilePage';
 
-// Auth Pages
-import ChooseRolePage from "./pages/auth/ChooseRolePage";
-import JobSeekerLoginPage from "./pages/auth/jobseeker/LoginPage";
-import JobSeekerSignupPage from "./pages/auth/jobseeker/SignupPage";
-import EmployerLoginPage from "./pages/auth/employer/LoginPage";
-import EmployerSignupPage from "./pages/auth/employer/SignupPage";
-
-// JobSeeker Pages
-import FindInternshipPage from "./pages/jobseeker/FindInternshipPage";
-import FindAdHocPage from "./pages/jobseeker/FindAdhocPage";
-import JobSeekerProfilePage from "./pages/jobseeker/ProfilePage";
-import JobSeekerMessagesPage from "./pages/jobseeker/MessagesPage";
-import JobSeekerInternshipDetailsPage from "./pages/jobseeker/JobSeekerInternshipDetailsPage";
-import JobSeekerAdhocDetailsPage from "./pages/jobseeker/JobSeekerAdhocDetailsPage";
-
-// Employer Pages
-import PostInternshipPage from "./pages/employer/PostInternshipPage";
-import PostAdHocPage from "./pages/employer/PostAdHocPage";
-import EmployerProfilePage from "./pages/employer/ProfilePage";
-import EmployerMessagesPage from "./pages/employer/MessagesPage";
-import EmployerInternshipDetailsPage from "./pages/employer/EmployerInternshipDetailsPage";
-import EmployerAdhocDetailsPage from "./pages/employer/EmployerAdhocDetailsPage";
-import ViewCandidatesPage from "./pages/employer/ViewCandidatesPage";
-
-function App() {
+const App = () => {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          {/* Redirect root to choose role */}
-          <Route path="/" element={<Navigate to="/auth/choose-role" />} />
-          
-          {/* Auth Routes */}
-          <Route path="/auth/choose-role" element={<ChooseRolePage />} />
-          <Route path="/auth/jobseeker/login" element={<JobSeekerLoginPage />} />
-          <Route path="/auth/jobseeker/signup" element={<JobSeekerSignupPage />} />
-          <Route path="/auth/employer/login" element={<EmployerLoginPage />} />
-          <Route path="/auth/employer/signup" element={<EmployerSignupPage />} />
-          
-          {/* JobSeeker Routes */}
-          <Route path="/jobseeker/find-internship" element={<FindInternshipPage />} />
-          <Route path="/jobseeker/find-adhoc" element={<FindAdHocPage />} />
-          <Route path="/jobseeker/profile" element={<JobSeekerProfilePage />} />
-          <Route path="/jobseeker/messages" element={<JobSeekerMessagesPage />} />
-          <Route path="/jobseeker/internship-job-details/:id" element={<JobSeekerInternshipDetailsPage />} />
-          <Route path="/jobseeker/adhoc-job-details/:id" element={<JobSeekerAdhocDetailsPage />} />
+    <Suspense 
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <LoadingSpinner />
+        </div>
+      }
+    >
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<ChooseRolePage />} />
+        <Route path="/logout" element={<LogOutConfirmation />} />
 
-          {/* Employer Routes */}
-          <Route path="/employer/post-internship" element={<PostInternshipPage />} />
-          <Route path="/employer/post-adhoc" element={<PostAdHocPage />} />
-          <Route path="/employer/profile" element={<EmployerProfilePage />} />
-          <Route path="/employer/messages" element={<EmployerMessagesPage />} />
-          <Route path="/employer/internship-job-details/:id" element={<EmployerInternshipDetailsPage />} />
-          <Route path="/employer/adhoc-job-details/:id" element={<EmployerAdhocDetailsPage />} />
-          <Route path="/employer/view-candidates/:jobId" element={<ViewCandidatesPage />} />
-        </Routes>
-        <Toaster />
-      </AuthProvider>
-    </Router>
+        {/* JobSeeker routes */}
+        <Route element={<Layout />}>
+          <Route path="/jobseeker/login" element={<JS_EmailLoginPage />} />
+          <Route path="/jobseeker/signup" element={<JS_EmailSignupPage />} />
+          <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
+          <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
+          <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
+          <Route path="/jobseeker/adhoc/:id" element={<JS_AdHocDetailsPage />} />
+          <Route path="/jobseeker/messages" element={<JS_MessagesPage />} />
+          <Route path="/jobseeker/profile" element={<JS_ProfilePage />} />
+          <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
+        </Route>
+
+        {/* Employer routes */}
+        <Route element={<Layout />}>
+          <Route path="/employer/login" element={<EP_EmailLoginPage />} />
+          <Route path="/employer/signup" element={<EP_EmailSignupPage />} />
+          <Route path="/employer/post-internship" element={<EP_PostInternshipPage />} />
+          <Route path="/employer/post-adhoc" element={<EP_PostAdHocPage />} />
+          <Route path="/employer/add-post" element={<EP_AddPostPage />} />
+          <Route path="/employer/internship/:id" element={<EP_InternshipDetailsPage />} />
+          <Route path="/employer/adhoc/:id" element={<EP_AdHocDetailsPage />} />
+          <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
+          <Route path="/employer/messages" element={<EP_MessagesPage />} />
+          <Route path="/employer/profile" element={<EP_ProfilePage />} />
+        </Route>
+
+        {/* Catch all route for 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
-}
+};
 
 export default App;
