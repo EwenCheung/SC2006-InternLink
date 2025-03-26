@@ -1,8 +1,8 @@
-const User = require('../models/User');
-const JobSeeker = require('../models/JobSeeker');
-const Employer = require('../models/Employer');
-const { StatusCodes } = require('http-status-codes');
-const { BadRequestError, UnauthenticatedError } = require('../errors');
+import User from '../models/User.js';
+import JobSeeker from '../models/JobSeeker.js';
+import Employer from '../models/Employer.js';
+import { StatusCodes } from 'http-status-codes';
+import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 
 // Register User
 const register = async (req, res) => {
@@ -74,7 +74,4 @@ const login = async (req, res) => {
   });
 };
 
-module.exports = {
-  register,
-  login
-};
+export { register, login };

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const User = require('./User');
+import mongoose from 'mongoose';
+import User from './User.js';
 
 const EmployerSchema = new mongoose.Schema({
   companyName: {
@@ -42,4 +42,6 @@ const EmployerSchema = new mongoose.Schema({
   }]
 });
 
-module.exports = User.discriminator('employer', EmployerSchema);
+const Employer = User.discriminator('employer', EmployerSchema);
+
+export default Employer;

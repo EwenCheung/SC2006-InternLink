@@ -23,9 +23,19 @@ const jobSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    requirements: [{
+    requirements: {
         type: String
-    }],
+    },
+    courseStudy:{
+        type: String,
+        required: true
+    },
+
+    yearRequired:{
+        type: String,
+        required: true
+    },
+
     // Different fields based on job type
     // For internships
     stipend: {
@@ -58,6 +68,10 @@ const jobSchema = new mongoose.Schema({
         type: String,
         enum: ['active', 'filled', 'closed'],
         default: 'active'
+    },
+    numberApplied:{
+        type: Number,
+        default: 0
     }
 },{
     timestamps: true //Automatically adds createdAt and updatedAt

@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const User = require('./User');
+import mongoose from 'mongoose';
+import User from './User.js';
 
 const JobSeekerSchema = new mongoose.Schema({
   userName: {
@@ -34,4 +34,6 @@ const JobSeekerSchema = new mongoose.Schema({
   }]
 });
 
-module.exports = User.discriminator('jobseeker', JobSeekerSchema);
+const JobSeeker = User.discriminator('jobseeker', JobSeekerSchema);
+
+export default JobSeeker;
