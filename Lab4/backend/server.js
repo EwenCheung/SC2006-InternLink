@@ -4,6 +4,7 @@ import cors from 'cors'; // Import CORS middleware
 import { connectDB } from './config/db.js';
 import jobRoutes from './routes/job.route.js';
 import { errorHandler, notFound } from './errors/errorMiddleware.js';
+import authUserRoutes from './routes/authUser.route.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ connectDB();
 
 // Routes
 app.use('/api/jobs', jobRoutes);
+app.use('/api/auth', authUserRoutes);
 
 // Error Handling Middleware
 app.use(notFound);

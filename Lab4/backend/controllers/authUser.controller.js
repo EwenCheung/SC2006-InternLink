@@ -1,11 +1,11 @@
 import User from '../models/User.js';
-import JobSeeker from '../models/JobSeeker.js';
-import Employer from '../models/Employer.js';
+import JobSeeker from '../models/JobSeeker.model.js';
+import Employer from '../models/Employer.model.js';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
 
 // Register User
-const register = async (req, res) => {
+export const register = async (req, res) => {
   const { role } = req.body;
   
   if (!role || !['jobseeker', 'employer'].includes(role)) {
@@ -42,7 +42,7 @@ const register = async (req, res) => {
 };
 
 // Login User
-const login = async (req, res) => {
+export const login = async (req, res) => {
   const { email, password } = req.body;
   
   if (!email || !password) {
@@ -73,5 +73,3 @@ const login = async (req, res) => {
     token
   });
 };
-
-export { register, login };

@@ -48,14 +48,7 @@ const JobSeekerSchema = new mongoose.Schema({
     default: [],
   }
 }, { 
-  collection: 'jobseeker',  // Explicitly set collection name
-  collation: {
-    locale: 'en',
-    strength: 2,
-    caseLevel: false,
-    numericOrdering: true,
-    normalization: true
-  }
+  collection: 'jobseeker'  // Explicitly set collection name
 });
 
 const JobSeeker = User.discriminator('jobseeker', JobSeekerSchema);

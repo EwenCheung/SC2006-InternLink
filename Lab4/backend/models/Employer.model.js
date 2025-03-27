@@ -43,14 +43,7 @@ const EmployerSchema = new mongoose.Schema({
     default: [],
   }
 }, { 
-  collection: 'employer',  // Explicitly set collection name
-  collation: {
-    locale: 'en',
-    strength: 2,
-    caseLevel: false,
-    numericOrdering: true,
-    normalization: true
-  }
+  collection: 'employer'  // Explicitly set collection name
 });
 
 const Employer = User.discriminator('employer', EmployerSchema);
