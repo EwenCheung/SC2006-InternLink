@@ -7,13 +7,11 @@
     max-width: 1200px; /* Match job listings max-width */
     display: flex;
     justify-content: center;
-    background-color: rgba(235, 214, 232, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 40;
     padding: 1rem;
     border-radius: 8px;
-    border: 1px solid rgba(232, 176, 237, 0.5);
 }
 
 .searchAndFilter {
