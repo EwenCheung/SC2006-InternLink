@@ -6,11 +6,8 @@ const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Please provide an email'],
-    match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please provide a valid email',
-    ],
     unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
   },
   password: {
     type: String,
@@ -19,24 +16,14 @@ const UserSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['jobseeker', 'employer'],
-    required: true
+    required: true,
+    enum: ['employer', 'jobseeker'],
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  // Auth provider fields for future integration
-  authProvider: {
-    type: String,
-    enum: ['local', 'google', 'apple', 'singpass'],
-    default: 'local'
-  },
-  authProviderId: {
-    type: String,
-    default: null
-  }
-}, { discriminatorKey: 'role' });
+}, { 
+  discriminatorKey: 'role', 
+  timestamps: true,
+  collection: 'users' // Explicitly set the collection name
+});
 
 // Pre-save hook to hash password
 UserSchema.pre('save', async function() {

@@ -4,26 +4,29 @@ import Layout from './components/Layout/Layout';
 import NotFound from './components/Common/NotFound';
 import LoadingSpinner from './components/Common/LoadingSpinner';
 import ChooseRolePage from './pages/ChooseRolePage';
-import LogOutConfirmation from './pages/LogOutConfirmation';
-import JS_EmailLoginPage from './pages/JobSeeker/JS_EmailLoginPage';
-import JS_EmailSignupPage from './pages/JobSeeker/JS_EmailSignupPage';
-import JS_ViewApplicationPage from './pages/JobSeeker/JS_ViewApplicationPage';
 import JS_FindInternshipPage from './pages/JobSeeker/JS_FindInternshipPage';
 import JS_FindAdHocPage from './pages/JobSeeker/JS_FindAdHocPage';
 import JS_InternshipDetailsPage from './pages/JobSeeker/JS_InternshipDetailsPage';
 import JS_AdHocDetailsPage from './pages/JobSeeker/JS_AdHocDetailsPage';
-import JS_MessagesPage from './pages/JobSeeker/JS_MessagesPage';
+import JS_EmailLoginPage from './pages/JobSeeker/JS_EmailLoginPage';
+import JS_EmailSignupPage from './pages/JobSeeker/JS_EmailSignupPage';
 import JS_ProfilePage from './pages/JobSeeker/JS_ProfilePage';
+import JS_MessagesPage from './pages/JobSeeker/JS_MessagesPage';
+import JS_ViewApplicationPage from './pages/JobSeeker/JS_ViewApplicationPage';
 import EP_EmailLoginPage from './pages/Employer/EP_EmailLoginPage';
 import EP_EmailSignupPage from './pages/Employer/EP_EmailSignupPage';
-import EP_AddPostPage from './pages/Employer/EP_AddPostPage';
 import EP_PostInternshipPage from './pages/Employer/EP_PostInternshipPage';
 import EP_PostAdHocPage from './pages/Employer/EP_PostAdHocPage';
 import EP_InternshipDetailsPage from './pages/Employer/EP_InternshipDetailsPage';
 import EP_AdHocDetailsPage from './pages/Employer/EP_AdHocDetailsPage';
-import EP_ViewCandidatesPage from './pages/Employer/EP_ViewCandidatesPage';
-import EP_MessagesPage from './pages/Employer/EP_MessagesPage';
+import EP_AddPostPage from './pages/Employer/EP_AddPostPage';
 import EP_ProfilePage from './pages/Employer/EP_ProfilePage';
+import EP_MessagesPage from './pages/Employer/EP_MessagesPage';
+import EP_ViewCandidatesPage from './pages/Employer/EP_ViewCandidatesPage';
+import EP_ViewApplicantProfilePage from './pages/Employer/EP_ViewApplicantProfilePage';
+import LogOutConfirmation from './pages/LogOutConfirmation';
+import ProtectedRoute from './components/Common/ProtectedRoute';
+import ErrorBoundary from './components/Common/ErrorBoundary';
 
 const App = () => {
   return (
@@ -39,10 +42,12 @@ const App = () => {
         <Route path="/" element={<ChooseRolePage />} />
         <Route path="/logout" element={<LogOutConfirmation />} />
 
+        {/* JobSeeker auth routes */}
+        <Route path="/jobseeker/login" element={<JS_EmailLoginPage />} />
+        <Route path="/jobseeker/signup" element={<JS_EmailSignupPage />} />
+
         {/* JobSeeker routes */}
         <Route element={<Layout />}>
-          <Route path="/jobseeker/login" element={<JS_EmailLoginPage />} />
-          <Route path="/jobseeker/signup" element={<JS_EmailSignupPage />} />
           <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
           <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
           <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
@@ -52,10 +57,12 @@ const App = () => {
           <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
         </Route>
 
+        {/* Employer auth routes */}
+        <Route path="/employer/login" element={<EP_EmailLoginPage />} />
+        <Route path="/employer/signup" element={<EP_EmailSignupPage />} />
+
         {/* Employer routes */}
         <Route element={<Layout />}>
-          <Route path="/employer/login" element={<EP_EmailLoginPage />} />
-          <Route path="/employer/signup" element={<EP_EmailSignupPage />} />
           <Route path="/employer/post-internship" element={<EP_PostInternshipPage />} />
           <Route path="/employer/post-adhoc" element={<EP_PostAdHocPage />} />
           <Route path="/employer/add-post" element={<EP_AddPostPage />} />
