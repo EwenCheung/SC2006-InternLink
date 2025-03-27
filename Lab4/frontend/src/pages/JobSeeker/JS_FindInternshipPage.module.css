@@ -1,5 +1,6 @@
 /* Base container */
 .container {
+    
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -87,6 +88,7 @@
 
 .seeDetailsBtn:hover {
     background-color: #b56ec1;
+    transform:translateY(-2px);
 }
 
 .viewApplicationBtn {
