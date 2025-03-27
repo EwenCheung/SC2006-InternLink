@@ -1,10 +1,10 @@
 .searchAndFilterContainer {
     position: fixed;
-    top: 58px;
+    top: 56px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 4rem); /* Match container padding of job listings */
-    max-width: 1200px; /* Match job listings max-width */
+    width: calc(100% - 4rem) ; /* Match container padding of job listings */
+    max-width: 1232px; /* Match job listings max-width */
     display: flex;
     justify-content: center;
     backdrop-filter: blur(12px);
