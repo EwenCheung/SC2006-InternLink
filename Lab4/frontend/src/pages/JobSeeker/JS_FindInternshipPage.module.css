@@ -4,14 +4,12 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 99%;
     margin: 0 auto;
-    padding: 0 2rem;
     margin-top: 100px; /* Space for nav bar + search bar */
     max-width: 1200px;
     border-radius: 10px;
     padding-bottom: 30px;
-    padding-top: 30px;
 }
 
 /* Job Listings Grid */
