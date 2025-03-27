@@ -4,7 +4,7 @@ import SearchAndFilter from '../../components/Common/SearchAndFilter';
 import { jobFilterOptions } from '../../components/Common/FilterConfig';
 import { useSearchAndFilter } from '../../hooks/UseSearchAndFilter';
 
-const API_BASE_URL = 'http://localhost:5003'; // Update this to match your backend server's URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'; // Use environment variable or default to port 5001
 
 const JS_FindInternshipPage = () => {
   const fetchJobs = async (queryParams) => {
@@ -76,51 +76,55 @@ const JS_FindInternshipPage = () => {
   }, [setLoading, setJobs]);
 
   return (
-    <div className={styles.container}>
-      <SearchAndFilter
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        onSearch={handleSearch}
-        showFilter={showFilter}
-        toggleFilter={toggleFilter}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onReset={resetFilters}
-        filterOptions={jobFilterOptions}
-      />
-
-      <div className={styles.jobListings}>
-        {loading ? (
-          <div>Loading...</div>
-        ) : jobs.length === 0 ? (
-          <div>No internships found</div>
-        ) : (
-          jobs.map((job) => (
-            <div key={job._id} className={styles.jobBox}> {/* Updated key to use job._id */}
-              <h3 className={styles.jobTitle}>{job.title}</h3>
-              <p className={styles.jobCompany}>
-                {job.company} - {job.location}
-              </p>
-              <p className={styles.jobDescription}>
-                <strong>Job Description:</strong><br />
-                {job.description}
-              </p>
-              <div className={styles.jobRequirements}>
-                <span>⏱️ {job.duration}</span>
-                {job.stipend && <span>💰 {job.stipend}</span>}
-                {job.requirements && <span>{job.requirements}</span>}
-              </div>
-              <div className={styles.buttonContainer}>
-                <button className={styles.seeDetailsBtn}>View Details</button>
-              </div>
-            </div>
-          ))
-        )}
+    <div>
+      <div className={styles.searchAndFilterContainer}>
+        <SearchAndFilter
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          onSearch={handleSearch}
+          showFilter={showFilter}
+          toggleFilter={toggleFilter}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onReset={resetFilters}
+          filterOptions={jobFilterOptions}
+        />
       </div>
-      
-      <button className={styles.viewApplicationBtn}>
-        View Applications
-      </button>
+
+      <div className={styles.container}>
+        <div className={styles.jobListings}>
+          {loading ? (
+            <div>Loading...</div>
+          ) : jobs.length === 0 ? (
+            <div>No internships found</div>
+          ) : (
+            jobs.map((job) => (
+              <div key={job._id} className={styles.jobBox}> {/* Updated key to use job._id */}
+                <h3 className={styles.jobTitle}>{job.title}</h3>
+                <p className={styles.jobCompany}>
+                  {job.company} - {job.location}
+                </p>
+                <p className={styles.jobDescription}>
+                  <strong>Job Description:</strong><br />
+                  {job.description}
+                </p>
+                <div className={styles.jobRequirements}>
+                  <span>⏱️ {job.duration}</span>
+                  {job.stipend && <span>💰 {job.stipend}</span>}
+                  {job.requirements && <span>{job.requirements}</span>}
+                </div>
+                <div className={styles.buttonContainer}>
+                  <button className={styles.seeDetailsBtn}>View Details</button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        
+        <button className={styles.viewApplicationBtn}>
+          View Applications
+        </button>
+      </div>
     </div>
   );
 };

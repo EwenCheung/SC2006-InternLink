@@ -10,9 +10,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:5178'; // Default to localhost for development
+const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:5178', 'http://localhost:5173']; // Allow multiple origins
 app.use(cors({
-  origin: allowedOrigin, // Use environment variable for origin
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
   credentials: true // Allow cookies and credentials
@@ -36,7 +42,6 @@ const PORT = parseInt(DEFAULT_PORT, 10);
 const startServer = (port) => {
   app.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    console.log(`CORS allowed origin: ${allowedOrigin}`);
   }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
       console.log(`Port ${port} is in use. Trying port ${port + 1}...`);
