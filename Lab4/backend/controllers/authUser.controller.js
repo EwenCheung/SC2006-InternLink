@@ -1,4 +1,3 @@
-import User from '../models/User.js';
 import JobSeeker from '../models/JobSeeker.model.js';
 import Employer from '../models/Employer.model.js';
 import { StatusCodes } from 'http-status-codes';
@@ -19,13 +18,15 @@ export const register = async (req, res) => {
     if (!email || !password || !userName) {
       throw new BadRequestError('Please provide all required fields');
     }
-    user = await JobSeeker.create({ email, password, userName, role });
+    // Add role and pass entire req.body to create
+    user = await JobSeeker.create({ ...req.body, role });
   } else {
     const { email, password, companyName } = req.body;
     if (!email || !password || !companyName) {
       throw new BadRequestError('Please provide all required fields');
     }
-    user = await Employer.create({ email, password, companyName, role });
+    // Add role and pass entire req.body to create
+    user = await Employer.create({ ...req.body, role });
   }
   
   const token = user.createJWT();
@@ -49,7 +50,11 @@ export const login = async (req, res) => {
     throw new BadRequestError('Please provide email and password');
   }
   
-  const user = await User.findOne({ email });
+  // Check both employer and jobseeker collections
+  const user = await Promise.any([
+    Employer.findOne({ email }),
+    JobSeeker.findOne({ email })
+  ]);
   
   if (!user) {
     throw new UnauthenticatedError('Invalid credentials');

@@ -1,7 +1,38 @@
 import mongoose from 'mongoose';
-import User from './User.js';
+import { comparePassword, createJWT, hashPassword } from './User.js';
+import { connectDB, usersConn } from '../config/db.js';
+
+// Wait for database connection
+await connectDB();
+
+// Ensure we have the users connection
+if (!usersConn) {
+  throw new Error('Users database connection not established');
+}
 
 const EmployerSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: [true, 'Please provide an email'],
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+  },
+  password: {
+    type: String,
+    required: [true, 'Please provide a password'],
+    minlength: 6,
+  },
+  role: {
+    type: String,
+    default: 'employer',
+    immutable: true
+  },
+  accountUserName: {
+    type: String,
+    required: [true, 'Please provide a username'],
+    minlength: 3,
+    maxlength: 50,
+  },
   companyName: {
     type: String,
     required: [true, 'Please provide company name'],
@@ -14,11 +45,9 @@ const EmployerSchema = new mongoose.Schema({
   },
   industry: {
     type: String,
-    default: '',
   },
   location: {
     type: String,
-    default: '',
   },
   companySize: {
     type: String,
@@ -27,24 +56,35 @@ const EmployerSchema = new mongoose.Schema({
   },
   website: {
     type: String,
-    default: '',
   },
   description: {
     type: String,
-    default: '',
   },
   contact: {
     type: String,
     match: [/^\S+@\S+\.\S+$/, 'Please provide a valid contact email'],
-    default: '',
   },
   jobPostings: {
     type: [String],
     default: [],
   }
-}, { 
-  collection: 'employer'  // Explicitly set collection name
 });
 
-const Employer = User.discriminator('employer', EmployerSchema);
+// Pre-save middleware to hash password
+EmployerSchema.pre('save', async function() {
+  if (this.isModified('password')) {
+    this.password = await hashPassword(this.password);
+  }
+});
+
+// Instance methods
+EmployerSchema.methods.comparePassword = async function(candidatePassword) {
+  return await comparePassword(candidatePassword, this.password);
+};
+
+EmployerSchema.methods.createJWT = function() {
+  return createJWT(this._id, this.email, this.role);
+};
+
+const Employer = usersConn.model('Employer', EmployerSchema, 'employer');
 export default Employer;

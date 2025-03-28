@@ -1,4 +1,13 @@
 import mongoose from 'mongoose';
+import { connectDB, jobListConn } from '../config/db.js';
+
+// Wait for database connection
+await connectDB();
+
+// Ensure we have the job_list connection
+if (!jobListConn) {
+  throw new Error('Job list database connection not established');
+}
 
 // Internship Job Schema
 const internshipJobSchema = new mongoose.Schema({
@@ -92,7 +101,7 @@ const adHocJobSchema = new mongoose.Schema({
   },
 }, { collection: 'adhoc_job' }); // Explicitly set collection name
 
-const InternshipJob = mongoose.model('InternshipJob', internshipJobSchema);
-const AdHocJob = mongoose.model('AdHocJob', adHocJobSchema);
+const InternshipJob = jobListConn.model('InternshipJob', internshipJobSchema, 'internship_job');
+const AdHocJob = jobListConn.model('AdHocJob', adHocJobSchema, 'adhoc_job');
 
 export { InternshipJob, AdHocJob };
