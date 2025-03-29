@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import Message from "../models/message.model.js";
-import User from "../models/User.js";
+import JobSeeker from "../models/JobSeeker.model.js";
+import Employer from "../models/Employer.model.js";
 
 // Get conversations for a user
 export const getConversations = async (req, res) => {
   try {
-    const userId = req.user.userId; // From JWT token
+    const userId = req.user.userId;
+    const userRole = req.user.role;
 
     // Find all messages where the user is either sender or receiver
     const messages = await Message.find({
@@ -28,8 +30,13 @@ export const getConversations = async (req, res) => {
         ? recentMessage.receiverId 
         : recentMessage.senderId;
 
-      // Get other user details
-      const otherUser = await User.findById(otherUserId).select('userName companyName email role');
+      // Get other user details based on role
+      let otherUser;
+      if (userRole === 'jobseeker') {
+        otherUser = await Employer.findById(otherUserId).select('companyName email role');
+      } else {
+        otherUser = await JobSeeker.findById(otherUserId).select('userName email role');
+      }
 
       // Count unread messages in this conversation where user is the receiver
       const unreadCount = await Message.countDocuments({
@@ -64,7 +71,7 @@ export const getMessages = async (req, res) => {
     }
 
     // Generate conversation ID
-    const conversationId = Message.generateConversationId(userId, otherUserId);
+    const conversationId = `${[userId, otherUserId].sort().join('_')}`;
 
     // Get messages in this conversation
     const messages = await Message.find({ conversationId })
@@ -97,8 +104,8 @@ export const sendMessage = async (req, res) => {
       return res.status(400).json({ success: false, message: "Message content cannot be empty" });
     }
 
-    // Generate conversation ID
-    const conversationId = Message.generateConversationId(senderId, receiverId);
+    // Generate conversation ID by sorting IDs to ensure consistency
+    const conversationId = `${[senderId, receiverId].sort().join('_')}`;
 
     // Create and save new message
     const newMessage = new Message({

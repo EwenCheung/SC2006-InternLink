@@ -1,0 +1,139 @@
+.container {
+  @apply min-h-screen flex flex-col justify-center px-6 py-12;
+  background: linear-gradient(135deg, #DDD6FE 0%, #ffffff 100%);
+}
+
+.formContainer {
+  @apply mx-auto w-full max-w-md bg-white rounded-xl shadow-lg p-8;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.1), 0 2px 4px -1px rgba(124, 58, 237, 0.06);
+  transition: all 0.3s ease-in-out;
+}
+
+.header {
+  @apply text-center;
+}
+
+.logo {
+  @apply mx-auto h-10 w-auto;
+}
+
+.title {
+  @apply mt-6 text-2xl font-bold leading-9 tracking-tight text-gray-900;
+  background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.form {
+  @apply mt-8 space-y-6;
+}
+
+.inputGroup {
+  @apply space-y-2;
+}
+
+.label {
+  @apply block text-sm font-medium leading-6 text-gray-900;
+}
+
+.input {
+  @apply block w-full rounded-md border-0 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7C3AED] sm:text-sm sm:leading-6;
+  transition: all 0.2s ease-in-out;
+}
+
+.input:hover {
+  @apply ring-[#8B5CF6];
+}
+
+.button {
+  @apply flex w-full justify-center items-center rounded-md px-4 py-2 text-sm font-semibold leading-6 shadow-sm 
+  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200;
+  min-height: 2.5rem;
+}
+
+.primaryButton {
+  @apply bg-[#7C3AED] text-white hover:bg-[#8B5CF6] focus-visible:outline-[#7C3AED];
+  background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.primaryButton:disabled {
+  @apply opacity-70 cursor-not-allowed;
+}
+
+.dividerContainer {
+  @apply relative mt-6;
+}
+
+.divider {
+  @apply absolute inset-0 flex items-center;
+}
+
+.dividerLine {
+  @apply w-full border-t border-gray-300;
+}
+
+.dividerText {
+  @apply relative flex justify-center text-sm font-medium leading-6;
+}
+
+.dividerTextSpan {
+  @apply bg-white px-6 text-gray-500;
+}
+
+.oauthButton {
+  @apply flex items-center justify-center gap-3 w-full mt-4 px-4 py-2 border border-gray-300 rounded-lg 
+  text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+  transition: all 0.2s ease-in-out;
+}
+
+.oauthButton:hover {
+  @apply border-[#8B5CF6] bg-gray-50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px -1px rgba(124, 58, 237, 0.1);
+}
+
+.googleIcon {
+  color: #DB4437;
+}
+
+.githubIcon {
+  color: #333;
+}
+
+.error {
+  @apply mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 p-3 rounded-md;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.navigationLinks {
+  @apply mt-10 text-center text-sm text-gray-500;
+}
+
+.link {
+  @apply font-semibold text-[#7C3AED] hover:text-[#8B5CF6];
+  transition: all 0.2s ease-in-out;
+}
+
+.backButton {
+  @apply absolute top-8 left-8 text-[#7C3AED] hover:text-[#8B5CF6] flex items-center gap-2;
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import JobSeekerNav from './JobSeekerNav';
 import EmployerNav from './EmployerNav';
-import Logo from '../../../../public/images/Logo2.png'; // Adjust the path to your logo image
+const Logo = '/images/Logo2.png'; // Access public assets directly
 
 const NavigationBar = () => {
   const location = useLocation();

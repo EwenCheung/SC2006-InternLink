@@ -1,90 +1,90 @@
 import mongoose from 'mongoose';
-import { comparePassword, createJWT, hashPassword } from './User.js';
-import { connectDB, usersConn } from '../config/db.js';
-
-// Wait for database connection
-await connectDB();
-
-// Ensure we have the users connection
-if (!usersConn) {
-  throw new Error('Users database connection not established');
-}
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const EmployerSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: [true, 'Please provide an email'],
-    unique: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 6,
-  },
-  role: {
+  type: {
     type: String,
     default: 'employer',
-    immutable: true
-  },
-  accountUserName: {
-    type: String,
-    required: [true, 'Please provide a username'],
-    minlength: 3,
-    maxlength: 50,
+    required: true
   },
   companyName: {
     type: String,
     required: [true, 'Please provide company name'],
-    minlength: 3,
-    maxlength: 100,
+    minLength: 3,
+    maxLength: 50,
+  },
+  email: {
+    type: String,
+    required: [true, 'Please provide email'],
+    match: [
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      'Please provide a valid email',
+    ],
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, 'Please provide password'],
+    minLength: 6,
+  },
+  role: {
+    type: String,
+    enum: ['employer'],
+    default: 'employer',
   },
   companyLogo: {
     type: String,
-    default: 'default_company.png',
+    validate: {
+      validator: function(v) {
+        return !v || /\.(jpg|jpeg|png)$/i.test(v);
+      },
+      message: 'Company logo must be in JPG, JPEG, or PNG format'
+    }
   },
-  industry: {
+  industry: String,
+  companySize: String,
+  location: String,
+  website: String,
+  description: String,
+  phoneNumber: String,
+  jobPosts: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Application'
+  }],
+  contactEmail: {
     type: String,
+    match: [
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      'Please provide a valid contact email',
+    ]
   },
-  location: {
-    type: String,
-  },
-  companySize: {
-    type: String,
-    enum: ['1-10', '11-50', '51-200', '201-500', '500+'],
-    default: '1-10',
-  },
-  website: {
-    type: String,
-  },
-  description: {
-    type: String,
-  },
-  contact: {
-    type: String,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid contact email'],
-  },
-  jobPostings: {
-    type: [String],
-    default: [],
-  }
 });
 
-// Pre-save middleware to hash password
-EmployerSchema.pre('save', async function() {
-  if (this.isModified('password')) {
-    this.password = await hashPassword(this.password);
-  }
+EmployerSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Instance methods
-EmployerSchema.methods.comparePassword = async function(candidatePassword) {
-  return await comparePassword(candidatePassword, this.password);
+EmployerSchema.methods.createJWT = function () {
+  return jwt.sign(
+    { userId: this._id, role: this.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_LIFETIME || '30d',
+    }
+  );
 };
 
-EmployerSchema.methods.createJWT = function() {
-  return createJWT(this._id, this.email, this.role);
+EmployerSchema.methods.comparePassword = async function (candidatePassword) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
 };
 
-const Employer = usersConn.model('Employer', EmployerSchema, 'employer');
+// Get Users database connection
+const usersDb = mongoose.connection.useDb('Users', { useCache: true });
+
+// Create and export model
+const Employer = usersDb.model('Employer', EmployerSchema);
 export default Employer;

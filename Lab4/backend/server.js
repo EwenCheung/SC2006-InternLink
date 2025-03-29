@@ -1,57 +1,51 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors'; // Import CORS middleware
-import { connectDB } from './config/db.js';
-import jobRoutes from './routes/job.route.js';
-import { errorHandler, notFound } from './errors/errorMiddleware.js';
+import cors from 'cors';
+import 'express-async-errors';
+
+// Import database connection
+import connectDB from './config/db.js';
+
+// Import route files
 import authUserRoutes from './routes/authUser.route.js';
+import jobRoutes from './routes/job.route.js';
+import messageRoutes from './routes/message.route.js';
+import applicationRoutes from './routes/application.route.js';
+
+// Import error handler middleware
+import { errorHandler, notFound } from './errors/errorMiddleware.js';
 
 dotenv.config();
 
 const app = express();
 
 // Middleware
-const allowedOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:5178', 'http://localhost:5173']; // Allow multiple origins
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specific HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
-  credentials: true // Allow cookies and credentials
-}));
+app.use(cors());
 app.use(express.json());
 
-// Connect to Database
-connectDB();
+// Connect to MongoDB
+const startServer = async () => {
+  try {
+    await connectDB();
 
-// Routes
-app.use('/api/jobs', jobRoutes);
-app.use('/api/auth', authUserRoutes);
+    // Routes
+    app.use('/api/auth', authUserRoutes);
+    app.use('/api/jobs', jobRoutes);
+    app.use('/api/messages', messageRoutes);
+    app.use('/api/applications', applicationRoutes);
 
-// Error Handling Middleware
-app.use(notFound);
-app.use(errorHandler);
+    // Error handler middleware
+    app.use(notFound);
+    app.use(errorHandler);
 
-// Dynamically Select an Available Port
-const DEFAULT_PORT = process.env.PORT || 5000;
-const PORT = parseInt(DEFAULT_PORT, 10);
-
-const startServer = (port) => {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.log(`Port ${port} is in use. Trying port ${port + 1}...`);
-      startServer(port + 1);
-    } else {
-      console.error('Server error:', err);
-    }
-  });
+    const port = process.env.PORT || 5001;
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 };
 
-startServer(PORT);
+startServer();

@@ -1,89 +1,92 @@
 import mongoose from 'mongoose';
-import { comparePassword, createJWT, hashPassword } from './User.js';
-import { connectDB, usersConn } from '../config/db.js';
-
-// Wait for database connection
-await connectDB();
-
-// Ensure we have the users connection
-if (!usersConn) {
-  throw new Error('Users database connection not established');
-}
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const JobSeekerSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: [true, 'Please provide an email'],
-    unique: true,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 6,
-  },
-  role: {
+  type: {
     type: String,
     default: 'jobseeker',
-    immutable: true
+    required: true
   },
   userName: {
     type: String,
-    required: [true, 'Please provide a name'],
-    minlength: 3,
-    maxlength: 50,
+    required: [true, 'Please provide name'],
+    minLength: 3,
+    maxLength: 50,
+  },
+  email: {
+    type: String,
+    required: [true, 'Please provide email'],
+    match: [
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      'Please provide a valid email',
+    ],
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: [true, 'Please provide password'],
+    minLength: 6,
+  },
+  role: {
+    type: String,
+    enum: ['jobseeker'],
+    default: 'jobseeker',
   },
   profileImage: {
     type: String,
-    default: 'default.png',
-  },
-  school: {
-    type: String,
-  },
-  course: {
-    type: String,
-  },
-  yearOfStudy: {
-    type: String,
-  },
-  contact: {
-    type: String,
-    match: [/^\S+@\S+\.\S+$/, 'Please provide a valid contact email'],
-  },
-  resume: {
-    type: String,
     validate: {
       validator: function(v) {
-        return v === '' || v.endsWith('.pdf');
+        return !v || /\.(jpg|jpeg|png)$/i.test(v);
       },
-      message: 'Resume must be a PDF file'
+      message: 'Profile image must be in JPG, JPEG, or PNG format'
     }
   },
-  skills: {
-    type: [String],
-    default: [],
+  dateOfBirth: Date,
+  phoneNumber: String,
+  school: String,
+  course: String,
+  yearOfStudy: String,
+  resume: String,
+  skills: [String],
+  interests: [String], // Array of job interests
+  jobApplications: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Application'
+  }],
+  contactEmail: {
+    type: String,
+    match: [
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      'Please provide a valid contact email',
+    ]
   },
-  applications: {
-    type: [String],
-    default: [],
-  }
 });
 
-// Pre-save middleware to hash password
-JobSeekerSchema.pre('save', async function() {
-  if (this.isModified('password')) {
-    this.password = await hashPassword(this.password);
-  }
+JobSeekerSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Instance methods
-JobSeekerSchema.methods.comparePassword = async function(candidatePassword) {
-  return await comparePassword(candidatePassword, this.password);
+JobSeekerSchema.methods.createJWT = function () {
+  return jwt.sign(
+    { userId: this._id, role: this.role },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: process.env.JWT_LIFETIME || '30d',
+    }
+  );
 };
 
-JobSeekerSchema.methods.createJWT = function() {
-  return createJWT(this._id, this.email, this.role);
+JobSeekerSchema.methods.comparePassword = async function (candidatePassword) {
+  const isMatch = await bcrypt.compare(candidatePassword, this.password);
+  return isMatch;
 };
 
-const JobSeeker = usersConn.model('JobSeeker', JobSeekerSchema, 'jobseeker');
+// Get Users database connection
+const usersDb = mongoose.connection.useDb('Users', { useCache: true });
+
+// Create and export model
+const JobSeeker = usersDb.model('JobSeeker', JobSeekerSchema);
 export default JobSeeker;

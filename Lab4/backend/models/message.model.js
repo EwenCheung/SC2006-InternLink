@@ -1,38 +1,51 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const messageSchema = new mongoose.Schema({
-  senderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+const MessageSchema = new mongoose.Schema({
+  sender: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    refPath: 'senderModel'
   },
-  receiverId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  senderModel: {
+    type: String,
+    required: true,
+    enum: ['JobSeeker', 'Employer']
+  },
+  receiver: {
+    type: mongoose.Types.ObjectId,
+    required: true,
+    refPath: 'receiverModel'
+  },
+  receiverModel: {
+    type: String,
+    required: true,
+    enum: ['JobSeeker', 'Employer']
   },
   content: {
     type: String,
+    required: [true, 'Please provide message content'],
+    trim: true
+  },
+  job: {
+    type: mongoose.Types.ObjectId,
+    ref: 'Job',
     required: true
   },
-  isRead: {
+  readStatus: {
     type: Boolean,
     default: false
   },
-  // We'll use this to group related messages together in a conversation
-  conversationId: {
-    type: String,
-    required: true
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-// Helper method to generate a conversation ID from two user IDs
-messageSchema.statics.generateConversationId = function(userId1, userId2) {
-  // Sort IDs to ensure consistency regardless of who initiates the conversation
-  const sortedIds = [userId1, userId2].sort();
-  return `${sortedIds[0]}_${sortedIds[1]}`;
-};
+// Add indexes for better query performance
+MessageSchema.index({ sender: 1, receiver: 1 });
+MessageSchema.index({ job: 1 });
+MessageSchema.index({ createdAt: -1 });
 
-const Message = mongoose.model('Message', messageSchema);
-
-export default Message;
+export default mongoose.model('Message', MessageSchema);
