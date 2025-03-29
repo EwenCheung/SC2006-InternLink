@@ -195,3 +195,51 @@ export const updateSensitiveInfo = async (req, res) => {
     throw error;
   }
 };
+
+// Delete user by ID
+export const deleteUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Try to find and delete from both collections
+    const deletedJobSeeker = await JobSeeker.findByIdAndDelete(id);
+    const deletedEmployer = await Employer.findByIdAndDelete(id);
+
+    if (!deletedJobSeeker && !deletedEmployer) {
+      throw new BadRequestError('User not found');
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    throw new BadRequestError(error.message);
+  }
+};
+
+// Delete user by email
+export const deleteUserByEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new BadRequestError('Please provide an email');
+  }
+
+  try {
+    // Try to find and delete from both collections
+    const deletedJobSeeker = await JobSeeker.findOneAndDelete({ email });
+    const deletedEmployer = await Employer.findOneAndDelete({ email });
+
+    if (!deletedJobSeeker && !deletedEmployer) {
+      throw new BadRequestError('User not found');
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    throw new BadRequestError(error.message);
+  }
+};

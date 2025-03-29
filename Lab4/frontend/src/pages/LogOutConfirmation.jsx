@@ -5,7 +5,12 @@ const LogOutConfirmation = () => {
   const navigate = useNavigate();
 
   const handleLogOut = () => {
-    // TODO: Add logout logic (clear tokens, etc)
+    // Clear all auth related data from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
+    
+    // Navigate to home page
     navigate('/', { replace: true });
   };
 

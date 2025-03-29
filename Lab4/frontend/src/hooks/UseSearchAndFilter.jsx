@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { defaultFilters } from '../components/Common/FilterConfig';
 
-const useSearchAndFilter = (fetchFunction) => {
+const useSearchAndFilter = (fetchFunction, initialFilters) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(initialFilters || {});
   const [showFilter, setShowFilter] = useState(false);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -41,7 +40,7 @@ const useSearchAndFilter = (fetchFunction) => {
   };
 
   const resetFilters = () => {
-    setFilters(defaultFilters);
+    setFilters(initialFilters);
     setSearchTerm('');
     handleSearch();
   };

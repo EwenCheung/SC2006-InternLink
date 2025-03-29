@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styles from './JS_FindInternshipPage.module.css';
 import SearchAndFilter from '../../components/Common/SearchAndFilter';
-import { jobFilterOptions } from '../../components/Common/FilterConfig';
+import { internshipFilterOptions, defaultInternshipFilters } from '../../components/Common/FilterConfig';
 import { useSearchAndFilter } from '../../hooks/UseSearchAndFilter';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'; // Use environment variable or default to port 5001
@@ -42,7 +42,7 @@ const JS_FindInternshipPage = () => {
     resetFilters,
     setLoading,
     setData: setJobs
-  } = useSearchAndFilter(fetchJobs);
+  } = useSearchAndFilter(fetchJobs, defaultInternshipFilters);
 
   // Initial fetch
   useEffect(() => {
@@ -87,7 +87,7 @@ const JS_FindInternshipPage = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
           onReset={resetFilters}
-          filterOptions={jobFilterOptions}
+          filterOptions={internshipFilterOptions}
         />
       </div>
 

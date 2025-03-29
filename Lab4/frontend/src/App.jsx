@@ -19,7 +19,8 @@ import EP_PostInternshipPage from './pages/Employer/EP_PostInternshipPage';
 import EP_PostAdHocPage from './pages/Employer/EP_PostAdHocPage';
 import EP_InternshipDetailsPage from './pages/Employer/EP_InternshipDetailsPage';
 import EP_AdHocDetailsPage from './pages/Employer/EP_AdHocDetailsPage';
-import EP_AddPostPage from './pages/Employer/EP_AddPostPage';
+import EP_AddInternshipPage from './pages/Employer/EP_AddInternshipPage';
+import EP_AddAdHocPage from './pages/Employer/EP_AddAdHocPage';
 import EP_ProfilePage from './pages/Employer/EP_ProfilePage';
 import EP_MessagesPage from './pages/Employer/EP_MessagesPage';
 import EP_ViewCandidatesPage from './pages/Employer/EP_ViewCandidatesPage';
@@ -46,31 +47,36 @@ const App = () => {
         <Route path="/jobseeker/login" element={<JS_EmailLoginPage />} />
         <Route path="/jobseeker/signup" element={<JS_EmailSignupPage />} />
 
-        {/* JobSeeker routes */}
+        {/* JobSeeker protected routes */}
         <Route element={<Layout />}>
-          <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
-          <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
-          <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
-          <Route path="/jobseeker/adhoc/:id" element={<JS_AdHocDetailsPage />} />
-          <Route path="/jobseeker/messages" element={<JS_MessagesPage />} />
-          <Route path="/jobseeker/profile" element={<JS_ProfilePage />} />
-          <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
+          <Route element={<ProtectedRoute role="jobseeker" />}>
+            <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
+            <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
+            <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
+            <Route path="/jobseeker/adhoc/:id" element={<JS_AdHocDetailsPage />} />
+            <Route path="/jobseeker/messages" element={<JS_MessagesPage />} />
+            <Route path="/jobseeker/profile" element={<JS_ProfilePage />} />
+            <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
+          </Route>
         </Route>
 
         {/* Employer auth routes */}
         <Route path="/employer/login" element={<EP_EmailLoginPage />} />
         <Route path="/employer/signup" element={<EP_EmailSignupPage />} />
 
-        {/* Employer routes */}
+        {/* Employer protected routes */}
         <Route element={<Layout />}>
-          <Route path="/employer/post-internship" element={<EP_PostInternshipPage />} />
-          <Route path="/employer/post-adhoc" element={<EP_PostAdHocPage />} />
-          <Route path="/employer/add-post" element={<EP_AddPostPage />} />
-          <Route path="/employer/internship/:id" element={<EP_InternshipDetailsPage />} />
-          <Route path="/employer/adhoc/:id" element={<EP_AdHocDetailsPage />} />
-          <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
-          <Route path="/employer/messages" element={<EP_MessagesPage />} />
-          <Route path="/employer/profile" element={<EP_ProfilePage />} />
+          <Route element={<ProtectedRoute role="employer" />}>
+            <Route path="/employer/post-internship" element={<EP_PostInternshipPage />} />
+            <Route path="/employer/post-adhoc" element={<EP_PostAdHocPage />} />
+            <Route path="/employer/add-internship" element={<EP_AddInternshipPage />} />
+            <Route path="/employer/add-adhoc" element={<EP_AddAdHocPage />} />
+            <Route path="/employer/internship/:id" element={<EP_InternshipDetailsPage />} />
+            <Route path="/employer/adhoc/:id" element={<EP_AdHocDetailsPage />} />
+            <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
+            <Route path="/employer/messages" element={<EP_MessagesPage />} />
+            <Route path="/employer/profile" element={<EP_ProfilePage />} />
+          </Route>
         </Route>
 
         {/* Catch all route for 404 */}

@@ -9,19 +9,19 @@ const adHocJobSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [true, 'Job title is required'],
+    required: function() { return this.status !== 'draft'; } // Only required for posted jobs
   },
   description: {
     type: String,
-    required: [true, 'Job description is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   company: {
     type: String,
-    required: [true, 'Company name is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   location: {
     type: String,
-    required: [true, 'Location is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   tags: {
     type: [String],
@@ -29,7 +29,7 @@ const adHocJobSchema = new mongoose.Schema({
   },
   payPerHour: {
     type: Number,
-    required: [true, 'Pay per hour is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   jobType: {
     type: String,
@@ -45,6 +45,11 @@ const adHocJobSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  status: {
+    type: String,
+    enum: ['draft', 'posted'],
+    default: 'posted'
+  }
 });
 
 // Internship Job Schema
@@ -56,19 +61,19 @@ const internshipJobSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [true, 'Job title is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   description: {
     type: String,
-    required: [true, 'Job description is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   company: {
     type: String,
-    required: [true, 'Company name is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   location: {
     type: String,
-    required: [true, 'Location is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   tags: {
     type: [String],
@@ -76,11 +81,11 @@ const internshipJobSchema = new mongoose.Schema({
   },
   stipend: {
     type: String,
-    required: [true, 'Stipend is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   duration: {
     type: String,
-    required: [true, 'Duration is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   jobType: {
     type: String,
@@ -89,11 +94,11 @@ const internshipJobSchema = new mongoose.Schema({
   },
   courseStudy: {
     type: String,
-    required: [true, 'Course of study is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   yearOfStudy: {
     type: String,
-    required: [true, 'Year of study is required'],
+    required: function() { return this.status !== 'draft'; }
   },
   employerID: {
     type: mongoose.Schema.Types.ObjectId,
@@ -104,7 +109,35 @@ const internshipJobSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  status: {
+    type: String,
+    enum: ['draft', 'posted'],
+    default: 'posted'
+  }
 });
+
+// Add pre-save middleware to validate required fields for posted jobs
+const validatePostedJob = function(next) {
+  if (this.status === 'posted') {
+    const requiredFields = [
+      'title', 'description', 'company', 'location', 
+      ...(this.jobType === 'internship' ? 
+        ['stipend', 'duration', 'courseStudy', 'yearOfStudy'] : 
+        ['payPerHour']
+      )
+    ];
+
+    const missingFields = requiredFields.filter(field => !this[field]);
+    if (missingFields.length > 0) {
+      next(new Error(`Missing required fields for posted job: ${missingFields.join(', ')}`));
+      return;
+    }
+  }
+  next();
+};
+
+internshipJobSchema.pre('save', validatePostedJob);
+adHocJobSchema.pre('save', validatePostedJob);
 
 // Get job_list database connection
 const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });

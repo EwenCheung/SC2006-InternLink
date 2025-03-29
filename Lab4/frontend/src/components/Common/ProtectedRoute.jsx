@@ -1,21 +1,31 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Outlet } from 'react-router-dom';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ role }) => {
   const location = useLocation();
-  // TODO: Replace with actual auth logic
-  const isAuthenticated = true; // Temporary, replace with actual auth check
-  const userRole = location.pathname.includes('jobseeker') ? 'jobseeker' : 'employer';
+  // Check if user is authenticated by looking for token
+  const token = localStorage.getItem('token');
+  const isAuthenticated = !!token;
+  
+  // Get user role from token or localStorage
+  const userRole = localStorage.getItem('userRole');
 
+  // If not authenticated, redirect to login
   if (!isAuthenticated) {
-    return <Navigate to="/" replace state={{ from: location }} />;
+    return <Navigate 
+      to={`/${role}/login`} 
+      replace 
+      state={{ from: location }} 
+    />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(userRole)) {
+  // If role doesn't match, redirect to home
+  if (role && role !== userRole) {
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  // Render child routes
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

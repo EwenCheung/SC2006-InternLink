@@ -107,10 +107,6 @@
   color: #333;
 }
 
-.errorIcon {
-  @apply h-5 w-5;
-}
-
 .error {
   @apply mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 p-3 rounded-md;
   animation: fadeIn 0.3s ease-out;
