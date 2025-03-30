@@ -1,5 +1,5 @@
 .container {
-    background: linear-gradient(135deg, rgb(252, 242, 255) 0%, rgb(245, 235, 250) 100%);
+    background: linear-gradient(135deg, rgb(247, 226, 255) 0%, rgb(240, 211, 255) 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -40,7 +40,7 @@
 }
 
 .button:hover {
-    background: linear-gradient(135deg, rgb(227, 125, 252) 0%, rgb(238, 153, 255) 100%);
+    background: linear-gradient(135deg, rgb(104, 64, 119) 0%, rgb(156, 28, 182) 100%);
     box-shadow: 
         0 4px 12px rgba(138, 63, 171, 0.4),
         0 0 0 2px rgba(138, 63, 171, 0.1);

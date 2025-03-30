@@ -516,7 +516,7 @@ const EP_EmailSignupPage = () => {
               onClick={() => setCurrentStep(2)}
               className={`${styles.button} ${styles.secondaryButton} w-full mt-4`}
             >
-              Fill Complete Profile
+              Complete Your Profile
             </button>
 
             <div className={styles.dividerContainer}>
