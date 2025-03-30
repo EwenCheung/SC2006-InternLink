@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './SearchAndFilter.module.css';
+import RangeSlider from './RangeSlider';
 
 const SearchAndFilter = ({ 
   searchTerm, 
@@ -12,6 +13,15 @@ const SearchAndFilter = ({
   onReset,
   filterOptions
 }) => {
+  const handleFilterChange = (key, value) => {
+    onFilterChange({
+      target: {
+        name: key,
+        value: value
+      }
+    });
+  };
+
   return (
     <div className={styles.searchAndFilterContainer}>
       <div className={styles.searchAndFilter}>
@@ -45,18 +55,27 @@ const SearchAndFilter = ({
               {Object.entries(filterOptions).map(([key, options]) => (
                 <div key={key} className={styles.filterSection}>
                   <h3>{options.label}</h3>
-                  <select 
-                    name={key} 
-                    value={filters[key]} 
-                    onChange={onFilterChange}
-                  >
-                    <option value="">{options.defaultOption}</option>
-                    {options.choices.map(choice => (
-                      <option key={choice.value} value={choice.value}>
-                        {choice.label}
-                      </option>
-                    ))}
-                  </select>
+                  {options.type === 'range' ? (
+                    <RangeSlider
+                      value={filters[key]}
+                      onChange={(value) => handleFilterChange(key, value)}
+                      min={options.min}
+                      max={options.max}
+                    />
+                  ) : (
+                    <select 
+                      name={key} 
+                      value={filters[key]} 
+                      onChange={onFilterChange}
+                    >
+                      <option value="">{options.defaultOption}</option>
+                      {options.choices.map(choice => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               ))}
             </div>

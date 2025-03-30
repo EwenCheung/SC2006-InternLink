@@ -1,7 +1,7 @@
 @import './JS_FindJobPage.module.css';
 
-/* Internship-specific styles */
-.stipendInfo {
+/* Ad-hoc specific styles */
+.payInfo {
   display: flex;
   align-items: center;
   gap: 8px;

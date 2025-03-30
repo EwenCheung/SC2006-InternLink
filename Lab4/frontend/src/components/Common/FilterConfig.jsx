@@ -74,13 +74,11 @@ export const internshipFilterOptions = {
     ]
   },
   stipend: {
-    label: "Stipend",
-    defaultOption: "All Stipends",
-    choices: [
-      { value: "low", label: "Below $500" },
-      { value: "medium", label: "$500 - $1000" },
-      { value: "high", label: "Above $1000" }
-    ]
+    label: "Stipend Range",
+    type: "range",
+    min: 0,
+    max: 5000,
+    defaultValue: [0, 5000]
   },
   duration: {
     label: "Duration",
@@ -95,14 +93,12 @@ export const internshipFilterOptions = {
 
 export const adhocFilterOptions = {
   location: locationFilter,
-  stipend: {
-    label: "Pay Per Hour",
-    defaultOption: "All Rates",
-    choices: [
-      { value: "low", label: "Below $15/hr" },
-      { value: "medium", label: "$15-$25/hr" },
-      { value: "high", label: "Above $25/hr" }
-    ]
+  payPerHour: {
+    label: "Pay Per Hour Range",
+    type: "range",
+    min: 0,
+    max: 100,
+    defaultValue: [0, 100]
   }
 };
 
@@ -110,13 +106,13 @@ export const defaultInternshipFilters = {
   location: '',
   course: '',
   year: '',
-  stipend: '',
+  stipend: [0, 5000],
   duration: ''
 };
 
 export const defaultAdhocFilters = {
   location: '',
-  stipend: ''
+  payPerHour: [0, 100]
 };
 
 const FilterConfig = () => {

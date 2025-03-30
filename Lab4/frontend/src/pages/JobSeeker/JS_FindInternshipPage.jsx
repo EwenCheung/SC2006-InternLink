@@ -1,26 +1,27 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaBuilding, FaMapMarkerAlt, FaGraduationCap, FaClock, FaUsers } from 'react-icons/fa';
 import styles from './JS_FindInternshipPage.module.css';
 import SearchAndFilter from '../../components/Common/SearchAndFilter';
 import { internshipFilterOptions, defaultInternshipFilters } from '../../components/Common/FilterConfig';
 import { useSearchAndFilter } from '../../hooks/UseSearchAndFilter';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001'; // Use environment variable or default to port 5001
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 const JS_FindInternshipPage = () => {
+  const navigate = useNavigate();
+
   const fetchJobs = async (queryParams) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/jobs/internship?${queryParams}`);
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
-        console.log('API Response:', data); // Debugging: Log the API response
         if (data.success && Array.isArray(data.data)) {
           return data.data;
         }
         throw new Error('Failed to fetch jobs');
       } else {
-        const text = await response.text();
-        console.error('Non-JSON Response:', text); // Debugging: Log non-JSON response
         throw new Error('Received non-JSON response');
       }
     } catch (error) {
@@ -44,25 +45,15 @@ const JS_FindInternshipPage = () => {
     setData: setJobs
   } = useSearchAndFilter(fetchJobs, defaultInternshipFilters);
 
-  // Initial fetch
   useEffect(() => {
     const fetchInitialJobs = async () => {
       try {
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/api/jobs/internship`);
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          console.log('Initial Fetch Response:', data); // Debugging: Log the initial fetch response
-          if (data.success && Array.isArray(data.data)) {
-            setJobs(data.data);
-          } else {
-            console.error('Unexpected API response format:', data);
-            setJobs([]);
-          }
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          setJobs(data.data);
         } else {
-          const text = await response.text();
-          console.error('Non-JSON Initial Response:', text); // Debugging: Log non-JSON response
           setJobs([]);
         }
       } catch (error) {
@@ -74,6 +65,35 @@ const JS_FindInternshipPage = () => {
     };
     fetchInitialJobs();
   }, [setLoading, setJobs]);
+
+  const handleViewDetails = (jobId) => {
+    navigate(`/jobseeker/internship/${jobId}`);
+  };
+
+  const renderTags = (job) => {
+    const allTags = job.tags || [];
+    const displayCount = 3;
+
+    if (allTags.length === 0) return null;
+
+    const visibleTags = allTags.slice(0, displayCount);
+    const remainingCount = allTags.length - displayCount;
+
+    return (
+      <div className={styles.tagSection}>
+        {visibleTags.map((tag, index) => (
+          <span key={index} className={styles.tag}>
+            {tag}
+          </span>
+        ))}
+        {remainingCount > 0 && (
+          <span className={styles.moreTag}>
+            +{remainingCount}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -99,29 +119,70 @@ const JS_FindInternshipPage = () => {
             <div>No internships found</div>
           ) : (
             jobs.map((job) => (
-              <div key={job._id} className={styles.jobBox}> {/* Updated key to use job._id */}
+              <div key={job._id} className={styles.jobBox}>
                 <h3 className={styles.jobTitle}>{job.title}</h3>
-                <p className={styles.jobCompany}>
-                  {job.company} - {job.location}
-                </p>
-                <p className={styles.jobDescription}>
+                
+                <div className={styles.companyInfo}>
+                  <FaBuilding />
+                  <span>{job.company}</span>
+                </div>
+                
+                <div className={styles.locationInfo}>
+                  <FaMapMarkerAlt />
+                  <span>{job.location}</span>
+                </div>
+
+                <div className={styles.jobDescription}>
                   <strong>Job Description:</strong><br />
                   {job.description}
-                </p>
-                <div className={styles.jobRequirements}>
-                  <span>⏱️ {job.duration}</span>
-                  {job.stipend && <span>💰 {job.stipend}</span>}
-                  {job.requirements && <span>{job.requirements}</span>}
                 </div>
+
+                {renderTags(job)}
+
+                <div className={styles.jobDetails}>
+                  <div className={styles.stipendInfo}>
+                    <span>$ SGD {job.stipend}/month</span>
+                  </div>
+                  
+                  {job.yearOfStudy && (
+                    <div className={styles.detailItem}>
+                      <FaGraduationCap />
+                      <span>{job.yearOfStudy}</span>
+                    </div>
+                  )}
+
+                  {job.duration && (
+                    <div className={styles.detailItem}>
+                      <FaClock />
+                      <span>{job.duration}</span>
+                    </div>
+                  )}
+
+                  {job.positions && (
+                    <div className={styles.detailItem}>
+                      <FaUsers />
+                      <span>{job.positions} positions</span>
+                    </div>
+                  )}
+                </div>
+
                 <div className={styles.buttonContainer}>
-                  <button className={styles.seeDetailsBtn}>View Details</button>
+                  <button 
+                    className={styles.seeDetailsBtn}
+                    onClick={() => handleViewDetails(job._id)}
+                  >
+                    View Job Details
+                  </button>
                 </div>
               </div>
             ))
           )}
         </div>
         
-        <button className={styles.viewApplicationBtn}>
+        <button 
+          className={styles.viewApplicationBtn}
+          onClick={() => navigate('/jobseeker/applications')}
+        >
           View Applications
         </button>
       </div>
