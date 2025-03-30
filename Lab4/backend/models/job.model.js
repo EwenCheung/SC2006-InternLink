@@ -106,6 +106,10 @@ const internshipJobSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.status !== 'draft'; }
   },
+  area:{
+    type: String,
+    required: function() { return this.status !== 'draft'; }
+  },
   tags: {
     type: [String],
     default: [],

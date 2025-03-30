@@ -1,38 +1,55 @@
 import React from 'react';
 
 // Shared location filter
+async function getTokenAndFetchLocation() {
+  try {
+    const tokenResponse = await fetch('http://localhost:5001/use-token'); // API call to the backend
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.token) {
+      console.log('Token retrieved:', tokenData.token); // Log the token
+      const url = "https://www.onemap.gov.sg/api/public/popapi/getPlanningareaNames?year=2019";
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${tokenData.token}`, // Use the token for authorization
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const responseData = await response.json(); // Fetch planning areas
+      if (responseData && Array.isArray(responseData)) {
+        locationFilter.choices = responseData.map(area => ({
+          value: area.pln_area_n.toLowerCase(),
+          label: area.pln_area_n
+            .toLowerCase()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' '),
+        })); // Assign planning areas to location filter choices with title casing
+      } else {
+        console.error('Unexpected response format or empty response:', responseData);
+      }
+    } else {
+      console.log('No token received');
+    }
+  } catch (error) {
+    console.error('Error fetching planning areas:', error);
+  }
+}
+
+// Call the function to get the token and fetch planning areas
+getTokenAndFetchLocation();
+
+
 export const locationFilter = {
   label: "Location",
   defaultOption: "All Locations",
-  choices: [
-    { value: "ang mo kio", label: "Ang Mo Kio" },
-    { value: "bedok", label: "Bedok" },
-    { value: "bishan", label: "Bishan" },
-    { value: "bukit batok", label: "Bukit Batok" },
-    { value: "bukit merah", label: "Bukit Merah" },
-    { value: "bukit panjang", label: "Bukit Panjang" },
-    { value: "bukit timah", label: "Bukit Timah" },
-    { value: "central", label: "Central Area" },
-    { value: "clementi", label: "Clementi" },
-    { value: "geylang", label: "Geylang" },
-    { value: "hougang", label: "Hougang" },
-    { value: "jurong east", label: "Jurong East" },
-    { value: "jurong west", label: "Jurong West" },
-    { value: "kallang", label: "Kallang" },
-    { value: "marine parade", label: "Marine Parade" },
-    { value: "novena", label: "Novena" },
-    { value: "pasir ris", label: "Pasir Ris" },
-    { value: "punggol", label: "Punggol" },
-    { value: "queenstown", label: "Queenstown" },
-    { value: "sembawang", label: "Sembawang" },
-    { value: "sengkang", label: "Sengkang" },
-    { value: "serangoon", label: "Serangoon" },
-    { value: "tampines", label: "Tampines" },
-    { value: "toa payoh", label: "Toa Payoh" },
-    { value: "woodlands", label: "Woodlands" },
-    { value: "yishun", label: "Yishun" }
-  ]
-};
+}
 
 export const internshipFilterOptions = {
   location: locationFilter,

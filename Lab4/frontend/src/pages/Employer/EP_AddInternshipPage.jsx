@@ -48,6 +48,9 @@ const EP_AddInternshipPage = () => {
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
   const [currentTag, setCurrentTag] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // To handle loading state for address suggestions
+  const [suggestions, setSuggestions] = useState([]); // To store address suggestions
+  const [areaOptions, setAreaOptions] = useState([]); // To store area options
 
   const [formData, setFormData] = useState({
     title: '',
@@ -59,6 +62,7 @@ const EP_AddInternshipPage = () => {
     courseStudy: 'Select Course',
     yearOfStudy: 'Select Year',
     tags: [],
+    area: '',
   });
 
   useEffect(() => {
@@ -70,6 +74,12 @@ const EP_AddInternshipPage = () => {
       } catch (err) {
         console.error('Error parsing user data:', err);
         navigate('/employer/login');
+      }
+      // Trigger search only if location input is not empty
+      if (name === 'location' && value.trim()) {
+        fetchAddressSuggestions(value);
+      } else {
+        setSuggestions([]); // Clear suggestions if input is empty
       }
     } else {
       navigate('/employer/login');
@@ -93,6 +103,7 @@ const EP_AddInternshipPage = () => {
           courseStudy: draftData.courseStudy || 'Select Course',
           yearOfStudy: draftData.yearOfStudy || 'Select Year',
           tags: draftData.tags || [],
+          area: draftData.area || '',
         });
       }
     };
@@ -100,19 +111,87 @@ const EP_AddInternshipPage = () => {
     loadDraft();
   }, [location.state]);
 
+  useEffect(() => {
+    fetchAreaOptions();
+  }, []);
+
+  const fetchAreaOptions = async () => {
+    const url = "https://www.onemap.gov.sg/api/public/popapi/getPlanningareaNames?year=2019";
+    const tokenResponse = await fetch('http://localhost:5001/use-token'); // Fetch token from backend
+    const tokenData = await tokenResponse.json();
+    const authToken = tokenData.token; // Use the token from the response
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${authToken}`,  // API token for authorization
+        },
+      });
+
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        setAreaOptions(data.map(area => area.pln_area_n)); // Correctly map area names
+      } else {
+        console.error('Unexpected API response format:', data);
+        setAreaOptions([]); // Clear options if response is invalid
+      }
+    } catch (error) {
+      console.error('Error fetching area options:', error);
+      setAreaOptions([]); // Clear options in case of an error
+    }
+  };
+
+  const fetchAddressSuggestions = async (searchVal) => {
+    setIsLoading(true);
+    const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+    const tokenResponse = await fetch('http://localhost:5001/use-token'); // Fetch token from backend
+    const tokenData = await tokenResponse.json();
+    const authToken = tokenData.token; // Use the token from the response
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data && data.results) {
+        setSuggestions(data.results);  // Set the suggestions from the API response
+      } else {
+        setSuggestions([]);  // Clear suggestions if no results
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      setSuggestions([]);  // Clear suggestions in case of an error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestionSelect = (address) => {
+    setFormData({
+      ...formData,
+      location: address, // Populate the input with the selected address
+    });
+    setSuggestions([]); // Clear suggestions after selection
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'stipend') {
-      const numericValue = value.replace(/\D/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numericValue
-      }));
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    // Trigger search only if location input is not empty
+    if (name === 'location' && value.trim()) {
+      fetchAddressSuggestions(value);
     } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      setSuggestions([]);  // Clear suggestions if input is empty
     }
   };
 
@@ -156,6 +235,7 @@ const EP_AddInternshipPage = () => {
     if (formData.duration === 'Select Duration') missing.push('Duration');
     if (formData.courseStudy === 'Select Course') missing.push('Course of Study');
     if (formData.yearOfStudy === 'Select Year') missing.push('Year of Study');
+    if (!formData.area) missing.push('Area');
 
     if (missing.length > 0) {
       setError(`Please fill in all required fields:\n${missing.join('\n')}`);
@@ -181,7 +261,8 @@ const EP_AddInternshipPage = () => {
       formData.duration !== 'Select Duration' ||
       formData.courseStudy !== 'Select Course' ||
       formData.yearOfStudy !== 'Select Year' ||
-      formData.tags.length > 0
+      formData.tags.length > 0 ||
+      formData.area
     ) {
       setShowExitDialog(true);
     } else {
@@ -337,7 +418,7 @@ const EP_AddInternshipPage = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="location">Location*</label>
+          <label htmlFor="location">Address*</label>
           <input
             type="text"
             id="location"
@@ -345,7 +426,48 @@ const EP_AddInternshipPage = () => {
             value={formData.location}
             onChange={handleChange}
             placeholder="e.g. Singapore"
+            className={styles.inputBox}
           />
+          {isLoading && <div>Loading...</div>}
+          {suggestions.length > 1 && (
+            <select
+              className={styles.suggestionsDropdown}
+              onChange={(e) => handleSuggestionSelect(e.target.value)}
+              size={suggestions.length > 5 ? 5 : suggestions.length} // Limit visible options
+            >
+              {suggestions.map((suggestion, index) => (
+                <option key={index} value={suggestion.ADDRESS}>
+                  {suggestion.ADDRESS}
+                </option>
+              ))}
+            </select>
+          )}
+          {suggestions.length === 1 && (
+            <div
+              className={styles.singleSuggestion}
+              onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
+            >
+              {suggestions[0].ADDRESS}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="area">Area*</label>
+          <select
+            id="area"
+            name="area"
+            value={formData.area}
+            onChange={handleChange}
+            className={styles.suggestionsDropdown}
+          >
+            <option value="">Select an area</option>
+            {areaOptions.map((area, index) => (
+              <option key={index} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.formGroup}>
