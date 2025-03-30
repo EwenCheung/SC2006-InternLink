@@ -4,13 +4,16 @@ import Employer from '../models/Employer.model.js';
 
 const buildFilterQuery = (filters, jobType) => {
   const query = { status: 'posted' };
+  
   if (filters.employerId) {
     delete query.status;
     query.employerID = filters.employerId;
   }
+  
   if (filters.location) {
     query.location = { $regex: filters.location, $options: 'i' };
   }
+  
   if (jobType === 'internship') {
     if (filters.course) {
       query.courseStudy = { $regex: filters.course, $options: 'i' };
@@ -18,22 +21,27 @@ const buildFilterQuery = (filters, jobType) => {
     if (filters.year) {
       query.yearOfStudy = { $regex: filters.year, $options: 'i' };
     }
-    if (filters.stipend) {
-      switch (filters.stipend) {
-        case 'low': query.stipend = { $lt: 500 }; break;
-        case 'medium': query.stipend = { $gte: 500, $lte: 1000 }; break;
-        case 'high': query.stipend = { $gt: 1000 }; break;
+    if (filters.minStipend || filters.maxStipend) {
+      query.stipend = {};
+      if (filters.minStipend) {
+        query.stipend.$gte = Number(filters.minStipend);
+      }
+      if (filters.maxStipend) {
+        query.stipend.$lte = Number(filters.maxStipend);
       }
     }
   } else if (jobType === 'adhoc') {
-    if (filters.stipend) {
-      switch (filters.stipend) {
-        case 'low': query.payPerHour = { $lt: 15 }; break;
-        case 'medium': query.payPerHour = { $gte: 15, $lte: 25 }; break;
-        case 'high': query.payPerHour = { $gt: 25 }; break;
+    if (filters.minPayPerHour || filters.maxPayPerHour) {
+      query.payPerHour = {};
+      if (filters.minPayPerHour) {
+        query.payPerHour.$gte = Number(filters.minPayPerHour);
+      }
+      if (filters.maxPayPerHour) {
+        query.payPerHour.$lte = Number(filters.maxPayPerHour);
       }
     }
   }
+
   if (filters.search) {
     query.$or = [
       { title: { $regex: filters.search, $options: 'i' } },
@@ -41,6 +49,7 @@ const buildFilterQuery = (filters, jobType) => {
       { description: { $regex: filters.search, $options: 'i' } }
     ];
   }
+
   return query;
 };
 

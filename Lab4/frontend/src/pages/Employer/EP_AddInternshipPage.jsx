@@ -54,6 +54,7 @@ const EP_AddInternshipPage = () => {
     company: '',
     location: '',
     description: '',
+    jobScope: '',
     stipend: '',
     duration: 'Select Duration',
     courseStudy: 'Select Course',
@@ -356,7 +357,19 @@ const EP_AddInternshipPage = () => {
             value={formData.description}
             onChange={handleChange}
             rows={5}
-            placeholder="Describe the internship role and responsibilities"
+            placeholder="Overview of the internship position"
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="jobScope">Job Scope*</label>
+          <textarea
+            id="jobScope"
+            name="jobScope"
+            value={formData.jobScope}
+            onChange={handleChange}
+            rows={5}
+            placeholder="List the main responsibilities and tasks"
           />
         </div>
 
