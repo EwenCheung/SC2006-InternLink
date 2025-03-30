@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout/Layout';
 import NotFound from './components/Common/NotFound';
 import LoadingSpinner from './components/Common/LoadingSpinner';
@@ -30,6 +30,21 @@ import ProtectedRoute from './components/Common/ProtectedRoute';
 import ErrorBoundary from './components/Common/ErrorBoundary';
 
 const App = () => {
+  // Function to check if user is already logged in and redirect accordingly
+  const handleRootRoute = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
+
+    if (token && user.role) {
+      if (user.role === 'jobseeker') {
+        return <Navigate to="/jobseeker/find-internship" replace />;
+      } else if (user.role === 'employer') {
+        return <Navigate to="/employer/post-internship" replace />;
+      }
+    }
+    return <ChooseRolePage />;
+  };
+
   return (
     <Suspense 
       fallback={
@@ -39,8 +54,8 @@ const App = () => {
       }
     >
       <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<ChooseRolePage />} />
+        {/* Root route with conditional navigation */}
+        <Route path="/" element={handleRootRoute()} />
         <Route path="/logout" element={<LogOutConfirmation />} />
 
         {/* JobSeeker auth routes */}
@@ -76,6 +91,7 @@ const App = () => {
             <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
             <Route path="/employer/messages" element={<EP_MessagesPage />} />
             <Route path="/employer/profile" element={<EP_ProfilePage />} />
+            <Route path="/employer/applicant/:id" element={<EP_ViewApplicantProfilePage />} />
           </Route>
         </Route>
 

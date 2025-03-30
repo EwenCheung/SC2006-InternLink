@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './JS_EmailLoginPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
 
 const JS_EmailLoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -49,8 +50,9 @@ const JS_EmailLoginPage = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      // Redirect to find internship page
-      navigate('/jobseeker/find-internship');
+      // Navigate to find-internship page directly
+      navigate('/jobseeker/find-internship', { replace: true });
+      
     } catch (err) {
       if (!navigator.onLine) {
         setError('Please check your internet connection and try again.');

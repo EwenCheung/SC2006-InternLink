@@ -1,132 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './EP_PostInternshipPage.module.css';
-import SearchAndFilter from '../../components/Common/SearchAndFilter';
-import { internshipFilterOptions, defaultInternshipFilters } from '../../components/Common/FilterConfig';
-import { useSearchAndFilter } from '../../hooks/UseSearchAndFilter';
+import { FaPlus, FaDollarSign, FaMapMarkerAlt, FaBuilding, FaCalendarAlt } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
 const EP_PostInternshipPage = () => {
   const navigate = useNavigate();
-  const [deleteError, setDeleteError] = useState('');
+  const [jobs, setJobs] = useState([]);
+  const [drafts, setDrafts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Check authentication and role on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-    if (!token || userRole !== 'employer') {
-      navigate('/employer/login');
-    }
-  }, [navigate]);
+    fetchJobs();
+  }, []);
 
-  const fetchJobs = async (queryParams) => {
+  const fetchJobs = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/jobs/internship/my-posts?${queryParams}`, {
+      const response = await fetch(`${API_BASE_URL}/api/jobs/internship/my-posts`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
+      const data = await response.json();
+      console.log('Fetched jobs:', data);
+
       if (!response.ok) {
-        if (response.status === 401) {
-          navigate('/employer/login');
-          return [];
-        }
-        throw new Error('Failed to fetch jobs');
+        throw new Error(data.message || 'Failed to fetch jobs');
       }
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        if (data.success && Array.isArray(data.data)) {
-          return data.data;
-        }
-        throw new Error('Failed to fetch jobs');
-      } else {
-        const text = await response.text();
-        console.error('Non-JSON Response:', text);
-        throw new Error('Received non-JSON response');
-      }
-    } catch (error) {
-      console.error('Error in fetchJobs:', error);
-      throw error;
+      setJobs(data.data.jobs || []);
+      setDrafts(data.data.drafts || []);
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+      setError(err.message || 'Error fetching jobs');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const {
-    searchTerm,
-    filters,
-    showFilter,
-    loading,
-    data: jobs,
-    handleSearchChange,
-    toggleFilter,
-    handleFilterChange,
-    handleSearch,
-    resetFilters,
-    setLoading,
-    setData: setJobs
-  } = useSearchAndFilter(fetchJobs, defaultInternshipFilters);
-
-  // Initial fetch
-  useEffect(() => {
-    const fetchInitialJobs = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/api/jobs/internship/my-posts`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          if (response.status === 401) {
-            navigate('/employer/login');
-            return;
-          }
-          throw new Error('Failed to fetch jobs');
-        }
-
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const data = await response.json();
-          if (data.success && Array.isArray(data.data)) {
-            setJobs(data.data);
-          } else {
-            console.error('Unexpected API response format:', data);
-            setJobs([]);
-          }
-        } else {
-          const text = await response.text();
-          console.error('Non-JSON Initial Response:', text);
-          setJobs([]);
-        }
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-        setJobs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchInitialJobs();
-  }, [setLoading, setJobs, navigate]);
-
-  const handlePostNew = () => {
-    navigate('/employer/add-internship');
+  const handleEditDraft = (draft) => {
+    navigate('/employer/add-internship', { 
+      state: { draftData: draft }
+    });
   };
 
-  const handleEdit = (jobId) => {
-    navigate(`/employer/internship/${jobId}/edit`);
-  };
+  const handleDelete = async (id, isDraft = false) => {
+    if (!window.confirm('Are you sure you want to delete this ' + (isDraft ? 'draft' : 'post') + '?')) {
+      return;
+    }
 
-  const handleDelete = async (jobId) => {
     try {
-      setDeleteError('');
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/jobs/internship/${jobId}`, {
+      const endpoint = isDraft ? 'drafts' : 'internship';
+      
+      const response = await fetch(`${API_BASE_URL}/api/jobs/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -134,105 +65,172 @@ const EP_PostInternshipPage = () => {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          navigate('/employer/login');
-          return;
-        }
         const data = await response.json();
-        throw new Error(data.message || 'Failed to delete post');
+        throw new Error(data.message || 'Failed to delete job');
       }
 
-      // Remove the deleted job from the list
-      setJobs(prevJobs => prevJobs.filter(job => job._id !== jobId));
+      // Refresh the jobs list
+      fetchJobs();
     } catch (err) {
-      setDeleteError(err.message || 'An error occurred while deleting the post');
+      setError(err.message || 'Error deleting job');
     }
   };
 
-  const handleViewApplicants = (jobId) => {
-    navigate(`/employer/view-applicants/${jobId}`);
+  const handleEditPost = (id) => {
+    navigate(`/employer/edit-internship/${id}`);
   };
 
+  const handleViewDetails = (id) => {
+    navigate(`/employer/internship/${id}`);
+  };
+
+  const handlePublishDraft = async (draftId) => {
+    if (!window.confirm('Are you sure you want to publish this draft?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/jobs/drafts/${draftId}/publish`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to publish draft. Please ensure all required fields are filled.');
+      }
+
+      // Refresh the jobs list
+      fetchJobs();
+    } catch (err) {
+      setError(err.message || 'Error publishing draft');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.spinner}></div>
+        <p>Loading your posts...</p>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <div className={styles.searchAndFilterContainer}>
-        <SearchAndFilter
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          onSearch={handleSearch}
-          showFilter={showFilter}
-          toggleFilter={toggleFilter}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onReset={resetFilters}
-          filterOptions={internshipFilterOptions}
-        />
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>My Internship Posts</h1>
+        <button
+          onClick={() => navigate('/employer/add-internship')}
+          className={styles.addButton}
+        >
+          <FaPlus /> Add New Internship
+        </button>
       </div>
 
-      {deleteError && (
-        <div className={styles.error}>
-          {deleteError}
-        </div>
-      )}
+      {error && <div className={styles.error}>{error}</div>}
 
-      <div className={styles.container}>
-        <div className={styles.jobListings}>
-          {loading ? (
-            <div>Loading...</div>
-          ) : jobs.length === 0 ? (
-            <div>No internship posts found</div>
-          ) : (
-            jobs.map((job) => (
-              <div key={job._id} className={`${styles.jobBox} ${job.status === 'draft' ? styles.draftJob : ''}`}>
-                {job.status === 'draft' && (
+      <div className={styles.jobList}>
+        {drafts.length > 0 && (
+          <>
+            <h2 className={styles.draftsHeader}>Drafts</h2>
+            <div className={styles.jobGrid}>
+              {drafts.map(draft => (
+                <div key={draft._id} className={`${styles.jobCard} ${styles.draftCard}`}>
                   <div className={styles.draftBadge}>Draft</div>
-                )}
-                <h3 className={styles.jobTitle}>{job.title}</h3>
-                <p className={styles.jobCompany}>
-                  {job.company} - {job.location}
-                </p>
-                <p className={styles.jobDescription}>
-                  <strong>Job Description:</strong><br />
-                  {job.description}
-                </p>
-                <div className={styles.jobRequirements}>
-                  <span>⏱️ {job.duration}</span>
-                  {job.stipend && <span>💰 {job.stipend}</span>}
-                  {job.requirements && <span>{job.requirements}</span>}
-                </div>
-                <div className={styles.buttonContainer}>
-                  <button 
-                    className={`${styles.button} ${styles.deleteButton}`}
-                    onClick={() => handleDelete(job._id)}
-                  >
-                    {job.status === 'draft' ? 'Delete Draft' : 'Delete Post'}
-                  </button>
-                  <button 
-                    className={`${styles.button} ${styles.editButton}`}
-                    onClick={() => handleEdit(job._id)}
-                  >
-                    {job.status === 'draft' ? 'Edit Draft' : 'Edit Details'}
-                  </button>
-                  {job.status === 'posted' && (
-                    <button 
-                      className={`${styles.button} ${styles.viewButton}`}
-                      onClick={() => handleViewApplicants(job._id)}
+                  <div className={styles.jobDetails}>
+                    <h3>{draft.title || 'Untitled Draft'}</h3>
+                    {draft.company && (
+                      <p><FaBuilding /> {draft.company}</p>
+                    )}
+                    {draft.location && (
+                      <p><FaMapMarkerAlt /> {draft.location}</p>
+                    )}
+                    {draft.stipend && (
+                      <p className={styles.stipendInfo}>
+                        <FaDollarSign /> SGD {draft.stipend}/month
+                      </p>
+                    )}
+                    <p><FaCalendarAlt /> Last modified: {new Date(draft.lastModified).toLocaleDateString()}</p>
+                  </div>
+                  <div className={styles.cardActions}>
+                    <button
+                      onClick={() => handleEditDraft(draft)}
+                      className={styles.editButton}
                     >
-                      View Applicants
+                      Edit Draft
                     </button>
+                    <button
+                      onClick={() => handlePublishDraft(draft._id)}
+                      className={styles.viewButton}
+                    >
+                      Publish
+                    </button>
+                    <button
+                      onClick={() => handleDelete(draft._id, true)}
+                      className={styles.deleteButton}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        <h2 className={styles.publishedHeader}>Published Posts</h2>
+        {jobs.length === 0 ? (
+          <p className={styles.noJobs}>No published internship posts yet.</p>
+        ) : (
+          <div className={styles.jobGrid}>
+            {jobs.map(job => (
+              <div key={job._id} className={styles.jobCard}>
+                <div className={styles.publishedBadge}>Published</div>
+                <div className={styles.jobDetails}>
+                  <h3>{job.title}</h3>
+                  <p><FaBuilding /> {job.company}</p>
+                  <p><FaMapMarkerAlt /> {job.location}</p>
+                  <p className={styles.stipendInfo}>
+                    <FaDollarSign /> SGD {job.stipend}/month
+                  </p>
+                  {job.tags?.length > 0 && (
+                    <div className={styles.tagList}>
+                      {job.tags.map((tag, index) => (
+                        <span key={index} className={styles.tag}>{tag}</span>
+                      ))}
+                    </div>
                   )}
+                  <p><FaCalendarAlt /> Posted: {new Date(job.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div className={styles.cardActions}>
+                  <button
+                    onClick={() => handleViewDetails(job._id)}
+                    className={styles.viewButton}
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleEditPost(job._id)}
+                    className={styles.editButton}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(job._id)}
+                    className={styles.deleteButton}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-        
-        <button 
-          className={styles.postNewBtn}
-          onClick={handlePostNew}
-        >
-          Post New Internship
-        </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

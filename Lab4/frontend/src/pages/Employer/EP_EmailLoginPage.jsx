@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './EP_EmailLoginPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
 const EP_EmailLoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -27,7 +29,7 @@ const EP_EmailLoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,10 +47,16 @@ const EP_EmailLoginPage = () => {
         throw new Error('This account is not an employer account. Please use the correct login page.');
       }
 
-      // Store token, user data, and role in localStorage
+      // Store token and transformed user data in localStorage
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('userRole', 'employer'); // Explicitly store role
+      localStorage.setItem('userRole', data.user.role);
+      
+      // Store user data with proper ID format
+      const userData = {
+        ...data.user,
+        _id: data.user.id, // Convert id to _id for consistency
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
 
       // Redirect to post internship page
       navigate('/employer/post-internship');
