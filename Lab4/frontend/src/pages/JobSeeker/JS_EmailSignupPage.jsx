@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchUniversities } from '../../../js/fetchUniversities';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
+
+
 
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
   <div className={styles.modal}>
@@ -15,7 +18,7 @@ const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
           onClick={onFillLater}
           className={`${styles.button} ${styles.secondaryButton}`}
         >
-          Fill Later
+          Fill In Later
         </button>
         <button
           onClick={onFillNow}
@@ -29,6 +32,15 @@ const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
 );
 
 const JS_EmailSignupPage = () => {
+  const [universities, setUniversities] = useState([]);
+
+  useEffect(() => {
+    const loadUniversities = async () => {
+      const data = await fetchUniversities();
+      setUniversities(data);
+    };
+    loadUniversities();
+  }, []);
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
@@ -549,7 +561,7 @@ const JS_EmailSignupPage = () => {
               onClick={() => setCurrentStep(2)}
               className={`${styles.button} ${styles.secondaryButton} w-full mt-4`}
             >
-              Fill Complete Profile
+              Complete Your Profile
             </button>
 
             <div className={styles.dividerContainer}>
@@ -605,20 +617,7 @@ const JS_EmailSignupPage = () => {
                 />
               </div>
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="phoneNumber" className={styles.label}>
-                  Phone Number <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={optionalData.phoneNumber}
-                  onChange={handleOptionalChange}
-                  className={styles.input}
-                  placeholder="Enter your phone number"
-                />
-              </div>
+
 
               <div className={styles.inputGroup}>
                 <label htmlFor="dateOfBirth" className={styles.label}>
@@ -636,19 +635,24 @@ const JS_EmailSignupPage = () => {
 
               <div className={styles.inputGroup}>
                 <label htmlFor="school" className={styles.label}>
-                  School Name <span className={styles.optional}>(optional)</span>
+                  School
                 </label>
-                <input
+                <select
                   id="school"
                   name="school"
-                  type="text"
                   value={optionalData.school}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="Enter your school name"
-                />
+                  >
+                  <option value="">Select a university</option>
+                  {universities.map((university, index) => (
+                    <option key={index} value={university}>
+                      {university}
+                    </option>
+                  ))}
+                </select>
               </div>
-
+              
               <div className={styles.inputGroup}>
                 <label htmlFor="course" className={styles.label}>
                   Course of Study <span className={styles.optional}>(optional)</span>
