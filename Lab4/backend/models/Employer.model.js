@@ -10,7 +10,6 @@ const EmployerSchema = new mongoose.Schema({
   },
   companyName: {
     type: String,
-    required: [true, 'Please provide company name'],
     minLength: 3,
     maxLength: 50,
   },

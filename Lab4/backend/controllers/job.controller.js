@@ -1,4 +1,5 @@
-import { InternshipJob, AdHocJob } from '../models/job.model.js';
+import InternshipJob from '../models/internshipJob.model.js';
+import AdHocJob from '../models/adhocJob.model.js';
 import DraftJob from '../models/draftJob.model.js';
 import Employer from '../models/Employer.model.js';
 

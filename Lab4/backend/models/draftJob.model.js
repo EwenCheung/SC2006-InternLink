@@ -1,119 +1,100 @@
 import mongoose from 'mongoose';
+import { VALID_COURSES, VALID_INDUSTRIES } from '../constants/courses.js';
 
-// Valid options for dropdown fields
-const VALID_DURATIONS = [
-  'Select Duration',
-  '1 month',
-  '2 months',
-  '3 months',
-  '4 months',
-  '5 months',
-  '6 months',
-  '8 months',
-  '12 months'
-];
-
-const VALID_YEARS = [
-  'Select Year',
-  'Year 1',
-  'Year 2',
-  'Year 3',
-  'Year 4',
-  'Any Year'
-];
-
-const VALID_COURSES = [
-  'Select Course',
-  'Computer Science',
-  'Information Technology',
-  'Software Engineering',
-  'Business Analytics',
-  'Information Systems',
-  'Computer Engineering',
-  'Any Related Field'
-];
-
-// Draft Job Schema for both internship and ad hoc jobs
-const draftJobSchema = new mongoose.Schema({
+const DraftJobSchema = new mongoose.Schema({
+  employerID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employer',
+    required: true
+  },
+  title: {
+    type: String
+  },
+  company: {
+    type: String
+  },
+  location: {
+    type: String
+  },
   type: {
     type: String,
     enum: ['internship_job', 'adhoc_job'],
     required: true
   },
-  title: String,
-  description: String,
-  company: String,
-  location: String,
-  tags: {
-    type: [String],
-    default: [],
+  jobType: {
+    type: String,
+    enum: ['internship', 'adhoc'],
+    required: true
   },
-  // Internship specific fields
-  stipend: Number,
-  duration: {
+  description: {
+    type: String
+  },
+  jobScope: {
+    type: String
+  },
+  industry: {
     type: String,
     enum: {
-      values: VALID_DURATIONS,
-      message: 'Invalid duration value'
+      values: ['Select Industry', ...VALID_INDUSTRIES],
+      message: 'Invalid industry selected'
     }
   },
   courseStudy: {
-    type: String,
-    enum: {
-      values: VALID_COURSES,
-      message: 'Invalid course value'
+    type: [String],
+    default: [],
+    validate: {
+      validator: function(array) {
+        return array.every(course => VALID_COURSES.includes(course));
+      },
+      message: 'Invalid course selection'
     }
   },
   yearOfStudy: {
     type: String,
-    enum: {
-      values: VALID_YEARS,
-      message: 'Invalid year value'
-    }
+    enum: ['Select Year', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Any Year']
   },
-  // Ad hoc specific fields
-  payPerHour: Number,
-  // Common fields
-  jobType: {
+  duration: {
     type: String,
-    enum: ['internship', 'adhoc'],
-    required: true,
+    enum: [
+      'Select Duration',
+      '1 month',
+      '2 months',
+      '3 months',
+      '4 months',
+      '5 months',
+      '6 months',
+      '8 months',
+      '12 months'
+    ]
   },
-  employerID: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employer',
-    required: true,
+  stipend: {
+    type: Number,
+    min: [0, 'Stipend cannot be negative']
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  lastModified: {
-    type: Date,
-    default: Date.now
+  tags: {
+    type: [String],
+    default: []
   },
   status: {
     type: String,
-    enum: ['draft', 'posted'],
+    enum: ['draft', 'posted', 'closed'],
     default: 'draft'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// Update lastModified on save
-draftJobSchema.pre('save', function(next) {
-  this.lastModified = new Date();
+DraftJobSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
   next();
 });
 
-// Add pre-update middleware to update lastModified
-draftJobSchema.pre(['updateOne', 'findOneAndUpdate'], function(next) {
-  this.set({ lastModified: new Date() });
-  next();
-});
+const DraftJob = mongoose.model('DraftJob', DraftJobSchema);
 
-// Get job_list database connection
-const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });
-
-// Create and export model
-const DraftJob = jobListDb.model('DraftJob', draftJobSchema);
 export default DraftJob;

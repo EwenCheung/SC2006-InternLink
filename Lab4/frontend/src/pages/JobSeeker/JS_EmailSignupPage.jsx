@@ -4,8 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
 
-
-
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
   <div className={styles.modal}>
     <div className={styles.modalContent}>
@@ -41,6 +39,7 @@ const JS_EmailSignupPage = () => {
     };
     loadUniversities();
   }, []);
+
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
@@ -119,7 +118,6 @@ const JS_EmailSignupPage = () => {
 
   // Validate required fields
   const validateRequiredFields = () => {
-    // Mark all fields as touched
     setTouchedFields({
       userName: true,
       email: true,
@@ -127,7 +125,6 @@ const JS_EmailSignupPage = () => {
       confirmPassword: true
     });
 
-    // Collect all field errors
     const newErrors = {
       userName: validateField('userName', requiredData.userName),
       email: validateField('email', requiredData.email),
@@ -160,7 +157,7 @@ const JS_EmailSignupPage = () => {
   // Handle required fields changes
   const handleRequiredChange = (e) => {
     const { name, value } = e.target;
-    setError(''); // Clear general error
+    setError('');
     setRequiredData(prev => ({
       ...prev,
       [name]: value
@@ -207,21 +204,21 @@ const JS_EmailSignupPage = () => {
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         setError(`${name === 'resume' ? 'Resume' : 'Profile image'} must be less than 5MB`);
-        e.target.value = ''; // Reset file input
+        e.target.value = '';
         return;
       }
 
       // Validate file type for resume
       if (name === 'resume' && !file.type.includes('pdf')) {
         setError('Resume must be a PDF file');
-        e.target.value = ''; // Reset file input
+        e.target.value = '';
         return;
       }
 
       // Validate image type for profile image
       if (name === 'profileImage' && !file.type.includes('image/')) {
         setError('Profile image must be an image file');
-        e.target.value = ''; // Reset file input
+        e.target.value = '';
         return;
       }
 
@@ -237,46 +234,8 @@ const JS_EmailSignupPage = () => {
     }
   };
 
-  // Save registration data and handle profile decision
-  const saveRegistration = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch('http://localhost:5001/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...requiredData,
-          role: 'jobseeker'
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      if (currentStep === 2) {
-        // If on complete profile page, save the profile data
-        await saveProfileData();
-      } else {
-        // If on basic registration, show profile completion modal
-        setShowProfileModal(true);
-      }
-    } catch (err) {
-      setError(err.message || 'An error occurred during registration');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Handle form submission for required fields
-  const handleRequiredSubmit = async (e) => {
+  const handleRequiredSubmit = (e) => {
     e.preventDefault();
     setError('');
     
@@ -284,43 +243,7 @@ const JS_EmailSignupPage = () => {
       return;
     }
 
-    await saveRegistration();
-  };
-
-  // Handle optional fields submission
-  const saveProfileData = async () => {
-    try {
-      const formData = new FormData();
-      
-      Object.keys(optionalData).forEach(key => {
-        if (optionalData[key]) {
-          if (key === 'skills') {
-            formData.append(key, JSON.stringify(optionalData[key]));
-          } else {
-            formData.append(key, optionalData[key]);
-          }
-        }
-      });
-
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/auth/update', {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      navigate('/jobseeker/find-internship');
-    } catch (err) {
-      setError(err.message || 'An error occurred while updating profile');
-    }
+    setShowProfileModal(true);
   };
 
   // Handle profile completion form submission
@@ -333,12 +256,49 @@ const JS_EmailSignupPage = () => {
     }
 
     setIsLoading(true);
-    await saveRegistration();
+    try {
+      const formData = new FormData();
+      // Add required fields
+      formData.append('email', requiredData.email);
+      formData.append('password', requiredData.password);
+      formData.append('userName', requiredData.userName);
+      formData.append('role', 'jobseeker');
+      
+      // Add optional fields
+      Object.keys(optionalData).forEach(key => {
+        if (optionalData[key]) {
+          if (key === 'skills') {
+            formData.append(key, JSON.stringify(optionalData[key]));
+          } else {
+            formData.append(key, optionalData[key]);
+          }
+        }
+      });
+
+      const response = await fetch('http://localhost:5001/api/auth/register', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      navigate('/jobseeker/find-internship');
+    } catch (err) {
+      setError(err.message || 'An error occurred during registration');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle OAuth signup
   const handleOAuthSignup = (provider) => {
-    // OAuth implementation will be added here
     console.log(`${provider} signup clicked`);
   };
 
@@ -369,9 +329,36 @@ const JS_EmailSignupPage = () => {
             setShowProfileModal(false);
             setCurrentStep(2);
           }}
-          onFillLater={() => {
+          onFillLater={async () => {
             setShowProfileModal(false);
-            navigate('/jobseeker/find-internship');
+            try {
+              setIsLoading(true);
+              const formData = new FormData();
+              formData.append('email', requiredData.email);
+              formData.append('password', requiredData.password);
+              formData.append('userName', requiredData.userName);
+              formData.append('role', 'jobseeker');
+
+              const response = await fetch('http://localhost:5001/api/auth/register', {
+                method: 'POST',
+                body: formData,
+              });
+
+              const data = await response.json();
+
+              if (!response.ok) {
+                throw new Error(data.message || 'Registration failed');
+              }
+
+              localStorage.setItem('token', data.token);
+              localStorage.setItem('user', JSON.stringify(data.user));
+
+              navigate('/jobseeker/find-internship');
+            } catch (err) {
+              setError(err.message || 'An error occurred during registration');
+            } finally {
+              setIsLoading(false);
+            }
           }}
         />
       )}
@@ -554,7 +541,7 @@ const JS_EmailSignupPage = () => {
                 ) : (
                   'Create Account'
                 )}
-              </button>
+            </button>
 
             <button
               type="button"
@@ -616,8 +603,6 @@ const JS_EmailSignupPage = () => {
                   className={styles.fileInput}
                 />
               </div>
-
-
 
               <div className={styles.inputGroup}>
                 <label htmlFor="dateOfBirth" className={styles.label}>

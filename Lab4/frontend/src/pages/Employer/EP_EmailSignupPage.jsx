@@ -85,7 +85,7 @@ const EP_EmailSignupPage = () => {
   const validateField = (name, value) => {
     switch (name) {
       case 'userName':
-        return value ? '' : 'Name is required';
+        return value ? '' : 'Displayed name is required';
       case 'email':
         return /\S+@\S+\.\S+/.test(value) ? '' : 'Valid email is required';
       case 'password':
@@ -106,36 +106,30 @@ const EP_EmailSignupPage = () => {
 
   // Validate required fields
   const validateRequiredFields = () => {
-    setTouchedFields({
-      userName: true,
-      email: true,
-      password: true,
-      confirmPassword: true
-    });
+    const fieldsToValidate = [
+      { name: 'userName', label: 'Displayed Name' },
+      { name: 'email', label: 'Email' },
+      { name: 'password', label: 'Password' },
+      { name: 'confirmPassword', label: 'Confirm Password' }
+    ];
 
-    const newErrors = {
-      userName: validateField('userName', requiredData.userName),
-      email: validateField('email', requiredData.email),
-      password: validateField('password', requiredData.password),
-      confirmPassword: validateField('confirmPassword', requiredData.confirmPassword)
-    };
+    setTouchedFields(
+      fieldsToValidate.reduce((acc, field) => ({ ...acc, [field.name]: true }), {})
+    );
+
+    const newErrors = fieldsToValidate.reduce((acc, field) => ({
+      ...acc,
+      [field.name]: validateField(field.name, requiredData[field.name])
+    }), {});
 
     setFieldErrors(newErrors);
 
-    const missingFields = Object.entries(newErrors)
-      .filter(([_, error]) => error)
-      .map(([field]) => {
-        switch(field) {
-          case 'userName': return 'Full Name';
-          case 'email': return 'Email';
-          case 'password': return 'Password';
-          case 'confirmPassword': return 'Confirm Password';
-          default: return field;
-        }
-      });
+    const missingFields = fieldsToValidate
+      .filter(field => newErrors[field.name])
+      .map(field => field.label);
 
     if (missingFields.length > 0) {
-      setError(`Please check the following fields: ${missingFields.join(', ')}`);
+      setError('Missing required fields:\n' + missingFields.map(field => `• ${field}`).join('\n'));
       return false;
     }
 
@@ -301,13 +295,16 @@ const EP_EmailSignupPage = () => {
   const handleOptionalSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    if (!validateRequiredFields()) {
-      return;
-    }
-
     setIsLoading(true);
-    await saveRegistration();
+
+    try {
+      // When submitting from step 2, skip registration and only save profile
+      await saveProfileData();
+    } catch (err) {
+      setError(err.message || 'An error occurred while saving profile data');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Handle OAuth signup
@@ -348,7 +345,7 @@ const EP_EmailSignupPage = () => {
             />
           </Link>
           <h2 className={styles.title}>
-            {currentStep === 1 ? 'Create your account' : 'Complete your profile'}
+            {currentStep === 1 ? 'Create an employer account' : 'Complete your profile'}
           </h2>
           <p className={styles.subtitle}>
             {currentStep === 1 
@@ -362,7 +359,7 @@ const EP_EmailSignupPage = () => {
           <form onSubmit={handleRequiredSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
               <label htmlFor="userName" className={styles.label}>
-                Full Name
+                Displayed Name
               </label>
               <input
                 id="userName"
@@ -374,7 +371,7 @@ const EP_EmailSignupPage = () => {
                 onBlur={handleBlur}
                 onFocus={handleFocus}
                 className={`${styles.input} ${fieldErrors.userName && touchedFields.userName ? styles.inputError : ''}`}
-                placeholder="Enter your full name"
+                placeholder="Enter your username"
               />
               {fieldErrors.userName && touchedFields.userName && (
                 <div className={styles.error}>{fieldErrors.userName}</div>
@@ -710,10 +707,10 @@ const EP_EmailSignupPage = () => {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Creating Account...
+                    Saving Profile...
                   </span>
                 ) : (
-                  'Create Account & Save Profile'
+                  'Save Profile'
                 )}
               </button>
             </div>
