@@ -66,9 +66,9 @@ const JS_FindInternshipPage = () => {
     fetchInitialJobs();
   }, [setLoading, setJobs]);
 
-  const handleViewDetails = (jobId) => {
+const handleViewDetails = (jobId) => {
     navigate(`/jobseeker/internship/${jobId}`);
-  };
+};
 
   const renderTags = (job) => {
     const allTags = job.tags || [];
