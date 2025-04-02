@@ -209,16 +209,25 @@ const EP_EmailSignupPage = () => {
   const createAccount = async () => {
     try {
       setIsLoading(true);
-      // Step 1: Basic registration
+      // Prepare registration data
       const registrationData = {
-        type: 'employer',
-        role: 'employer',
+        type: "employer",
+        role: "employer",
         email: requiredData.email,
         password: requiredData.password,
         userName: requiredData.userName,
         companyName: requiredData.companyName
       };
 
+      // Add optional fields if they exist
+      if (optionalData.phoneNumber) registrationData.phoneNumber = optionalData.phoneNumber;
+      if (optionalData.industry) registrationData.industry = optionalData.industry;
+      if (optionalData.companySize) registrationData.companySize = optionalData.companySize;
+      if (optionalData.companyWebsite) registrationData.website = optionalData.companyWebsite;
+      if (optionalData.companyDescription) registrationData.description = optionalData.companyDescription;
+      if (optionalData.address) registrationData.location = optionalData.address;
+
+      // Send registration request
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -228,7 +237,6 @@ const EP_EmailSignupPage = () => {
       });
 
       const data = await response.json();
-
       if (!response.ok) {
         if (data.message?.includes('duplicate key error')) {
           throw new Error('This email is already registered. Please use a different email address.');
@@ -236,56 +244,12 @@ const EP_EmailSignupPage = () => {
         throw new Error(data.message || 'Registration failed. Please check your information and try again.');
       }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Save any filled optional fields
-      const formData = new FormData();
-      let hasAnyOptionalField = false;
-
-      if (optionalData.industry) {
-        formData.append('companyIndustry', optionalData.industry);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.companySize) {
-        formData.append('companySize', optionalData.companySize);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.phoneNumber) {
-        formData.append('companyPhone', optionalData.phoneNumber);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.companyWebsite) {
-        formData.append('companyWebsite', optionalData.companyWebsite);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.companyDescription) {
-        formData.append('companyDescription', optionalData.companyDescription);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.address) {
-        formData.append('companyAddress', optionalData.address);
-        hasAnyOptionalField = true;
-      }
-      if (optionalData.profileImage) {
-        formData.append('companyLogo', optionalData.profileImage);
-        hasAnyOptionalField = true;
-      }
-
-      // Save any filled optional fields (only once)
-      if (hasAnyOptionalField) {
-        const token = localStorage.getItem('token');
-        const updateResponse = await fetch('/api/auth/update', {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: formData
-        });
-
-        if (!updateResponse.ok) {
-          throw new Error('Failed to update profile data');
-        }
+      // Store auth data
+      if (data.token && data.user) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      } else {
+        throw new Error('Invalid response from server. Missing authentication data.');
       }
 
       // Check navigation path after saving
@@ -313,23 +277,16 @@ const EP_EmailSignupPage = () => {
     await createAccount();
   };
 
-  // Handle optional submit
   const handleOptionalSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      // Use createAccount to handle both required and optional data
-      await createAccount();
-    } catch (err) {
-      setError(err.message || 'An error occurred while saving profile data');
-    } finally {
-      setIsLoading(false);
+    if (!validateRequiredFields()) {
+      setCurrentStep(1);
+      return;
     }
+    await createAccount();
   };
 
-  // Handle OAuth signup
+  // OAuth handler
   const handleOAuthSignup = (provider) => {
     // OAuth implementation will be added here
     console.log(`${provider} signup clicked`);
