@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import styles from './JS_InternshipDetailsPage.module.css';
 
@@ -6,6 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001
 
 const JS_InternshipDetailsPage = () => {
   const { id: jobId } = useParams();
+  const navigate = useNavigate();
   const [jobDetails, setJobDetails] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
@@ -44,9 +46,11 @@ const JS_InternshipDetailsPage = () => {
         });
         const data = await response.json();
         if (data.results?.length > 0) {
-          const { LATITUDE: latitude, LONGITUDE: longitude } = data.results[0];
-          setLatitude(latitude);
-          setLongitude(longitude);
+          const { LATITUDE: fetchedLatitude, LONGITUDE: fetchedLongitude } = data.results[0];
+          if (!latitude && !longitude) { // Only set if not already set
+            setLatitude(fetchedLatitude);
+            setLongitude(fetchedLongitude);
+          }
         }
       } catch (err) {
         console.error('Error fetching coordinates:', err);
@@ -54,11 +58,11 @@ const JS_InternshipDetailsPage = () => {
     };
 
     fetchJobDetails().then(() => {
-      if (jobDetails?.location) {
+      if (jobDetails?.location && (!latitude || !longitude)) {
         fetchCoordinates(jobDetails.location);
       }
     });
-  }, [jobId]);
+  }, [jobId, jobDetails, latitude, longitude]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -75,7 +79,7 @@ const JS_InternshipDetailsPage = () => {
   return (
     <div>
     <div className={styles.container}>
-      <button className={styles.backButton} onClick={() => window.history.back()}>
+      <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-internship')}>
         ← Back to Listings
       </button>
       <div className={styles.jobHeader}>
@@ -163,18 +167,20 @@ const JS_InternshipDetailsPage = () => {
               <button className={styles.shareButton}>Share Job</button>
             </div>
           </div>
+          <div className={styles.minimapCard}>
+            <h3>Location On Map</h3>
+            <iframe
+              src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
+              height="300"
+              width="300"
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen="allowfullscreen"
+              title="Location Map"
+            ></iframe>
+          </div>
         </aside>
-        <div className={styles.minimap}>
-          <iframe
-            src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
-            height="300"
-            width="300"
-            scrolling="no"
-            frameBorder="0"
-            allowFullScreen="allowfullscreen"
-            title="Location Map"
-          ></iframe>
-        </div>
+        
       </div>
     </div>
   </div>
