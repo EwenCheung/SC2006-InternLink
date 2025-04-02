@@ -7,6 +7,10 @@ const InternshipJobSchema = new mongoose.Schema({
     ref: 'Employer',
     required: true
   },
+  jobType: {
+    type: String,
+    default: 'internship'
+  },
   title: {
     type: String,
     required: true
@@ -98,6 +102,6 @@ InternshipJobSchema.pre('save', function(next) {
   next();
 });
 
-const InternshipJob = mongoose.model('InternshipJob', InternshipJobSchema);
+const InternshipJob = mongoose.connection.useDb('job_list').model('internshipjobs', InternshipJobSchema);
 
 export default InternshipJob;

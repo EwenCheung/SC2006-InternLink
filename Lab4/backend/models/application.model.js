@@ -41,4 +41,5 @@ ApplicationSchema.index({ jobSeeker: 1, job: 1 }, { unique: true });
 ApplicationSchema.index({ status: 1 });
 ApplicationSchema.index({ appliedDate: -1 });
 
-export default mongoose.model('Application', ApplicationSchema);
+const Application = mongoose.connection.useDb('job_list').model('applications', ApplicationSchema);
+export default Application;

@@ -13,14 +13,21 @@ const JS_FindAdHocPage = () => {
 
   const fetchJobs = async (queryParams) => {
     try {
+      console.log('Fetching jobs with params:', queryParams);
       const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc?${queryParams}`);
+      console.log('Response status:', response.status);
+      
       const contentType = response.headers.get('content-type');
+      console.log('Content type:', contentType);
+      
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
+        console.log('Response data:', data);
+        
         if (data.success && Array.isArray(data.data)) {
           return data.data;
         }
-        throw new Error('Failed to fetch jobs');
+        throw new Error(`Failed to fetch jobs: ${JSON.stringify(data)}`);
       } else {
         throw new Error('Received non-JSON response');
       }
@@ -48,12 +55,17 @@ const JS_FindAdHocPage = () => {
   useEffect(() => {
     const fetchInitialJobs = async () => {
       try {
+        console.log('Fetching initial adhoc jobs...');
         setLoading(true);
         const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc`);
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Received data:', data);
         if (data.success && Array.isArray(data.data)) {
+          console.log('Setting jobs:', data.data);
           setJobs(data.data);
         } else {
+          console.log('No jobs found or invalid data format');
           setJobs([]);
         }
       } catch (error) {
@@ -114,9 +126,36 @@ const JS_FindAdHocPage = () => {
       <div className={styles.container}>
         <div className={styles.jobListings}>
           {loading ? (
-            <div>Loading...</div>
+            <div style={{
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: '600px',
+              padding: '20px'
+            }}>
+              <h2 style={{ fontSize: '1.5rem', color: '#333' }}>Loading...</h2>
+            </div>
           ) : jobs.length === 0 ? (
-            <div>No ad-hoc jobs found</div>
+            <div style={{
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: '600px',
+              padding: '20px'
+            }}>
+              <h2 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '1rem' }}>
+                No Ad-hoc Jobs Available
+              </h2>
+              <p style={{ fontSize: '1.1rem', color: '#666', maxWidth: '600px' }}>
+                There are currently no ad-hoc job positions available. Please check back later as employers regularly post new opportunities.
+              </p>
+            </div>
           ) : (
             jobs.map((job) => (
               <div key={job._id} className={styles.jobBox}>

@@ -114,9 +114,36 @@ const handleViewDetails = (jobId) => {
       <div className={styles.container}>
         <div className={styles.jobListings}>
           {loading ? (
-            <div>Loading...</div>
+            <div style={{
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: '600px',
+              padding: '20px'
+            }}>
+              <h2 style={{ fontSize: '1.5rem', color: '#333' }}>Loading...</h2>
+            </div>
           ) : jobs.length === 0 ? (
-            <div>No internships found</div>
+            <div style={{
+              position: 'fixed',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              width: '100%',
+              maxWidth: '600px',
+              padding: '20px'
+            }}>
+              <h2 style={{ fontSize: '1.5rem', color: '#333', marginBottom: '1rem' }}>
+                No Internships Available
+              </h2>
+              <p style={{ fontSize: '1.1rem', color: '#666', maxWidth: '600px' }}>
+                There are currently no internship positions available. Please check back later as employers regularly post new opportunities.
+              </p>
+            </div>
           ) : (
             jobs.map((job) => (
               <div key={job._id} className={styles.jobBox}>

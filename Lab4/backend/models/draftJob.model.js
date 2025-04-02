@@ -95,6 +95,6 @@ DraftJobSchema.pre('save', function(next) {
   next();
 });
 
-const DraftJob = mongoose.model('DraftJob', DraftJobSchema);
+const DraftJob = mongoose.connection.useDb('job_list').model('draftjobs', DraftJobSchema);
 
 export default DraftJob;

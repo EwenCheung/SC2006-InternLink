@@ -10,7 +10,6 @@ import connectDB from './config/db.js';
 // Import route files
 import authUserRoutes from './routes/authUser.route.js';
 import jobRoutes from './routes/job.route.js';
-import messageRoutes from './routes/message.route.js';
 import applicationRoutes from './routes/application.route.js';
 
 // Import error handler middleware
@@ -51,11 +50,10 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    // API routes
-    app.use('/api/auth', authUserRoutes);
-    app.use('/api/jobs', jobRoutes);
-    app.use('/api/messages', messageRoutes);
-    app.use('/api/applications', applicationRoutes);
+// API routes
+app.use('/api/auth', authUserRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
 
     // Error handler middleware
     app.use(notFound);
