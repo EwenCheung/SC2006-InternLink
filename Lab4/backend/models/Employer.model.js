@@ -8,8 +8,15 @@ const EmployerSchema = new mongoose.Schema({
     default: 'employer',
     required: true
   },
+  userName: {
+    type: String,
+    required: [true, 'Please provide display name'],
+    minLength: 3,
+    maxLength: 50,
+  },
   companyName: {
     type: String,
+    required: [true, 'Please provide company name'],
     minLength: 3,
     maxLength: 50,
   },
