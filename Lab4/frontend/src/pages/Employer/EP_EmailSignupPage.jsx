@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from '../JobSeeker/JS_EmailSignupPage.module.css';
+import internshipStyles from './EP_AddInternshipPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
 
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
@@ -33,6 +34,7 @@ const EP_EmailSignupPage = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   // Form data for required fields (Step 1)
@@ -181,8 +183,51 @@ const EP_EmailSignupPage = () => {
   };
 
   // Handle optional fields changes
+  const fetchAddressSuggestions = async (searchVal) => {
+    setIsLoading(true);
+    const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+    const tokenResponse = await fetch('http://localhost:5001/use-token'); // Fetch token from backend
+    const tokenData = await tokenResponse.json();
+    const authToken = tokenData.token; // Use the token from the response
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data && data.results) {
+        setSuggestions(data.results);  // Set the suggestions from the API response
+      } else {
+        setSuggestions([]);  // Clear suggestions if no results
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      setSuggestions([]);  // Clear suggestions in case of an error
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestionSelect = (address) => {
+    setOptionalData((prev) => ({
+      ...prev,
+      address, // Populate the input with the selected address
+    }));
+    setSuggestions([]);
+  };
+
   const handleOptionalChange = (e) => {
     const { name, value, type, files } = e.target;
+    if (name === 'address' && value.trim()) {
+      fetchAddressSuggestions(value); // Trigger address suggestions
+    } else if (name === 'address') {
+      setSuggestions([]); // Clear suggestions if input is empty
+    }
     setError('');
 
     if (type === 'file') {
@@ -647,7 +692,7 @@ const EP_EmailSignupPage = () => {
                 />
               </div>
 
-              <div className={styles.inputGroup}>
+              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                 <label htmlFor="address" className={styles.label}>
                   Company Address <span className={styles.optional}>(optional)</span>
                 </label>
@@ -660,6 +705,28 @@ const EP_EmailSignupPage = () => {
                   className={styles.input}
                   placeholder="Enter company address"
                 />
+                {isLoading && <div>Loading...</div>}
+                {suggestions.length > 1 && (
+                <select
+                className={internshipStyles.suggestionsDropdown} style={{ width: '100% !important', minWidth: '400px !important', maxWidth: '100% !important' }}
+                    onChange={(e) => handleSuggestionSelect(e.target.value)}
+                    size={suggestions.length > 5 ? 5 : suggestions.length}
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <option key={index} value={suggestion.ADDRESS}>
+                        {suggestion.ADDRESS}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {suggestions.length === 1 && (
+                  <div
+                  className={internshipStyles.singleSuggestion}
+                    onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
+                  >
+                    {suggestions[0].ADDRESS}
+                  </div>
+                )}
               </div>
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>

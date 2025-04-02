@@ -48,7 +48,7 @@ const JS_EmailSignupPage = () => {
   const [newSkill, setNewSkill] = useState('');
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // Form data for required fields (Step 1)
+  // Form data for required f             s (Step 1)
   const [requiredData, setRequiredData] = useState({
     userName: '',
     email: '',
@@ -635,7 +635,7 @@ const JS_EmailSignupPage = () => {
 
               <div className={styles.inputGroup}>
                 <label htmlFor="school" className={styles.label}>
-                  School
+                  University Name
                 </label>
                 <select
                   id="school"
@@ -668,18 +668,32 @@ const JS_EmailSignupPage = () => {
                 />
               </div>
 
+              <div className={styles.inputGroup}>             
+  <label htmlFor="yearOfStudy" className={styles.label}>
+    Study Year <span className={styles.optional}>(optional)</span>
+  </label>
+  <input
+    id="yearOfStudy"
+    name="yearOfStudy"
+    type="text"
+    value={optionalData.yearOfStudy}
+    onChange={handleOptionalChange}
+    className={styles.input}
+    placeholder="Enter your study year"
+  />
+              </div>
               <div className={styles.inputGroup}>
-                <label htmlFor="yearOfStudy" className={styles.label}>
-                  Study Year <span className={styles.optional}>(optional)</span>
+                <label htmlFor="fieldOfStudy" className={styles.label}>
+                  Field of Study <span className={styles.optional}>(optional)</span>
                 </label>
                 <input
-                  id="yearOfStudy"
-                  name="yearOfStudy"
+                  id="fieldOfStudy"
+                  name="fieldOfStudy"
                   type="text"
-                  value={optionalData.yearOfStudy}
+                  value={optionalData.fieldOfStudy}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="Enter your study year"
+                  placeholder="Enter your field of study"
                 />
               </div>
 
