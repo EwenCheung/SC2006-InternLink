@@ -29,7 +29,7 @@
 }
 
 .jobBox:hover {
-  transform: translateY(-5px);
+  
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -131,7 +131,7 @@
 }
 
 .seeDetailsBtn {
-  background-color: #9b59b6;
+  background-color: #7400a2;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -143,7 +143,7 @@
 }
 
 .seeDetailsBtn:hover {
-  background-color: #8e44ad;
+  background-color: #8c38af;
   transform: translateY(-1px);
 }
 
@@ -151,7 +151,7 @@
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background-color: #9b59b6;
+  background-color: #6b0095;
   color: white;
   border: none;
   padding: 15px 16px;
@@ -164,7 +164,7 @@
 }
 
 .viewApplicationBtn:hover {
-  background-color: #8e44ad;
+  background-color: #a754ca;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
