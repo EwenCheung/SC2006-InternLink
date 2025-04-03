@@ -1,6 +1,6 @@
 .container {
   @apply min-h-screen flex flex-col justify-center px-6 py-12;
-  background: linear-gradient(135deg, #DDD6FE 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #c0b1ff 0%, #ffffff 100%);
 }
 
 .formContainer {

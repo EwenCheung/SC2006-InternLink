@@ -1,5 +1,5 @@
 .container {
-    background: linear-gradient(135deg, rgb(247, 226, 255) 0%, rgb(240, 211, 255) 100%);
+    background: linear-gradient(135deg, #c0b1ff 0%, rgb(255, 187, 228) 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -36,14 +36,13 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    
 }
 
 .button:hover {
-    background: linear-gradient(135deg, rgb(104, 64, 119) 0%, rgb(156, 28, 182) 100%);
+    background: linear-gradient(135deg, rgb(151, 37, 193) 0%,rgb(188, 150, 198));
     box-shadow: 
-        0 4px 12px rgba(138, 63, 171, 0.4),
-        0 0 0 2px rgba(138, 63, 171, 0.1);
+        0 4px 12px rgba(138, 63, 171, 0.4);   
     transform: translateY(-2px);
 }
 
