@@ -74,10 +74,10 @@ const JS_EmailLoginPage = () => {
   return (
     <div className={styles.container}>
       <button 
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/employer/login')}
         className={styles.backButton}
       >
-        <FaArrowLeft /> Back
+        <FaArrowLeft /> Switch Role
       </button>
 
       <div className={styles.formContainer}>

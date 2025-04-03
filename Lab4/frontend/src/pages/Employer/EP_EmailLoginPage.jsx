@@ -81,10 +81,10 @@ const EP_EmailLoginPage = () => {
   return (
     <div className={styles.container}>
       <button 
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/jobseeker/login')}
         className={styles.backButton}
       >
-        <FaArrowLeft /> Back
+        <FaArrowLeft /> Switch Role
       </button>
 
       <div className={styles.formContainer}>
