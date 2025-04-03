@@ -1,66 +1,28 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import styles from '../JobSeeker/JS_EmailSignupPage.module.css';
-import internshipStyles from './EP_AddInternshipPage.module.css';
-import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
+import styles from './EP_EmailSignupPage.module.css';
+import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
 
-const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
-  <div className={styles.modal}>
-    <div className={styles.modalContent}>
-      <h3 className={styles.modalTitle}>Complete Your Profile</h3>
-      <p className={styles.modalText}>
-        Would you like to complete your profile now? Adding more details helps attract better candidates.
-      </p>
-      <div className={styles.modalButtons}>
-        <button
-          onClick={onFillLater}
-          className={`${styles.button} ${styles.secondaryButton}`}
-        >
-          Fill Later
-        </button>
-        <button
-          onClick={onFillNow}
-          className={`${styles.button} ${styles.primaryButton}`}
-        >
-          Complete Now
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 const EP_EmailSignupPage = () => {
   const navigate = useNavigate();
+
+  // UI states
   const [currentStep, setCurrentStep] = useState(1);
+  const [showProfileChoice, setShowProfileChoice] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
-  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // Form data for required fields (Step 1)
-  const [requiredData, setRequiredData] = useState({
+  // Form states
+  const [requiredData, setRequiredData] = useState({ // Step 1 - Required fields
     userName: '',
+    companyName: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
 
-  // Track touched fields and errors
-  const [touchedFields, setTouchedFields] = useState({});
-  const [fieldErrors, setFieldErrors] = useState({});
-
-  // Password requirements state
-  const [passwordReqs, setPasswordReqs] = useState({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false
-  });
-
-  // Form data for optional fields (Step 2)
-  const [optionalData, setOptionalData] = useState({
-    companyName: '',
+  const [optionalData, setOptionalData] = useState({ // Step 2 - Optional fields
     profileImage: null, // Company logo
     phoneNumber: '',
     industry: '',
@@ -70,7 +32,19 @@ const EP_EmailSignupPage = () => {
     address: '',
   });
 
-  // Password validation
+  // Validation states
+  const [touchedFields, setTouchedFields] = useState({}); // Track field interactions
+  const [fieldErrors, setFieldErrors] = useState({}); // Track validation errors
+  const [passwordReqs, setPasswordReqs] = useState({ // Track password requirements
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false
+  });
+
+
+  // Utility functions and handlers
   const validatePassword = (password) => {
     const reqs = {
       length: password.length >= 6 && password.length <= 50,
@@ -87,7 +61,9 @@ const EP_EmailSignupPage = () => {
   const validateField = (name, value) => {
     switch (name) {
       case 'userName':
-        return value ? '' : 'Name is required';
+        return value ? '' : 'Displayed name is required';
+      case 'companyName':
+        return value ? '' : 'Company name is required';
       case 'email':
         return /\S+@\S+\.\S+/.test(value) ? '' : 'Valid email is required';
       case 'password':
@@ -108,36 +84,31 @@ const EP_EmailSignupPage = () => {
 
   // Validate required fields
   const validateRequiredFields = () => {
-    setTouchedFields({
-      userName: true,
-      email: true,
-      password: true,
-      confirmPassword: true
-    });
+    const fieldsToValidate = [
+      { name: 'userName', label: 'Displayed Name' },
+      { name: 'companyName', label: 'Company Name' },
+      { name: 'email', label: 'Email' },
+      { name: 'password', label: 'Password' },
+      { name: 'confirmPassword', label: 'Confirm Password' }
+    ];
 
-    const newErrors = {
-      userName: validateField('userName', requiredData.userName),
-      email: validateField('email', requiredData.email),
-      password: validateField('password', requiredData.password),
-      confirmPassword: validateField('confirmPassword', requiredData.confirmPassword)
-    };
+    setTouchedFields(
+      fieldsToValidate.reduce((acc, field) => ({ ...acc, [field.name]: true }), {})
+    );
+
+    const newErrors = fieldsToValidate.reduce((acc, field) => ({
+      ...acc,
+      [field.name]: validateField(field.name, requiredData[field.name])
+    }), {});
 
     setFieldErrors(newErrors);
 
-    const missingFields = Object.entries(newErrors)
-      .filter(([_, error]) => error)
-      .map(([field]) => {
-        switch(field) {
-          case 'userName': return 'Full Name';
-          case 'email': return 'Email';
-          case 'password': return 'Password';
-          case 'confirmPassword': return 'Confirm Password';
-          default: return field;
-        }
-      });
+    const missingFields = fieldsToValidate
+      .filter(field => newErrors[field.name])
+      .map(field => field.label);
 
     if (missingFields.length > 0) {
-      setError(`Please check the following fields: ${missingFields.join(', ')}`);
+      setError('Missing required fields:\n' + missingFields.map(field => `• ${field}`).join('\n'));
       return false;
     }
 
@@ -183,51 +154,8 @@ const EP_EmailSignupPage = () => {
   };
 
   // Handle optional fields changes
-  const fetchAddressSuggestions = async (searchVal) => {
-    setIsLoading(true);
-    const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
-    const tokenResponse = await fetch('http://localhost:5001/use-token'); // Fetch token from backend
-    const tokenData = await tokenResponse.json();
-    const authToken = tokenData.token; // Use the token from the response
-
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `${authToken}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (data && data.results) {
-        setSuggestions(data.results);  // Set the suggestions from the API response
-      } else {
-        setSuggestions([]);  // Clear suggestions if no results
-      }
-    } catch (error) {
-      console.error('Error fetching address suggestions:', error);
-      setSuggestions([]);  // Clear suggestions in case of an error
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSuggestionSelect = (address) => {
-    setOptionalData((prev) => ({
-      ...prev,
-      address, // Populate the input with the selected address
-    }));
-    setSuggestions([]);
-  };
-
   const handleOptionalChange = (e) => {
     const { name, value, type, files } = e.target;
-    if (name === 'address' && value.trim()) {
-      fetchAddressSuggestions(value); // Trigger address suggestions
-    } else if (name === 'address') {
-      setSuggestions([]); // Clear suggestions if input is empty
-    }
     setError('');
 
     if (type === 'file') {
@@ -260,45 +188,84 @@ const EP_EmailSignupPage = () => {
     }
   };
 
-  // Save registration data and handle profile decision
-  const saveRegistration = async () => {
+  // Check if ALL optional fields are filled
+  const hasAllOptionalFields = () => {
+    return optionalData.industry && 
+           optionalData.companySize && 
+           optionalData.phoneNumber && 
+           optionalData.companyWebsite && 
+           optionalData.companyDescription && 
+           optionalData.address && 
+           optionalData.profileImage;
+  };
+
+  // Handle navigation choice from modal
+  const handleProfileChoice = async (completeNow) => {
+    setShowProfileChoice(false);
+    navigate(completeNow ? '/employer/profile' : '/employer/post-internship');
+  };
+
+  // Form submission handlers
+  const createAccount = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5001/api/auth/register', {
+      // Prepare registration data
+      const registrationData = {
+        type: "employer",
+        role: "employer",
+        email: requiredData.email,
+        password: requiredData.password,
+        userName: requiredData.userName,
+        companyName: requiredData.companyName
+      };
+
+      // Add optional fields if they exist
+      if (optionalData.phoneNumber) registrationData.phoneNumber = optionalData.phoneNumber;
+      if (optionalData.industry) registrationData.industry = optionalData.industry;
+      if (optionalData.companySize) registrationData.companySize = optionalData.companySize;
+      if (optionalData.companyWebsite) registrationData.website = optionalData.companyWebsite;
+      if (optionalData.companyDescription) registrationData.description = optionalData.companyDescription;
+      if (optionalData.address) registrationData.location = optionalData.address;
+
+      // Send registration request
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...requiredData,
-          role: 'employer'
-        }),
+        body: JSON.stringify(registrationData)
       });
 
       const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        if (data.message?.includes('duplicate key error')) {
+          throw new Error('This email is already registered. Please use a different email address.');
+        }
+        throw new Error(data.message || 'Registration failed. Please check your information and try again.');
       }
 
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      if (currentStep === 2) {
-        // If on complete profile page, save the profile data
-        await saveProfileData();
+      // Store auth data
+      if (data.token && data.user) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
       } else {
-        // If on basic registration, show profile completion modal
-        setShowProfileModal(true);
+        throw new Error('Invalid response from server. Missing authentication data.');
+      }
+
+      // Check navigation path after saving
+      if (hasAllOptionalFields()) {
+        navigate('/employer/post-internship');
+      } else {
+        setShowProfileChoice(true);
       }
     } catch (err) {
-      setError(err.message || 'An error occurred during registration');
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle form submission for required fields
+  // Form submission handlers
   const handleRequiredSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -307,55 +274,19 @@ const EP_EmailSignupPage = () => {
       return;
     }
 
-    await saveRegistration();
+    await createAccount();
   };
 
-  // Handle optional fields submission
-  const saveProfileData = async () => {
-    try {
-      const formData = new FormData();
-      
-      Object.keys(optionalData).forEach(key => {
-        if (optionalData[key]) {
-          formData.append(key, optionalData[key]);
-        }
-      });
-
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5001/api/auth/update', {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      navigate('/employer/post-internship');
-    } catch (err) {
-      setError(err.message || 'An error occurred while updating profile');
-    }
-  };
-
-  // Handle optional submit
   const handleOptionalSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
     if (!validateRequiredFields()) {
+      setCurrentStep(1);
       return;
     }
-
-    setIsLoading(true);
-    await saveRegistration();
+    await createAccount();
   };
 
-  // Handle OAuth signup
+  // OAuth handler
   const handleOAuthSignup = (provider) => {
     // OAuth implementation will be added here
     console.log(`${provider} signup clicked`);
@@ -363,17 +294,29 @@ const EP_EmailSignupPage = () => {
 
   return (
     <div className={styles.container}>
-      {showProfileModal && (
-        <ProfileCompletionModal 
-          onFillNow={() => {
-            setShowProfileModal(false);
-            setCurrentStep(2);
-          }}
-          onFillLater={() => {
-            setShowProfileModal(false);
-            navigate('/employer/post-internship');
-          }}
-        />
+      {showProfileChoice && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>Complete Your Profile</h3>
+            <p className={styles.modalText}>
+              You still have some optional profile fields that could be filled. Would you like to complete them now?
+            </p>
+            <div className={styles.modalButtons}>
+              <button 
+                onClick={() => handleProfileChoice(false)}
+                className={`${styles.button} ${styles.secondaryButton}`}
+              >
+                Fill Later
+              </button>
+              <button 
+                onClick={() => handleProfileChoice(true)}
+                className={`${styles.button} ${styles.primaryButton}`}
+              >
+                Complete Now
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <button 
@@ -393,12 +336,12 @@ const EP_EmailSignupPage = () => {
             />
           </Link>
           <h2 className={styles.title}>
-            {currentStep === 1 ? 'Create your account' : 'Complete your profile'}
+            {currentStep === 1 ? 'Create an employer account' : 'Fill in Full Profile'}
           </h2>
           <p className={styles.subtitle}>
             {currentStep === 1 
               ? 'Start hiring with InternLink'
-              : 'Add company details to attract better candidates'}
+              : 'Add more details to enhance your company profile'}
           </p>
         </div>
 
@@ -407,7 +350,7 @@ const EP_EmailSignupPage = () => {
           <form onSubmit={handleRequiredSubmit} className={styles.form}>
             <div className={styles.inputGroup}>
               <label htmlFor="userName" className={styles.label}>
-                Full Name
+                Displayed Name
               </label>
               <input
                 id="userName"
@@ -419,10 +362,31 @@ const EP_EmailSignupPage = () => {
                 onBlur={handleBlur}
                 onFocus={handleFocus}
                 className={`${styles.input} ${fieldErrors.userName && touchedFields.userName ? styles.inputError : ''}`}
-                placeholder="Enter your full name"
+                placeholder="Enter your display name"
               />
               {fieldErrors.userName && touchedFields.userName && (
                 <div className={styles.error}>{fieldErrors.userName}</div>
+              )}
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="companyName" className={styles.label}>
+                Company Name
+              </label>
+              <input
+                id="companyName"
+                name="companyName"
+                type="text"
+                required
+                value={requiredData.companyName}
+                onChange={handleRequiredChange}
+                onBlur={handleBlur}
+                onFocus={handleFocus}
+                className={`${styles.input} ${fieldErrors.companyName && touchedFields.companyName ? styles.inputError : ''}`}
+                placeholder="Enter your company name"
+              />
+              {fieldErrors.companyName && touchedFields.companyName && (
+                <div className={styles.error}>{fieldErrors.companyName}</div>
               )}
             </div>
 
@@ -561,7 +525,7 @@ const EP_EmailSignupPage = () => {
               onClick={() => setCurrentStep(2)}
               className={`${styles.button} ${styles.secondaryButton} w-full mt-4`}
             >
-              Complete Your Profile
+              Fill in Full Profile
             </button>
 
             <div className={styles.dividerContainer}>
@@ -603,20 +567,6 @@ const EP_EmailSignupPage = () => {
           // Step 2: Optional Fields (Company Details)
           <form onSubmit={handleOptionalSubmit} className={styles.form}>
             <div className={styles.formGrid}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="companyName" className={styles.label}>
-                  Company Name <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="companyName"
-                  name="companyName"
-                  type="text"
-                  value={optionalData.companyName}
-                  onChange={handleOptionalChange}
-                  className={styles.input}
-                  placeholder="Enter company name"
-                />
-              </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="profileImage" className={styles.label}>
@@ -692,7 +642,7 @@ const EP_EmailSignupPage = () => {
                 />
               </div>
 
-              <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
+              <div className={styles.inputGroup}>
                 <label htmlFor="address" className={styles.label}>
                   Company Address <span className={styles.optional}>(optional)</span>
                 </label>
@@ -705,28 +655,6 @@ const EP_EmailSignupPage = () => {
                   className={styles.input}
                   placeholder="Enter company address"
                 />
-                {isLoading && <div>Loading...</div>}
-                {suggestions.length > 1 && (
-                <select
-                className={internshipStyles.suggestionsDropdown} style={{ width: '100% !important', minWidth: '400px !important', maxWidth: '100% !important' }}
-                    onChange={(e) => handleSuggestionSelect(e.target.value)}
-                    size={suggestions.length > 5 ? 5 : suggestions.length}
-                  >
-                    {suggestions.map((suggestion, index) => (
-                      <option key={index} value={suggestion.ADDRESS}>
-                        {suggestion.ADDRESS}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {suggestions.length === 1 && (
-                  <div
-                  className={internshipStyles.singleSuggestion}
-                    onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
-                  >
-                    {suggestions[0].ADDRESS}
-                  </div>
-                )}
               </div>
 
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
@@ -780,7 +708,7 @@ const EP_EmailSignupPage = () => {
                     Creating Account...
                   </span>
                 ) : (
-                  'Create Account & Save Profile'
+                  'Create Account'
                 )}
               </button>
             </div>

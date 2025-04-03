@@ -1,0 +1,210 @@
+.container {
+    width: 100%;
+    position: relative;
+  }
+  
+  .selectField {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+  }
+  
+  .selectField:hover {
+    border-color: #90caf9;
+  }
+  
+  .selectedItems {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+    min-height: 2.5rem;
+  }
+  
+  .emptyBubble {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background-color: #f5f5f5;
+    border-radius: 16px;
+    font-size: 0.8125rem;
+    color: #666;
+    border: 1px dashed #ccc;
+  }
+  
+  .selectedItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #e3f2fd;
+    border-radius: 16px;
+    font-size: 0.8125rem;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+    transition: all 0.2s ease;
+  }
+  
+  .selectedItem:hover {
+    background-color: #bbdefb;
+  }
+  
+  .removeItem {
+    background: none;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #1976d2;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+  }
+  
+  .removeItem:hover {
+    color: #d32f2f;
+    transform: scale(1.1);
+  }
+  
+  .toggleIcon {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border-left: 1px solid #e0e0e0;
+    transition: all 0.2s ease;
+    background-color: #fafafa;
+  }
+  
+  .selectField:hover .toggleIcon {
+    color: #1976d2;
+    background-color: #f5f9ff;
+  }
+  
+  .dropdownMenu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  .categoryGroup {
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .categoryGroup:last-child {
+    border-bottom: none;
+  }
+  
+  .categoryLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    font-size: 0.8125rem;
+    background: #fafafa;
+  }
+  
+  .categoryLabel:hover {
+    background-color: #f5f9ff;
+  }
+  
+  .courseCount {
+    font-size: 0.75rem;
+    color: #666;
+    margin-left: 0.25rem;
+  }
+  
+  .courseList {
+    margin-left: 1.75rem;
+    padding: 0.25rem 0;
+    background: white;
+  }
+  
+  .courseLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+    font-size: 0.8125rem;
+  }
+  
+  .courseLabel:hover {
+    background-color: #f5f9ff;
+  }
+  
+  .categoryLabel input[type="checkbox"],
+  .courseLabel input[type="checkbox"] {
+    width: 0.875rem;
+    height: 0.875rem;
+    margin: 0;
+    cursor: pointer;
+    border: 1.5px solid #1976d2;
+    border-radius: 3px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    position: relative;
+    background-color: white;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  
+  .categoryLabel input[type="checkbox"]:checked,
+  .courseLabel input[type="checkbox"]:checked {
+    background-color: #1976d2;
+    border-color: #1976d2;
+  }
+  
+  .categoryLabel input[type="checkbox"]:checked::after,
+  .courseLabel input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 3px;
+    height: 6px;
+    border: solid white;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+  }
+  
+  .categoryName {
+    color: #1976d2;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    flex: 1;
+  }
+  
+  .courseName {
+    font-size: 0.8125rem;
+    color: #333;
+  }
+  
