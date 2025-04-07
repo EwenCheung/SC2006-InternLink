@@ -3,6 +3,7 @@ import { fetchUniversities } from '../../../js/fetchUniversities';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
+import {fetchSkillsData} from '../../../js/fetchSkillsData';
 
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
   <div className={styles.modal}>
@@ -31,6 +32,18 @@ const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
 
 const JS_EmailSignupPage = () => {
   const [universities, setUniversities] = useState([]);
+  const [skills, setSkills] = useState([]);
+
+  useEffect(() => {
+    const loadSkills = async () => {
+      const skillNames = await fetchSkillsData();
+      console.log("Fetched skill names:", skillNames);
+      setSkills(skillNames);
+    };
+    loadSkills();
+  }, []);
+
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -227,17 +240,20 @@ const JS_EmailSignupPage = () => {
   };
 
   // Handle skills
-  const handleAddSkill = (e) => {
-    e.preventDefault();
-    if (newSkill.trim() && !optionalData.skills.includes(newSkill.trim())) {
-      setOptionalData(prev => ({
+  const handleAddSkill = (e, selectedSkill = null) => {
+    if (e) e.preventDefault();
+    const skillToAdd = selectedSkill || newSkill.trim();
+    if (
+      skillToAdd &&
+      !optionalData.skills.includes(skillToAdd)
+    ) {
+      setOptionalData((prev) => ({
         ...prev,
-        skills: [...prev.skills, newSkill.trim()]
+        skills: [...prev.skills, skillToAdd],
       }));
       setNewSkill('');
     }
   };
-
   const handleRemoveSkill = (skillToRemove) => {
     setOptionalData(prev => ({
       ...prev,
@@ -706,39 +722,68 @@ const JS_EmailSignupPage = () => {
                   className={styles.fileInput}
                 />
               </div>
-
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
-                <label htmlFor="skills" className={styles.label}>
-                  Skills <span className={styles.optional}>(optional)</span>
-                </label>
-                <div className={styles.skillsContainer}>
-                  {optionalData.skills.map((skill, index) => (
-                    <div key={index} className={styles.skillTag}>
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveSkill(skill)}
-                        className={styles.removeSkill}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-2">
+  
+              <label htmlFor="skills" className={styles.label}>
+                Skills <span className={styles.optional}>(optional)</span>
+              </label>
+
+              <div className={styles.skillsContainer}>
+                {optionalData.skills.map((skill, index) => (
+                  <div key={index} className={styles.skillTag}>
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSkill(skill)}
+                      className={styles.removeSkill}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Input and Add Button Side-by-Side */}
+        <div className="flex items-start gap-2 mt-2 relative items-center">
+                <div className="w-full relative">
                   <input
                     type="text"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
                     className={styles.input}
                     placeholder="Add a skill"
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddSkill(e)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(e)}
                   />
+
+                  {newSkill.trim() !== '' && (
+                    <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
+                      {skills
+                        .filter(
+                          (skill) =>
+                            skill.toLowerCase().includes(newSkill.toLowerCase()) &&
+                            !optionalData.skills.includes(skill)
+                        )
+                        .slice(0, 10)
+                                    .map((skill, index) => (
+                          <li
+                            key={index}
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => handleAddSkill(null, skill)}
+                          >
+                            {skill}
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+
+
+                <div className = "gap-2 flex items-center">
                   <button
                     type="button"
                     onClick={handleAddSkill}
-                    className={`${styles.button} ${styles.secondaryButton}`}
-                  >
+                    className={`${styles.button} ${styles.secondaryButton} `}
+              >
                     Add
                   </button>
                 </div>
@@ -784,7 +829,10 @@ const JS_EmailSignupPage = () => {
                 )}
               </button>
             </div>
+          </div>
           </form>
+        
+          
         )}
       </div>
     </div>

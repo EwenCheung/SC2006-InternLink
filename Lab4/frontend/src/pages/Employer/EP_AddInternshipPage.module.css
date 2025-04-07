@@ -2,6 +2,9 @@
   padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
+  background-color: white; /* White card background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for card effect */
 }
 
 .header {
@@ -29,7 +32,7 @@
 
 .title {
   font-size: 1.5rem;
-  color: #333;
+  color: #6a1b9a; /* Purple text color */
   margin: 0;
 }
 
@@ -47,14 +50,14 @@
 
 .formGroup label {
   font-weight: 500;
-  color: #333;
+  color: #6a1b9a; /* Purple label color */
 }
 
 .formGroup input,
 .formGroup select,
 .formGroup textarea {
   padding: 0.75rem;
-  border: 1px solid #ddd;
+  border: 1px solid #ce93d8; /* Light purple border */
   border-radius: 4px;
   font-size: 1rem;
 }
@@ -63,16 +66,16 @@
 .formGroup select:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: #7b1fa2; /* Purple focus border */
 }
 
 .error {
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 4px;
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ffcdd2;
+  background-color: #f3e5f5; /* Light purple background */
+  color: #6a1b9a; /* Purple text color */
+  border: 1px solid #ce93d8; /* Light purple border */
 }
 
 .error h4 {
@@ -97,6 +100,12 @@
   cursor: pointer;
   font-size: 1rem;
   transition: all 0.2s;
+  background-color: #4a148c; /* Darker purple button background */
+  color: white;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 .button:disabled {
@@ -105,25 +114,25 @@
 }
 
 .draftButton {
-  background-color: #6c757d;
+  background-color: #4a148c; /* Darker purple draft button */
   color: white;
 }
 
-.draftButton:hover:not(:disabled) {
-  background-color: #5a6268;
+.draftButton:hover {
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 .postButton {
-  background-color: #007bff;
+  background-color: #4a148c; /* Darker purple button background */
   color: white;
 }
 
-.postButton:hover:not(:disabled) {
-  background-color: #0056b3;
+.postButton:hover {
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 .note {
-  color: #666;
+  color: #6a1b9a; /* Purple note text */
   font-size: 0.875rem;
   margin-top: -0.5rem;
 }
@@ -134,7 +143,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(123, 31, 162, 0.5); /* Semi-transparent purple */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +151,7 @@
 }
 
 .dialogContent {
-  background-color: white;
+  background-color: #f3e5f5; /* Light purple background */
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
@@ -151,7 +160,7 @@
 
 .dialogContent h3 {
   margin: 0 0 1rem 0;
-  color: #333;
+  color: #6a1b9a; /* Purple text color */
 }
 
 .dialogButtons {
@@ -171,30 +180,30 @@
 }
 
 .exitButton {
-  background-color: #dc3545;
+  background-color: #4a148c; /* Darker purple exit button */
   color: white;
 }
 
 .exitButton:hover {
-  background-color: #c82333;
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 .saveButton {
-  background-color: #007bff;
+  background-color: #4a148c; /* Darker purple save button */
   color: white;
 }
 
 .saveButton:hover {
-  background-color: #0056b3;
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 .cancelButton {
-  background-color: #6c757d;
+  background-color: #4a148c; /* Darker purple cancel button */
   color: white;
 }
 
 .cancelButton:hover {
-  background-color: #5a6268;
+  background-color: #6a1b9a; /* Lighter purple on hover */
 }
 
 /* Tag input styles */
@@ -213,7 +222,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #e9ecef;
+  background-color: #e1bee7; /* Light purple tag background */
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
@@ -222,7 +231,7 @@
 .deleteTag {
   background: none;
   border: none;
-  color: #666;
+  color: #6a1b9a; /* Purple delete icon */
   cursor: pointer;
   padding: 0;
   font-size: 1rem;
@@ -231,7 +240,7 @@
 }
 
 .deleteTag:hover {
-  color: #dc3545;
+  color: #9c27b0; /* Darker purple on hover */
 }
 
 /* Suggestions dropdown styles */
@@ -239,11 +248,11 @@
   width: 100%;
   max-height: 150px;
   overflow-y: auto;
-  border: 1px solid #ddd;
+  border: 1px solid #ce93d8; /* Light purple border */
   border-radius: 4px;
   font-size: 1rem;
   padding: 0.5rem;
-  background-color: white;
+  background-color: #f3e5f5; /* Light purple background */
 }
 
 .suggestionsDropdown option {
@@ -252,7 +261,7 @@
 }
 
 .suggestionsDropdown option:hover {
-  background-color: #f1f1f1;
+  background-color: #e1bee7; /* Light purple hover */
 }
 
 /* Custom input field and dropdown list styles */
@@ -260,7 +269,7 @@
   width: 100%;
   padding: 8px;
   margin-top: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #ce93d8; /* Light purple border */
   border-radius: 4px;
 }
 
@@ -268,11 +277,11 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  border: 1px solid #ccc;
+  border: 1px solid #ce93d8; /* Light purple border */
   border-radius: 4px;
   max-height: 150px;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: #f3e5f5; /* Light purple background */
   position: absolute;
   z-index: 1000;
   width: 100%;
@@ -284,19 +293,19 @@
 }
 
 .dropdownItem:hover {
-  background-color: #f0f0f0;
+  background-color: #e1bee7; /* Light purple hover */
 }
 
 /* Single suggestion box styles */
 .singleSuggestion {
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #ce93d8; /* Light purple border */
   border-radius: 4px;
-  background-color: #fff;
+  background-color: #f3e5f5; /* Light purple background */
   cursor: pointer;
   margin-top: 4px;
 }
 
 .singleSuggestion:hover {
-  background-color: #f0f0f0;
+  background-color: #e1bee7; /* Light purple hover */
 }
