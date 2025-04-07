@@ -40,6 +40,33 @@ export const register = async (req, res) => {
   });
 };
 
+// Get User Profile
+export const getProfile = async (req, res) => {
+  const { userId, role } = req.user;
+  
+  try {
+    let user;
+    if (role === 'jobseeker') {
+      user = await JobSeeker.findById(userId);
+      if (!user) {
+        throw new BadRequestError('JobSeeker not found');
+      }
+    } else {
+      user = await Employer.findById(userId);
+      if (!user) {
+        throw new BadRequestError('Employer not found');
+      }
+    }
+
+    // Remove sensitive information
+    const { password, ...userProfile } = user.toObject();
+
+    res.status(StatusCodes.OK).json(userProfile);
+  } catch (error) {
+    throw new BadRequestError(error.message);
+  }
+};
+
 // Update User Profile
 export const updateUser = async (req, res) => {
   const { role } = req.user;
@@ -73,62 +100,48 @@ export const updateUser = async (req, res) => {
       }
     }
     
-    res.status(StatusCodes.OK).json({
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        name: role === 'jobseeker' ? user.userName : user.companyName,
-        ...updates
-      }
-    });
+    // Remove sensitive information
+    const { password, ...updatedProfile } = user.toObject();
+    res.status(StatusCodes.OK).json(updatedProfile);
   } catch (error) {
     throw new BadRequestError(error.message);
   }
 };
 
-// Login User
-export const login = async (req, res) => {
-  const { email, password } = req.body;
-  
-  if (!email || !password) {
-    throw new BadRequestError('Please provide email and password');
+// Upload Profile Photo
+export const uploadProfilePhoto = async (req, res) => {
+  if (!req.file) {
+    throw new BadRequestError('Please upload a file');
   }
-  
+
+  const { userId, role } = req.user;
+  const profileImage = `/uploads/profileImages/${req.file.filename}`;
+
   try {
-    // Check both collections sequentially instead of using Promise.any
-    let user = await JobSeeker.findOne({ email });
+    let user;
+    if (role === 'jobseeker') {
+      user = await JobSeeker.findByIdAndUpdate(
+        userId,
+        { profileImage },
+        { new: true }
+      );
+    } else {
+      user = await Employer.findByIdAndUpdate(
+        userId,
+        { profileImage },
+        { new: true }
+      );
+    }
+
     if (!user) {
-      user = await Employer.findOne({ email });
+      throw new BadRequestError('User not found');
     }
-    
-    if (!user) {
-      throw new UnauthenticatedError('Invalid email or password');
-    }
-    
-    const isPasswordCorrect = await user.comparePassword(password);
-    if (!isPasswordCorrect) {
-      throw new UnauthenticatedError('Invalid email or password');
-    }
-    
-    const token = user.createJWT();
-    
+
     res.status(StatusCodes.OK).json({
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        name: user.role === 'jobseeker' ? user.userName : user.companyName
-      },
-      token
+      profileImage: user.profileImage
     });
   } catch (error) {
-    // Check if it's our custom error
-    if (error instanceof UnauthenticatedError) {
-      throw error;
-    }
-    // For other errors, throw a generic auth error
-    throw new UnauthenticatedError('Authentication failed');
+    throw new BadRequestError(error.message);
   }
 };
 
@@ -193,6 +206,49 @@ export const updateSensitiveInfo = async (req, res) => {
       throw new BadRequestError('Email already in use');
     }
     throw error;
+  }
+};
+
+// Login User
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  
+  if (!email || !password) {
+    throw new BadRequestError('Please provide email and password');
+  }
+  
+  try {
+    // Check both collections sequentially instead of using Promise.any
+    let user = await JobSeeker.findOne({ email });
+    if (!user) {
+      user = await Employer.findOne({ email });
+    }
+    
+    if (!user) {
+      throw new UnauthenticatedError('Invalid email or password');
+    }
+    
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      throw new UnauthenticatedError('Invalid email or password');
+    }
+    
+    const token = user.createJWT();
+    
+    res.status(StatusCodes.OK).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        name: user.role === 'jobseeker' ? user.userName : user.companyName
+      },
+      token
+    });
+  } catch (error) {
+    if (error instanceof UnauthenticatedError) {
+      throw error;
+    }
+    throw new UnauthenticatedError('Authentication failed');
   }
 };
 

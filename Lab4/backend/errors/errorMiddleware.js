@@ -40,6 +40,29 @@ export const errorHandler = (err, req, res, next) => {
     message = 'Session expired, please login again';
   }
 
+  // Handle file upload errors
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    switch (err.code) {
+      case 'LIMIT_FILE_SIZE':
+        message = 'File is too large';
+        break;
+      case 'LIMIT_FILE_COUNT':
+        message = 'Too many files';
+        break;
+      case 'LIMIT_UNEXPECTED_FILE':
+        message = 'Unexpected file type';
+        break;
+      default:
+        message = 'File upload error';
+    }
+  }
+
+  // If file upload error comes from our fileFilter
+  if (err.message.includes('format allowed')) {
+    statusCode = 400;
+  }
+
   // Send error response
   res.status(statusCode).json({
     success: false,

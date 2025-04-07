@@ -12,7 +12,7 @@ export const connectDB = async () => {
     }
 
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://yongfushan:123456!@cluster0.tmwlym4.mongodb.net/InternLink?retryWrites=true&w=majority', {
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
         });

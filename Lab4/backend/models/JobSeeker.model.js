@@ -35,6 +35,7 @@ const JobSeekerSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
+    default: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
     validate: {
       validator: function(v) {
         return !v || /\.(jpg|jpeg|png)$/i.test(v);
@@ -49,7 +50,7 @@ const JobSeekerSchema = new mongoose.Schema({
   yearOfStudy: String,
   resume: String,
   skills: [String],
-  interests: [String], // Array of job interests
+  interests: [String],
   jobApplications: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Application'
@@ -84,9 +85,6 @@ JobSeekerSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-// Get Users database connection
 const usersDb = mongoose.connection.useDb('Users', { useCache: true });
-
-// Create and export model
 const JobSeeker = usersDb.model('JobSeeker', JobSeekerSchema);
 export default JobSeeker;

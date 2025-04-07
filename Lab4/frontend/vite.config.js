@@ -1,30 +1,44 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import net from 'net';
+import dotenv from 'dotenv';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
-  server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5001',
-        changeOrigin: true,
-        secure: false,
+dotenv.config();
+
+// Find next available port
+const findPort = async (startPort) => {
+  const test = (port) => {
+    return new Promise((resolve) => {
+      const server = net.createServer()
+        .once('error', () => resolve(false))
+        .once('listening', () => {
+          server.close();
+          resolve(true);
+        })
+        .listen(port);
+    });
+  };
+
+  let port = startPort;
+  while (!(await test(port))) {
+    console.log(`Port ${port} in use, trying ${port + 1}`);
+    port++;
+  }
+  return port;
+};
+
+export default defineConfig(async () => {
+  const port = await findPort(Number(process.env.PORT));
+  
+  return {
+    plugins: [react()],
+    server: {
+      port,
+      host: true,
+      open: true,
+      onListening: () => {
+        console.log(`Frontend running on port ${port}`);
       },
-    },
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
-  },
+    }
+  };
 });
