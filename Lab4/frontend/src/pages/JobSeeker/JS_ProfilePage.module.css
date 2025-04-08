@@ -1,305 +1,424 @@
-body {
-    background-color: #d7dbe0;
-}
-
 .profileContainer {
-    max-width: 1200px;
-    margin: 80px auto 30px;
-    padding: 0 20px;
+    width: 90%;
+    margin: 2rem auto;
 }
 
-.profileHeader {
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
+/* Common section styling */
+.profileSection,
+.additionalSection,
+.applicationsSection {
     background: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 30px;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(103, 71, 224, 0.08);
+}
+
+/* Section Header */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(103, 71, 224, 0.1);
+}
+
+.sectionHeader h2 {
+    color: #6747e0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.headerButton {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancelButton {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #666;
+}
+
+.cancelButton:hover {
+    background: #e5e5e5;
+}
+
+.saveButton {
+    background: #6747e0;
+    border: 1px solid #6747e0;
+    color: white;
+}
+
+.saveButton:hover {
+    background: #5735d9;
+}
+
+.editButton {
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    color: #6747e0;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.editButton:hover {
+    opacity: 1;
+}
+
+/* Profile Section */
+.profileContent {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.imageSection {
+    flex: 0 0 200px;
 }
 
 .profileImage {
-    flex: 0 0 200px;
-    text-align: center;
-}
-
-.imageContainer {
     position: relative;
     width: 200px;
     height: 200px;
-    margin: 0 auto;
-    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .profileImage img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%;
-    border: 3px solid #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 3px solid #6747e0;
 }
 
 .imageOverlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 50%;
+    inset: 0;
+    background: rgba(103, 71, 224, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.3s;
-    cursor: pointer;
+    transition: opacity 0.2s;
 }
 
-.imageContainer:hover .imageOverlay {
+.profileImage:hover .imageOverlay {
     opacity: 1;
 }
 
 .changePhotoBtn {
-    padding: 8px 16px;
-    background-color: #353535;
-    color: white;
+    background: white;
+    color: #6747e0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
     border: none;
-    border-radius: 5px;
+    font-weight: 500;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-    z-index: 2;
 }
 
-.changePhotoBtn:hover {
-    background-color: #646464;
-}
-
-.headerRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.editProfileBtn {
-    padding: 8px 16px;
-    background-color: #353535;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.editProfileBtn:hover {
-    background-color: #646464;
-}
-
-.personalInfo {
+.basicInfo {
     flex: 1;
 }
 
-.personalInfo h1 {
-    font-size: 28px;
-    color: #333232;
-    margin-bottom: 25px;
-}
-
-.infoGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
-
-.infoItem {
-    background: #f8f9fa;
-    padding: 15px;
+.fieldRow {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
     border-radius: 8px;
-    position: relative;
-    min-height: 80px;
+    background: #f8f7ff;
 }
 
-.infoItem label {
+.fieldRow label {
     display: block;
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 5px;
+    color: #6747e0;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
 }
 
-.infoItem p {
-    font-size: 16px;
-    color: #333;
+.fieldContent input,
+.fieldContent select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: white;
+}
+
+.fieldContent select {
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236747e0'%3E%3Cpath d='M4 6h8l-4 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Contacts Section */
+.contacts {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.contactsHeader h3 {
+    color: #6747e0;
+    font-size: 1.1rem;
     font-weight: 500;
 }
 
-.editInput {
-    width: calc(100% - 30px);
-    padding: 8px;
-    margin: 5px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: white;
+.addContactBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
 }
 
-.editInput:focus {
-    outline: none;
-    border-color: #007bff;
+.contactsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
 }
 
-/* Job Applications Section */
-.applications {
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.contactItem {
+    padding: 0.4rem 0.8rem;
+    background: #f8f7ff;
+    border-radius: 6px;
+    font-size: 0.9rem;
 }
 
-.applications h2 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 30px;
-    padding-left: 10px;
+/* Additional Information Section */
+.additionalContent {
+    display: flex;
+    gap: 2rem;
 }
 
-/* Job listings styles */
-.jobListings {
+.leftColumn {
+    flex: 0 0 70%;
+    padding-right: 2rem;
+}
+
+.rightColumn {
+    flex: 0 0 30%;
+}
+
+.textareaField {
+    margin-bottom: 1rem;
+}
+
+.textareaField label {
+    display: block;
+    color: #6747e0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.textareaField textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    background: #f8f7ff;
+    resize: vertical;
+}
+
+/* Resume Section */
+.resumeSection {
+    background: #f8f7ff;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.resumeSection h3 {
+    color: #6747e0;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.fileInput {
+    display: none;
+}
+
+.resumeUpload label {
+    display: block;
+    padding: 0.75rem;
+    background: #6747e0;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.resumePreview {
+    height: 400px;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.resumePreview iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Applications Section */
+.applicationGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    padding: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
 }
 
 .jobBox {
-    background: white;
+    background: #f8f7ff;
+    padding: 1rem;
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border: 1px solid #eee;
-    min-height: 300px;
 }
 
 .jobTitle {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
 }
 
 .jobCompany {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 10px;
+    color: #6747e0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
 }
 
-.jobDescription {
-    color: #666;
-    font-size: 14px;
-    line-height: 1.5;
-    margin: 10px 0;
-    flex-grow: 1;
-}
-
-.jobRequirements {
-    margin: 15px 0;
-}
-
-.jobRequirements span {
-    display: inline-block;
-    background: #f5f5f5;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: #555;
-    margin: 0 5px 5px 0;
-}
-
-.applicationStatus {
-    padding: 6px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 500;
-    text-align: center;
-    margin-top: 0;
-    flex: 0;
-    align-self: center;
-}
-
-.statusPending {
-    composes: applicationStatus;
-    background-color: #ffd700;
-    color: #000;
-}
-
-.statusAccepted {
-    composes: applicationStatus;
-    background-color: #28a745;
-    color: white;
-}
-
-.statusRejected {
-    composes: applicationStatus;
-    background-color: #dc3545;
-    color: white;
+.applicationDate {
+    color: #718096;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
 }
 
 .applicationInfo {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 15px;
-    gap: 10px;
+}
+
+.applicationStatus {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.statusPending {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.statusAccepted {
+    background-color: #28a745;
+    color: white;
+}
+
+.statusRejected {
+    background-color: #dc3545;
+    color: white;
 }
 
 .seeDetailsBtn {
-    padding: 6px 12px;
-    background-color: #840fab;
+    padding: 0.3rem 0.6rem;
+    background: #6747e0;
     color: white;
     border: none;
-    border-radius: 7px;
-    font-size: 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.seeDetailsBtn:hover {
-    background-color: #c538fd;
-    transform: translateY(-2px);
-    box-shadow: 0 0 5px rgba(26,26,26);
+/* Contact Dialog */
+.contactDialog {
+    padding: 1rem;
 }
 
-/* Responsive design */
-@media (max-width: 1200px) {
-    .jobListings {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
-    }
+.contactTypeSelect {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
+.contactTypeBtn {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    background: white;
+    color: #6747e0;
+    cursor: pointer;
+}
+
+.contactTypeBtn.selected {
+    background: #6747e0;
+    color: white;
+}
+
+.contactInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+/* Loading State */
+.loadingContainer {
+    width: 100%;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-    .profileHeader {
+    .profileContent {
         flex-direction: column;
         align-items: center;
-        text-align: center;
     }
 
-    .profileImage {
-        margin-bottom: 30px;
+    .imageSection {
+        margin-bottom: 1.5rem;
     }
 
-    .infoGrid {
-        grid-template-columns: 1fr;
+    .additionalContent {
+        flex-direction: column;
     }
 
-    .jobListings {
-        grid-template-columns: 1fr;
-        gap: 20px;
+    .leftColumn,
+    .rightColumn {
+        flex: 1;
     }
 }

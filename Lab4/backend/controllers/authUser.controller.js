@@ -49,12 +49,33 @@ export const getProfile = async (req, res) => {
     if (role === 'jobseeker') {
       user = await JobSeeker.findById(userId);
       if (!user) {
-        throw new BadRequestError('JobSeeker not found');
+        return res.status(StatusCodes.NOT_FOUND).json({
+          message: 'No profile found',
+          defaultProfile: {
+            userName: 'New User',
+            school: 'Select School',
+            course: 'Select Course',
+            yearOfStudy: 'Year 1',
+            email: '',
+            contact: '',
+            profileImage: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'
+          }
+        });
       }
     } else {
       user = await Employer.findById(userId);
       if (!user) {
-        throw new BadRequestError('Employer not found');
+        return res.status(StatusCodes.NOT_FOUND).json({
+          message: 'No profile found',
+          defaultProfile: {
+            companyName: 'New Company',
+            industry: 'Select Industry',
+            companySize: 'Select Size',
+            email: '',
+            contact: '',
+            profileImage: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'
+          }
+        });
       }
     }
 

@@ -13,6 +13,7 @@ import connectDB from './config/db.js';
 import authUserRoutes from './routes/authUser.route.js';
 import jobRoutes from './routes/job.route.js';
 import messageRoutes from './routes/message.route.js';
+import applicationRoutes from './routes/application.route.js';
 
 // Import error handler middleware
 import { errorHandler, notFound } from './errors/errorMiddleware.js';
@@ -50,16 +51,27 @@ const findPort = async (startPort) => {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB and start server
 const startServer = async () => {
   try {
     await connectDB();
+    // API routes
     app.use('/api/auth', authUserRoutes);
     app.use('/api/jobs', jobRoutes);
     app.use('/api/messages', messageRoutes);
+    app.use('/api/applications', applicationRoutes);
+
+    // OneMap token endpoint
+    app.get('/use-token', (_, res) => {
+      if (accessToken) {
+        res.json({ token: `Bearer ${accessToken}` });
+      } else {
+        res.status(500).json({ error: 'OneMap token not yet available' });
+      }
+    });
     app.use(notFound);
     app.use(errorHandler);
 

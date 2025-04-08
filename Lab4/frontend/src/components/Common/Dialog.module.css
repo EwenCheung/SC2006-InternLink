@@ -1,0 +1,248 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.dialog {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    min-width: 320px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    transform-origin: center center;
+}
+
+.dialog:focus {
+    outline: none;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeButton:hover {
+    color: #4a5568;
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+.closeButton:active {
+    transform: scale(0.95);
+}
+
+.content {
+    margin: 16px 0;
+    color: #4a5568;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.primaryButton {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.primaryButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.25);
+}
+
+.primaryButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.secondaryButton {
+    background: transparent;
+    color: #718096;
+    border: 1px solid #e2e8f0;
+}
+
+.secondaryButton:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.secondaryButton:active {
+    transform: translateY(0);
+}
+
+/* Dialog Types */
+.info {
+    border-top: 4px solid #4299e1;
+}
+
+.warning {
+    border-top: 4px solid #ecc94b;
+}
+
+.error {
+    border-top: 4px solid #f56565;
+}
+
+.success {
+    border-top: 4px solid #48bb78;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .dialog {
+        background: #2d3748;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .header {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .footer {
+        border-top-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .title {
+        color: #f7fafc;
+    }
+
+    .content {
+        color: #e2e8f0;
+    }
+
+    .closeButton {
+        color: #a0aec0;
+    }
+
+    .closeButton:hover {
+        color: #f7fafc;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .secondaryButton {
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+
+    .secondaryButton:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #718096;
+    }
+}
+
+/* High contrast mode */
+@media (forced-colors: active) {
+    .dialog {
+        border: 2px solid CanvasText;
+    }
+
+    .header,
+    .footer {
+        border-color: CanvasText;
+    }
+
+    .button {
+        border: 1px solid CanvasText;
+        forced-color-adjust: none;
+    }
+
+    .primaryButton,
+    .secondaryButton {
+        background: ButtonFace;
+        color: ButtonText;
+    }
+
+    .primaryButton:focus,
+    .secondaryButton:focus {
+        outline: 2px solid ButtonText;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .overlay,
+    .dialog,
+    .button,
+    .closeButton {
+        transition: none;
+        animation: none;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+    .button {
+        padding: 12px 24px;
+    }
+
+    .closeButton {
+        padding: 12px;
+    }
+}
+
+/* Support for older browsers */
+@supports not (backdrop-filter: blur(4px)) {
+    .overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}

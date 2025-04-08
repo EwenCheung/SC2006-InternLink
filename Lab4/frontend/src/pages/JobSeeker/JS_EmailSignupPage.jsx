@@ -251,7 +251,6 @@ const JS_EmailSignupPage = () => {
       setIsLoading(true);
       // Prepare registration data
       const registrationData = {
-        type: "jobseeker",
         role: "jobseeker",
         email: requiredData.email,
         password: requiredData.password,
@@ -272,12 +271,18 @@ const JS_EmailSignupPage = () => {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(registrationData),
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        throw new Error('Failed to parse server response. Please try again.');
+      }
       if (!response.ok) {
         if (data.message?.includes('duplicate key error')) {
           throw new Error('This email is already registered. Please use a different email address.');
@@ -453,6 +458,7 @@ const JS_EmailSignupPage = () => {
                 name="password"
                 type="password"
                 required
+                autoComplete="new-password"
                 value={requiredData.password}
                 onChange={handleRequiredChange}
                 onBlur={handleBlur}
@@ -503,6 +509,7 @@ const JS_EmailSignupPage = () => {
                 name="confirmPassword"
                 type="password"
                 required
+                autoComplete="new-password"
                 value={requiredData.confirmPassword}
                 onChange={handleRequiredChange}
                 onBlur={handleBlur}

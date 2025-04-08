@@ -5,9 +5,13 @@ import Application from "../models/application.model.js";
 export const getApplications = async (req, res) => {
     try {
         // Allow filtering by jobId or applicantId
+        // Create filter based on user role and ID
         const filter = {};
+        if (req.user.role === 'jobseeker') {
+            filter.applicantId = req.user.userId;
+        }
+        // Add additional filters from query params
         if (req.query.jobId) filter.jobId = req.query.jobId;
-        if (req.query.applicantId) filter.applicantId = req.query.applicantId;
         
         const applications = await Application.find(filter);
         res.status(200).json({ success: true, data: applications });
@@ -43,14 +47,20 @@ export const getOneApplication = async (req, res) => {
 
 // Create an application
 export const createApplication = async (req, res) => {
-    const application = req.body;
+    const { jobId } = req.body;
 
-    if(!application.jobId || !application.applicantId) {
-        return res.status(400).json({ success: false, message: 'Please provide both job and applicant IDs' });
+    if (!jobId) {
+        return res.status(400).json({ success: false, message: 'Please provide a job ID' });
+    }
+
+    // Ensure the user is a jobseeker
+    if (req.user.role !== 'jobseeker') {
+        return res.status(403).json({ success: false, message: 'Only job seekers can create applications' });
     }
 
     const newApplication = new Application({
-        ...application,
+        jobId,
+        applicantId: req.user.userId,
         status: 'pending',
         appliedDate: new Date()
     });
@@ -75,15 +85,23 @@ export const updateApplication = async (req, res) => {
     }
 
     try {
+        // First find the application to check ownership
+        const application = await Application.findById(id);
+        
+        if (!application) {
+            return res.status(404).json({ success: false, message: "Application not found" });
+        }
+
+        // Check if user is authorized to update
+        if (req.user.role === 'jobseeker' && application.applicantId.toString() !== req.user.userId) {
+            return res.status(403).json({ success: false, message: "Not authorized to update this application" });
+        }
+
         const updatedApplication = await Application.findByIdAndUpdate(
             id, 
             updates,
             { new: true }
         );
-        
-        if (!updatedApplication) {
-            return res.status(404).json({ success: false, message: "Application not found" });
-        }
         
         res.status(200).json({ success: true, data: updatedApplication });
     }
@@ -102,6 +120,18 @@ export const deleteApplication = async (req, res) => {
     }
 
     try {
+        // First find the application to check ownership
+        const application = await Application.findById(id);
+        
+        if (!application) {
+            return res.status(404).json({ success: false, message: "Application not found" });
+        }
+
+        // Check if user is authorized to delete
+        if (req.user.role === 'jobseeker' && application.applicantId.toString() !== req.user.userId) {
+            return res.status(403).json({ success: false, message: "Not authorized to delete this application" });
+        }
+
         await Application.findByIdAndDelete(id);
         res.status(200).json({ success: true, message: "Application deleted" });
     } catch (error) {

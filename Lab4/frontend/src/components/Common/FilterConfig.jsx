@@ -1,19 +1,49 @@
 import React from 'react';
 
+// Initial filter configuration with loading state
+const locationFilter = {
+  label: "Location",
+  defaultOption: "Loading locations...",
+  choices: [],
+  isLoading: true
+};
+
+// Update locationFilter after successful fetch
+const updateLocationFilter = (locations) => {
+  if (locations) {
+    locationFilter.choices = locations.map(area => ({
+      value: area.pln_area_n.toLowerCase(),
+      label: area.pln_area_n
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' '),
+    }));
+    locationFilter.defaultOption = "All Locations";
+    locationFilter.isLoading = false;
+  }
+};
+
 // Shared location filter
-async function getTokenAndFetchLocation() {
+async function getTokenAndFetchLocation(retryCount = 0) {
   try {
-    const tokenResponse = await fetch('http://localhost:5001/use-token'); // API call to the backend
+    const tokenResponse = await fetch('http://localhost:5001/use-token');
     const tokenData = await tokenResponse.json();
 
+    if (tokenData.error && retryCount < 3) {
+      // Wait and retry if token not available yet
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return getTokenAndFetchLocation(retryCount + 1);
+    }
+
     if (tokenData.token) {
-      console.log('Token retrieved:', tokenData.token); // Log the token
+      console.log('Token retrieved:', tokenData.token);
       const url = "https://www.onemap.gov.sg/api/public/popapi/getPlanningareaNames?year=2019";
 
       const response = await fetch(url, {
         method: 'GET',
         headers: {
-          'Authorization': `${tokenData.token}`, // Use the token for authorization
+          'Authorization': tokenData.token,
         },
       });
 
@@ -21,36 +51,27 @@ async function getTokenAndFetchLocation() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const responseData = await response.json(); // Fetch planning areas
+      const responseData = await response.json();
       if (responseData && Array.isArray(responseData)) {
-        locationFilter.choices = responseData.map(area => ({
-          value: area.pln_area_n.toLowerCase(),
-          label: area.pln_area_n
-            .toLowerCase()
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' '),
-        })); // Assign planning areas to location filter choices with title casing
+        updateLocationFilter(responseData);
       } else {
-        console.error('Unexpected response format or empty response:', responseData);
+        console.error('Unexpected response format:', responseData);
       }
-    } else {
-      console.log('No token received');
     }
   } catch (error) {
     console.error('Error fetching planning areas:', error);
+    if (retryCount < 3) {
+      // Retry on failure
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      return getTokenAndFetchLocation(retryCount + 1);
+    }
   }
 }
 
-// Call the function to get the token and fetch planning areas
-getTokenAndFetchLocation();
+// Export the filter configuration
+export { locationFilter };
 
-
-export const locationFilter = {
-  label: "Location",
-  defaultOption: "All Locations",
-}
-
+// Export the filter options
 export const internshipFilterOptions = {
   location: locationFilter,
   course: {
@@ -116,7 +137,12 @@ export const defaultAdhocFilters = {
 };
 
 const FilterConfig = () => {
-  return null; // This component doesn't render anything
+  React.useEffect(() => {
+    // Start fetching locations when component mounts
+    getTokenAndFetchLocation();
+  }, []);
+
+  return null; // This component doesn't render anything but initializes filters
 };
 
-export default FilterConfig;
+export default React.memo(FilterConfig);

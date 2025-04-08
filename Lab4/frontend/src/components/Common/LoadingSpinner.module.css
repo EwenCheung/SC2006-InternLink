@@ -1,0 +1,181 @@
+.spinnerOverlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    will-change: opacity;
+}
+
+.spinnerOverlay.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+}
+
+.spinnerOverlay.inline {
+    padding: 16px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(102, 126, 234, 0.2);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    will-change: transform;
+}
+
+.loadingText {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #4a5568;
+    text-align: center;
+    max-width: 80%;
+}
+
+.progressText {
+    font-weight: 600;
+    color: #667eea;
+    margin-left: 4px;
+}
+
+.cancelButton {
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.1);
+    color: #718096;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #4a5568;
+}
+
+.cancelButton:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.shimmer {
+    background: #f7fafc;
+    background: linear-gradient(
+        90deg,
+        #f7fafc 0%,
+        #edf2f7 20%,
+        #f7fafc 40%,
+        #edf2f7 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    will-change: background-position;
+}
+
+@keyframes shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .spinnerOverlay.overlay {
+        background: rgba(0, 0, 0, 0.7);
+    }
+
+    .loadingText {
+        color: #e2e8f0;
+    }
+
+    .progressText {
+        color: #7f9cf5;
+    }
+
+    .cancelButton {
+        color: #a0aec0;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .cancelButton:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+    }
+
+    .shimmer {
+        background: #2d3748;
+        background: linear-gradient(
+            90deg,
+            #2d3748 0%,
+            #374151 20%,
+            #2d3748 40%,
+            #374151 100%
+        );
+    }
+}
+
+/* High contrast mode */
+@media (forced-colors: active) {
+    .spinner {
+        border-color: Canvas;
+        border-top-color: CanvasText;
+        forced-color-adjust: none;
+    }
+
+    .loadingText,
+    .progressText {
+        color: CanvasText;
+    }
+
+    .cancelButton {
+        border: 1px solid CanvasText;
+        background: ButtonFace;
+        color: ButtonText;
+    }
+
+    .cancelButton:focus-visible {
+        outline: 2px solid CanvasText;
+    }
+
+    .shimmer {
+        background: Canvas;
+        border: 1px solid CanvasText;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation: none;
+        transform: none;
+    }
+
+    .loadingText {
+        animation: none;
+    }
+
+    .shimmer {
+        animation: none;
+        background: #f7fafc;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .shimmer {
+            background: #2d3748;
+        }
+    }
+}
+
+/* Support for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(4px)) {
+    .spinnerOverlay.overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}

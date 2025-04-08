@@ -9,6 +9,12 @@ export const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message;
 
+  // Handle JSON parsing errors
+  if (err instanceof SyntaxError && err.type === 'entity.parse.failed') {
+    statusCode = 400;
+    message = 'Invalid JSON format';
+  }
+
   // Handle specific error types
   if (err.name === 'ValidationError') {
     statusCode = 400;

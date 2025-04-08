@@ -1,43 +1,78 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import styles from './ErrorBoundary.module.css';
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">
-              Something went wrong
-            </h1>
-            <p className="text-gray-600 mb-4">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors"
-            >
-              Reload Page
-            </button>
-          </div>
-        </div>
-      );
+    constructor(props) {
+        super(props);
+        this.state = { 
+            hasError: false,
+            error: null,
+            errorInfo: null
+        };
     }
 
-    return this.props.children;
-  }
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        this.setState({
+            error: error,
+            errorInfo: errorInfo
+        });
+        
+        // Log error to error reporting service
+        console.error('Error caught by boundary:', error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <motion.div 
+                    className={styles.errorContainer}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    <div className={styles.errorContent}>
+                        <h2>Something went wrong</h2>
+                        <p>We're sorry, but something went wrong. Please try refreshing the page.</p>
+                        
+                        <div className={styles.buttonGroup}>
+                            <button
+                                onClick={() => window.location.reload()}
+                                className={styles.primaryButton}
+                                aria-label="Refresh page"
+                            >
+                                Refresh Page
+                            </button>
+                            <button
+                                onClick={() => window.history.back()}
+                                className={styles.secondaryButton}
+                                aria-label="Go back to previous page"
+                            >
+                                Go Back
+                            </button>
+                        </div>
+
+                        {process.env.NODE_ENV === 'development' && (
+                            <details className={styles.errorDetails}>
+                                <summary>Error Details</summary>
+                                <pre>
+                                    {this.state.error && this.state.error.toString()}
+                                    {this.state.errorInfo && this.state.errorInfo.componentStack}
+                                </pre>
+                            </details>
+                        )}
+                    </div>
+                </motion.div>
+            );
+        }
+
+        return this.props.children;
+    }
 }
 
 export default ErrorBoundary;

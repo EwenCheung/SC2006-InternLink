@@ -49,6 +49,7 @@ const JobSeekerSchema = new mongoose.Schema({
   course: String,
   yearOfStudy: String,
   resume: String,
+  personalDescription: String,
   skills: [String],
   interests: [String],
   jobApplications: [{

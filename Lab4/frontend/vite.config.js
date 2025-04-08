@@ -36,6 +36,13 @@ export default defineConfig(async () => {
       port,
       host: true,
       open: true,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false,
+        }
+      },
       onListening: () => {
         console.log(`Frontend running on port ${port}`);
       },
