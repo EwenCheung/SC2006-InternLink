@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchUniversities } from "./fetchUniversities";
+import { fetchUniversities } from "./universitiesdata.controller.js";
 
 export default function SchoolInput({ optionalData, handleOptionalChange, styles }) {
   const [universities, setUniversities] = useState([]);

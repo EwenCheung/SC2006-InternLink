@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { fetchUniversities } from '../../../js/fetchUniversities';
+import { fetchUniversities } from '../../../../backend/controllers/universitiesdata.controller.js';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
-import {fetchSkillsData} from '../../../js/fetchSkillsData';
+import {fetchSkillsData} from '../../../../backend/controllers/skillsdata.controller.js';
 
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
   <div className={styles.modal}>
@@ -763,7 +763,7 @@ const JS_EmailSignupPage = () => {
                             skill.toLowerCase().includes(newSkill.toLowerCase()) &&
                             !optionalData.skills.includes(skill)
                         )
-                        .slice(0, 10)
+                        .slice(0, 50)
                                     .map((skill, index) => (
                           <li
                             key={index}
@@ -800,43 +800,48 @@ const JS_EmailSignupPage = () => {
             )}
 
             <div className="flex gap-4">
-              <button
-                type="submit"
-                className={`${styles.button} ${styles.primaryButton} flex-1`}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Creating Account...
-                  </span>
-                ) : (
-                  'Create Account & Save Profile'
-                )}
-              </button>
+
+            <div className="flex flex-col items-center w-full">
+              <div className="w-full">
+                <button
+                  type="submit"
+                  className={`${styles.button} ${styles.primaryButton} w-full`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Creating Account...
+                    </span>
+                  ) : (
+                    'Create Account & Save Profile'
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-          </form>
+                        </div>
+                      </div>
+                      </form>
         
           
-        )}
-      </div>
-    </div>
-  );
-};
+                   )}
+                  </div>
+                </div>
+              );
+            };
 
 export default JS_EmailSignupPage;

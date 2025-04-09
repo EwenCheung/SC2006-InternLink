@@ -64,20 +64,19 @@ const emsiData = new URLSearchParams({
 });
 
 // Fetch the token using Axios
-axios.post(emsiUrl, emsiData, {
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded',
-  },
-})
-  .then(response => {
-    // Log the response data to the console
+const fetchEmsiToken = async () => {
+  try {
+    const response = await axios.post(emsiUrl, emsiData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
     accessToken2 = response.data.access_token;
-    console.log(response.data.access_token);
-  })
-  .catch(error => {
-    // Handle any errors
-    console.error('Error:', error.response ? error.response.data : error.message);
-  });
+  } catch (error) {
+    console.error('Error fetching EMSI token:', error.response ? error.response.data : error.message);
+  }
+};
+await fetchEmsiToken();
 
   
 const url = "https://www.onemap.gov.sg/api/auth/post/getToken";  // Correct URL
@@ -89,20 +88,19 @@ const data = {
 };
 
 // Fetch the token using Axios
-axios.post(url, data, {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-  .then(response => {
-    // Log the response data to the console
+const fetchOneMapToken = async () => {
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     accessToken = response.data.access_token;
-    console.log(response.data);
-  })
-  .catch(error => {
-    // Handle any errors
-    console.error('Error:', error.response ? error.response.data : error.message);
-  });
+  } catch (error) {
+    console.error('Error fetching OneMap token:', error.response ? error.response.data : error.message);
+  }
+};
+await fetchOneMapToken();
 
 startServer();
 
