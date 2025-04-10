@@ -13,6 +13,8 @@ import JS_EmailSignupPage from './pages/JobSeeker/JS_EmailSignupPage';
 import JS_ProfilePage from './pages/JobSeeker/JS_ProfilePage';
 import JS_MessagesPage from './pages/JobSeeker/JS_MessagesPage';
 import JS_ViewApplicationPage from './pages/JobSeeker/JS_ViewApplicationPage';
+import JS_PrivacySettings from './pages/JobSeeker/JS_PrivacySettings';
+import ApplicationDetailPage from './pages/JobSeeker/ApplicationDetailPage';
 import EP_EmailLoginPage from './pages/Employer/EP_EmailLoginPage';
 import EP_EmailSignupPage from './pages/Employer/EP_EmailSignupPage';
 import EP_PostInternshipPage from './pages/Employer/EP_PostInternshipPage';
@@ -68,10 +70,12 @@ const App = () => {
             <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
             <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
             <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
+            <Route path="/jobseeker/application-details" element={<ApplicationDetailPage />} />
             <Route path="/jobseeker/adhoc/:id" element={<JS_AdHocDetailsPage />} />
             <Route path="/jobseeker/messages" element={<JS_MessagesPage />} />
             <Route path="/jobseeker/profile" element={<JS_ProfilePage />} />
             <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
+            <Route path="/jobseeker/js-privacy-settings" element={<JS_PrivacySettings />} />
           </Route>
         </Route>
 

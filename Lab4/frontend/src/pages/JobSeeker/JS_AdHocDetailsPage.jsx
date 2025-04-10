@@ -109,24 +109,9 @@ const JS_AdHocDetailsPage = () => {
             <h3>About the Company</h3>
             <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
             <div className={styles.companyDetails}>
+            
               <div className={styles.detailItem}>
-                <span className={styles.label}>Industry:</span>
-                <span className={styles.value}>{jobDetails.industry}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Company Size:</span>
-                <span className={styles.value}>{jobDetails.companySize}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Website:</span>
-                <span className={styles.value}>
-                  <a href={jobDetails.website} target="_blank" rel="noopener noreferrer">
-                    {jobDetails.website}
-                  </a>
-                </span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Location:</span>
+                <span className={styles.label}><h4>Location:</h4></span>
                 <span className={styles.value}>{jobDetails.location}</span>
               </div>
             </div>
@@ -134,24 +119,14 @@ const JS_AdHocDetailsPage = () => {
           <section className={styles.jobDetailsSection}>
             <h3>Job Description</h3>
             <p className={styles.description}>{jobDetails.description}</p>
-            <h4>Responsibilities</h4>
-            <ul className={styles.responsibilitiesList}>
-              {jobDetails.responsibilities?.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-            <h4>Requirements</h4>
-            <ul className={styles.requirementsList}>
-              {jobDetails.requirements?.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-            <h4>Benefits & Perks</h4>
-            <ul className={styles.benefitsList}>
-              {jobDetails.benefits?.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
+            
+            
+            <h3>Skills Required</h3>
+              <ul className={styles.skillsList}>
+                {jobDetails.tags?.map((skill, index) => (
+                <li key={index} className={styles.skillTag}>{skill}</li>
+                ))}
+              </ul>      
           </section>
         </div>
         <aside className={styles.applicationSidebar}>

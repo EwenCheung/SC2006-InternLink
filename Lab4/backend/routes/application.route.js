@@ -18,6 +18,7 @@ router.get('/:id', getOneApplication);
 // POST new application
 router.post('/', createApplication);
 
+
 // PUT update application
 router.put('/:id', updateApplication);
 

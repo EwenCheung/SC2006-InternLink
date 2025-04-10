@@ -1,0 +1,91 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #6f42c1;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  padding: 20px;
+  
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #6f42c1;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #8e44ad;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #6f42c1;
+}
+
+.input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d6a2e8;
+  border-radius: 4px;
+}
+
+.fileInput {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d6a2e8;
+  border-radius: 4px;
+}
+
+.button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background-color: #6f42c1;
+  color: #fff;
+}
+
+.primaryButton:hover {
+  background-color: #5a379e;
+}

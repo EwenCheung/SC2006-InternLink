@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Shared location filter
 async function getTokenAndFetchLocation() {
   try {
     const tokenResponse = await fetch('http://localhost:5001/use-token'); // API call to the backend
@@ -42,14 +41,16 @@ async function getTokenAndFetchLocation() {
   }
 }
 
-// Call the function to get the token and fetch planning areas
 getTokenAndFetchLocation();
+
 
 
 export const locationFilter = {
   label: "Location",
   defaultOption: "All Locations",
 }
+
+
 
 export const internshipFilterOptions = {
   location: locationFilter,

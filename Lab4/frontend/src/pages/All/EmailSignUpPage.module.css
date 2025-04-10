@@ -102,14 +102,9 @@
 }
 
 .primaryButton {
-  @apply border border-gray-300 rounded-lg 
-  text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
-  color:#333
-}
-
-.primaryButton {
     @apply border border-gray-300 rounded-lg 
-    text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+    text-gray-700 bg-white hover:bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+    
 }
 
 .primaryButton:hover:not(:disabled) {
@@ -223,7 +218,14 @@
 }
 
 .skillTag {
-  @apply flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-[#7C3AED] text-sm;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ede9fe; /* Light purple tag background */
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 0.875rem;
+  color: #7c3aed; /* Purple text */
 }
 
 .removeSkill {

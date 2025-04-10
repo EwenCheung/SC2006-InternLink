@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css';
+import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
@@ -48,6 +49,7 @@ const EP_AddInternshipPage = () => {
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
   const [currentTag, setCurrentTag] = useState('');
+  const [skillNames, setSkillNames] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // To handle loading state for address suggestions
   const [suggestions, setSuggestions] = useState([]); // To store address suggestions
   const [areaOptions, setAreaOptions] = useState([]); // To store area options
@@ -85,7 +87,12 @@ const EP_AddInternshipPage = () => {
     } else {
       navigate('/employer/login');
     }
-  }, [navigate]);
+    const loadSkills = async () => {
+      const skillNames = await fetchSkillsData();
+      setSkillNames(skillNames);
+    };
+    loadSkills();
+  }, []);
 
   useEffect(() => {
     // Load draft data if editing a draft
@@ -556,33 +563,73 @@ const EP_AddInternshipPage = () => {
           </select>
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="tags">Tags (Press Enter or comma to add)</label>
-          <div className={styles.tagInput}>
-            {formData.tags.length > 0 && (
-              <div className={styles.tagList}>
-                {formData.tags.map((tag, index) => (
-                  <span key={index} className={styles.tag}>
-                    {tag}
-                    <button
-                      type="button"
-                      className={styles.deleteTag}
-                      onClick={() => removeTag(index)}
-                    >
-                      <FaTimes />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <input
-              type="text"
-              id="tags"
-              value={currentTag}
-              onChange={handleTagInput}
-              onKeyDown={handleTagInputKeyDown}
-              placeholder="e.g. Programming, Data Science, Frontend"
-            />
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
+            Skills <span className={styles.optional}>(optional)</span>
+          </label>
+          
+        <div className={`${styles.skillsContainer} flex flex-wrap gap-2`}>
+          {formData.tags.map((skill, index) => (
+            <div key={index} className={styles.skillTag}>
+              <span>{skill}</span>
+              <button
+                type="button"
+                onClick={() => removeTag(index)}
+                className={styles.removeSkill}
+              >
+                <FaTimes />
+              </button>
+            </div>
+          ))}
+        </div>
+
+
+          <div className="flex items-start gap-2 mt-2 relative items-center">
+          <div className={`${styles.tagInput} w-full relative`}>
+              <input
+                type="text"
+                value={currentTag}
+                onChange={handleTagInput}
+                className={`${styles.formGroup}`}
+                placeholder="Add a skill"
+                onKeyDown={(e) => e.key === 'Enter' && addTag()}
+              />
+              {currentTag.trim() !== '' && (
+                <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
+                  {skillNames
+                    .filter(
+                      (skill) =>
+                        skill.toLowerCase().includes(currentTag.toLowerCase()) &&
+                        !formData.tags.includes(skill)
+                    )
+                    .slice(0, 50)
+                    .map((skill, index) => (
+                      <li
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  setFormData(prev => ({
+                    ...prev,
+                    tags: [...prev.tags, skill]
+                  }));
+                  setCurrentTag('');
+                }}
+                      >
+                        {skill}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+            <div className="gap-2 flex items-center">
+              <button
+                type="button"
+                onClick={addTag}
+                className={`${styles.button} ${styles.secondaryButton}`}
+              >
+                Add
+              </button>
+            </div>
           </div>
         </div>
 
@@ -594,14 +641,14 @@ const EP_AddInternshipPage = () => {
           <button 
             type="button" 
             onClick={() => savePost(true)} 
-            className={`${styles.button} ${styles.draftButton}`}
+            className={`${styles.button} ${styles.primaryButton}`}
             disabled={loading}
           >
             {loading ? 'Saving...' : (isDraft ? 'Update Draft' : 'Save as Draft')}
           </button>
           <button 
             type="submit"
-            className={`${styles.button} ${styles.postButton}`}
+            className={`${styles.button} ${styles.secondaryButton}`}
             disabled={loading}
           >
             {loading ? 'Publishing...' : 'Publish Internship'}
