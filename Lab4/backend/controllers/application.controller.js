@@ -13,8 +13,20 @@ export const getApplications = async (req, res) => {
         // Add additional filters from query params
         if (req.query.jobId) filter.jobId = req.query.jobId;
         
-        const applications = await Application.find(filter);
-        res.status(200).json({ success: true, data: applications });
+        const applications = await Application.find(filter)
+            .populate('jobId', 'title companyName')  // Populate job details
+            .lean()
+            .exec();
+
+        // Transform data to match frontend expectations
+        const transformedApplications = applications.map(app => ({
+            jobTitle: app.jobId?.title || 'Unknown Job',
+            company: app.jobId?.companyName || 'Unknown Company',
+            status: app.status,
+            appliedDate: app.appliedDate,
+            id: app._id
+        }));
+        res.status(200).json({ success: true, data: transformedApplications });
     } catch (error) {
         console.log("Error in Fetch Applications:", error.message);
         res.status(500).json({ success: false, message: "Server Error"});

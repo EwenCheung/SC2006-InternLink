@@ -33,14 +33,22 @@ const EmployerSchema = new mongoose.Schema({
     enum: ['employer'],
     default: 'employer',
   },
-  companyLogo: {
-    type: String,
-    validate: {
-      validator: function(v) {
-        return !v || /\.(jpg|jpeg|png)$/i.test(v);
-      },
-      message: 'Company logo must be in JPG, JPEG, or PNG format'
-    }
+    profileImage: {
+    fileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    uploadedAt: Date,
+    url: {
+      type: String,
+      default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+    },
+    contentType: {
+      type: String,
+      default: 'image/jpeg'
+    },
+    originalName: String,
+    size: Number
   },
   industry: String,
   companySize: String,
@@ -82,9 +90,9 @@ EmployerSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-// Get Users database connection
+// Use Users database for Employer model
 const usersDb = mongoose.connection.useDb('Users', { useCache: true });
 
-// Create and export model
+// Create Employer model
 const Employer = usersDb.model('Employer', EmployerSchema);
 export default Employer;

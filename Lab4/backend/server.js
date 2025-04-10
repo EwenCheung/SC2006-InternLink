@@ -6,8 +6,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import net from 'net';
 
-// Import database connection
+// Import database connection and GridFS
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
+import { initGridFS } from './config/gridfs.js';
 
 // Import route files
 import authUserRoutes from './routes/authUser.route.js';
@@ -19,6 +21,12 @@ import applicationRoutes from './routes/application.route.js';
 import { errorHandler, notFound } from './errors/errorMiddleware.js';
 
 dotenv.config();
+
+// Handle server startup errors gracefully
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled Rejection:', error);
+  process.exit(1);
+});
 let accessToken = null;
 
 const app = express();
@@ -50,15 +58,37 @@ const findPort = async (startPort) => {
 };
 
 // Middleware
-app.use(cors());
+// Configure CORS and request size limits
+app.use(cors());  // Allow all origins for development
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB and start server
 const startServer = async () => {
   try {
-    await connectDB();
-    // API routes
+    // Connect to MongoDB
+    const conn = await connectDB();
+    
+    // Import and initialize models in correct order
+    const { default: gridfsModels } = await import('./models/GridFSModel.js');
+    await initGridFS();
+    
+    // Import user models after GridFS initialization
+    await Promise.all([
+      import('./models/JobSeeker.model.js'),
+      import('./models/Employer.model.js')
+    ]);
+
+    // Verify we're using the correct databases
+    console.log('Connected databases:', 
+      Object.keys(mongoose.connection.useDb('Users').db.collections),
+      Object.keys(mongoose.connection.useDb('Files').db.collections)
+    );
+    
+    // Initialize routes after all models are loaded
     app.use('/api/auth', authUserRoutes);
     app.use('/api/jobs', jobRoutes);
     app.use('/api/messages', messageRoutes);

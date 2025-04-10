@@ -34,35 +34,88 @@ const JobSeekerSchema = new mongoose.Schema({
     default: 'jobseeker',
   },
   profileImage: {
-    type: String,
-    default: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
-    validate: {
-      validator: function(v) {
-        return !v || /\.(jpg|jpeg|png)$/i.test(v);
-      },
-      message: 'Profile image must be in JPG, JPEG, or PNG format'
+    fileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    uploadedAt: Date,
+    url: {
+      type: String,
+      default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+    },
+    contentType: {
+      type: String,
+      default: 'image/jpeg'
     }
   },
   dateOfBirth: Date,
-  phoneNumber: String,
+  contactList: [{
+    type: {
+      type: String,
+      enum: ['email', 'phone', 'github', 'linkedin', 'other'],
+      required: true
+    },
+    value: {
+      type: String,
+      required: true,
+      trim: true,
+      validate: {
+        validator: function(value) {
+          switch (this.type) {
+            case 'email':
+              return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            case 'phone':
+              return /^\+?[\d\s-]+$/.test(value);
+            case 'linkedin':
+              return value.includes('linkedin.com/');
+            case 'github':
+              return value.includes('github.com/');
+            default:
+              return true;
+          }
+        },
+        message: props => {
+          switch (props.value.type) {
+            case 'email': return 'Please enter a valid email address';
+            case 'phone': return 'Please enter a valid phone number';
+            case 'linkedin': return 'Please enter a valid LinkedIn URL';
+            case 'github': return 'Please enter a valid GitHub URL';
+            default: return 'Invalid value';
+          }
+        }
+      }
+    },
+    label: {
+      type: String,
+      trim: true
+    }
+  }],
   school: String,
   course: String,
   yearOfStudy: String,
-  resume: String,
+  resume: {
+    fileId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
+    uploadedAt: Date,
+    url: String,
+    contentType: {
+      type: String,
+      enum: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+      default: 'application/pdf'
+    },
+    filename: String,
+    originalName: String,
+    size: Number
+  },
   personalDescription: String,
   skills: [String],
   interests: [String],
   jobApplications: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Application'
-  }],
-  contactEmail: {
-    type: String,
-    match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please provide a valid contact email',
-    ]
-  },
+  }]
 });
 
 JobSeekerSchema.pre('save', async function () {
@@ -86,6 +139,9 @@ JobSeekerSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
+// Use Users database for JobSeeker model
 const usersDb = mongoose.connection.useDb('Users', { useCache: true });
+
+// Create JobSeeker model
 const JobSeeker = usersDb.model('JobSeeker', JobSeekerSchema);
 export default JobSeeker;

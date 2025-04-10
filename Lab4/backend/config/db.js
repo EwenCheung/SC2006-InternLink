@@ -8,27 +8,30 @@ let isConnected = false;
 export const connectDB = async () => {
     if (isConnected) {
         console.log('MongoDB is already connected');
-        return;
+        return mongoose.connection;
     }
 
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, {
             serverSelectionTimeoutMS: 5000,
             socketTimeoutMS: 45000,
+            dbName: 'Users' // Use Users as default database
         });
 
         isConnected = true;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
 
-        // Get connection to database
-        const db = mongoose.connection.db;
+        // Initialize only required databases
+        const usersDb = mongoose.connection.useDb('Users');
+        const jobListDb = mongoose.connection.useDb('job_list');
+        const filesDb = mongoose.connection.useDb('Files');
         
-        // Let MongoDB create collections automatically when documents are inserted
-        // This avoids collection creation conflicts with existing collections
-        
-        // Initialize database connections for models to use
-        const usersDb = mongoose.connection.useDb('Users', { useCache: true });
-        const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });
+        // Log initialized databases for verification
+        console.log('Active databases:', {
+            users: Object.keys(usersDb.collections),
+            jobList: Object.keys(jobListDb.collections),
+            files: Object.keys(filesDb.collections)
+        });
 
         // Add connection event listeners
         mongoose.connection.on('disconnected', () => {
@@ -40,6 +43,9 @@ export const connectDB = async () => {
             console.error('MongoDB connection error:', err);
             isConnected = false;
         });
+
+        // Return the connection for GridFS initialization
+        return conn.connection;
 
     } catch (error) {
         console.error('Error connecting to MongoDB:', error.message);

@@ -28,7 +28,7 @@ const JS_EmailLoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,15 +38,24 @@ const JS_EmailLoginPage = () => {
 
       const data = await response.json();
 
+      // Account not found case
+      if (response.status === 404) {
+        setError('There is no account with this email. Please sign up one.');
+        return;
+      }
+
+      // Incorrect password case
+      if (response.status === 401) {
+        setError('Incorrect password. Please try again.');
+        return;
+      }
+
+      // Handle other API errors
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please try again.');
+        throw new Error('Login failed. Please try again.');
       }
 
-      if (data.user.role !== 'jobseeker') {
-        throw new Error('This account is not a jobseeker account. Please use the correct login page.');
-      }
-
-      // Store token and user data in localStorage
+      // If we got here, login was successful
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
@@ -54,12 +63,12 @@ const JS_EmailLoginPage = () => {
       navigate('/jobseeker/find-internship', { replace: true });
       
     } catch (err) {
-      if (!navigator.onLine) {
-        setError('Please check your internet connection and try again.');
+      if (err.name === 'TypeError' || !navigator.onLine) {
+        setError('Unable to connect to the server. Please check your internet connection and try again.');
       } else if (err.name === 'SyntaxError') {
-        setError('Unable to connect to the server. Please try again later.');
+        setError('Server error. Please try again later.');
       } else {
-        setError(err.message || 'An error occurred during login. Please try again.');
+        setError(err.message);
       }
     } finally {
       setIsLoading(false);

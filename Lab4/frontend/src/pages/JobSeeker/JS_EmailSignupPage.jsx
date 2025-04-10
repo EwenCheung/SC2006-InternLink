@@ -254,7 +254,11 @@ const JS_EmailSignupPage = () => {
         role: "jobseeker",
         email: requiredData.email,
         password: requiredData.password,
-        userName: requiredData.userName
+        userName: requiredData.userName,
+        profileImage: {
+          url: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
+          uploadedAt: new Date()
+        }
       };
 
       // Add optional fields if they exist and are requested
@@ -285,8 +289,13 @@ const JS_EmailSignupPage = () => {
       }
       if (!response.ok) {
         if (data.message?.includes('duplicate key error')) {
-          throw new Error('This email is already registered. Please use a different email address.');
+          throw new Error('This email is already registered. Please sign in instead.');
+        } else if (data.message?.includes('No account found')) {
+          throw new Error('No account found with this email. Please sign up first.');
+        } else if (data.message?.includes('Invalid password')) {
+          throw new Error('Incorrect password. Please try again.');
         }
+        // For any other error, use the server's message or a default message
         throw new Error(data.message || 'Registration failed. Please check your information and try again.');
       }
 
@@ -295,26 +304,40 @@ const JS_EmailSignupPage = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // Handle file uploads if they exist
-        if (withOptionalData && (optionalData.profileImage || optionalData.resume)) {
-          const formData = new FormData();
-          if (optionalData.profileImage) formData.append('profileImage', optionalData.profileImage);
-          if (optionalData.resume) formData.append('resume', optionalData.resume);
-
-          try {
-            const fileResponse = await fetch('/api/user/upload-files', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${data.token}`,
-              },
-              body: formData,
-            });
-
-            if (!fileResponse.ok) {
-              console.error('File upload failed');
+        // Handle file uploads separately
+        if (withOptionalData) {
+          if (optionalData.profileImage) {
+            try {
+              const imageFormData = new FormData();
+              imageFormData.append('profileImage', optionalData.profileImage);
+              
+              await fetch('/api/auth/upload-photo', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${data.token}`
+                },
+                body: imageFormData
+              });
+            } catch (error) {
+              console.error('Profile image upload failed:', error);
             }
-          } catch (fileError) {
-            console.error('File upload error:', fileError);
+          }
+
+          if (optionalData.resume) {
+            try {
+              const resumeFormData = new FormData();
+              resumeFormData.append('resume', optionalData.resume);
+
+              await fetch('/api/auth/upload-resume', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${data.token}`
+                },
+                body: resumeFormData
+              });
+            } catch (error) {
+              console.error('Resume upload failed:', error);
+            }
           }
         }
 
@@ -416,6 +439,7 @@ const JS_EmailSignupPage = () => {
                 name="userName"
                 type="text"
                 required
+                autoComplete="name"
                 value={requiredData.userName}
                 onChange={handleRequiredChange}
                 onBlur={handleBlur}
@@ -437,6 +461,7 @@ const JS_EmailSignupPage = () => {
                 name="email"
                 type="email"
                 required
+                autoComplete="email"
                 value={requiredData.email}
                 onChange={handleRequiredChange}
                 onBlur={handleBlur}
