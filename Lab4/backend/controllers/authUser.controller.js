@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import JobSeeker from '../models/JobSeeker.model.js';
+import bcrypt from 'bcryptjs';
 import Employer from '../models/Employer.model.js';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
@@ -49,6 +50,7 @@ const cleanupFile = async (fileId, bucket) => {
   }
 };
 
+
 // Register User
 export const register = async (req, res) => {
   const { role } = req.body;
@@ -60,6 +62,23 @@ export const register = async (req, res) => {
   let user;
   let profileData = { ...req.body };
 
+<<<<<<< HEAD
+=======
+
+
+// Update User Profile
+export const updateUser = async (req, res) => {
+  const { role } = req.user;
+  const userId = req.user.userId;
+  
+  const updates = { ...req.body };
+  delete updates.password;
+  delete updates.email;
+  delete updates.role;
+  
+  let user;
+  
+>>>>>>> Alvin-Branch
   try {
     // Handle profile image upload if provided
     if (req.file) {
@@ -333,6 +352,7 @@ export const updateField = async (req, res) => {
       message: `${field} updated successfully`
     });
   } catch (error) {
+<<<<<<< HEAD
     throw new BadRequestError(error.message);
   }
 };
@@ -629,16 +649,30 @@ export const streamFile = async (req, res) => {
 export const updateSensitiveInfo = async (req, res) => {
   const { userId, role } = req.user;
   const { newEmail, newPassword, currentPassword } = req.body;
+=======
+    // Check if it's our custom error
+    if (error instanceof UnauthenticatedError) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: error.message || 'An unexpected error occurred',
+    });
+    }
+    // For other errors, throw a generic auth error
+    throw new UnauthenticatedError('Authentication failed');
+  }
+};
+
+// Reset Password
+export const resetPassword = async (req, res) => {
+  const { id, token } = req.params;
+  const { password, currentPassword } = req.body;
+>>>>>>> Alvin-Branch
 
   if (!currentPassword) {
-    throw new BadRequestError('Current password is required');
-  }
-  if (!newEmail && !newPassword) {
-    throw new BadRequestError('Please provide either new email or new password');
+    return res.status(400).json({ message: "Current password is required!" });
   }
 
-  let user;
   try {
+<<<<<<< HEAD
     const UserModel = role === 'jobseeker' ? JobSeeker : Employer;
     user = await UserModel.findById(userId)
       .populate({
@@ -650,15 +684,20 @@ export const updateSensitiveInfo = async (req, res) => {
         select: 'filename metadata'
       });
 
+=======
+    const user = await JobSeeker.findOne({ _id: id });
+>>>>>>> Alvin-Branch
     if (!user) {
-      throw new BadRequestError('User not found');
+      return res.status(400).json({ message: "User not exists!" });
     }
 
-    const isPasswordCorrect = await user.comparePassword(currentPassword);
+    
+    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
     if (!isPasswordCorrect) {
-      throw new UnauthenticatedError('Invalid current password');
+      return res.status(400).json({ message: "Current password is incorrect!" });
     }
 
+<<<<<<< HEAD
     if (newEmail) {
       const jobSeekerExists = await JobSeeker.findOne({ email: newEmail, _id: { $ne: userId } });
       const employerExists = await Employer.findOne({ email: newEmail, _id: { $ne: userId } });
@@ -722,11 +761,24 @@ export const updateSensitiveInfo = async (req, res) => {
       token,
       message: 'Profile updated successfully'
     });
+=======
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await JobSeeker.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: encryptedPassword,
+        },
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset' });
+>>>>>>> Alvin-Branch
   } catch (error) {
-    if (error.code === 11000) {
-      throw new BadRequestError('Email already in use');
-    }
-    throw error;
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 };
 

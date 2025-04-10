@@ -57,7 +57,13 @@ const JS_EmailLoginPage = () => {
 
       // If we got here, login was successful
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('userRole', data.user.role);
+      
+      const userData = {
+        ...data.user,
+        _id: data.user.id, // Convert id to _id for consistency
+      };
+      localStorage.setItem('user', JSON.stringify(userData));
 
       // Navigate to find-internship page directly
       navigate('/jobseeker/find-internship', { replace: true });

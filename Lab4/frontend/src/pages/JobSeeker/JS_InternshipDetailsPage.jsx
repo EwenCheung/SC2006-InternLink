@@ -109,60 +109,34 @@ const JS_InternshipDetailsPage = () => {
             <h3>About the Company</h3>
             <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
             <div className={styles.companyDetails}>
+              
               <div className={styles.detailItem}>
-                <span className={styles.label}>Industry:</span>
-                <span className={styles.value}>{jobDetails.industry}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Company Size:</span>
-                <span className={styles.value}>{jobDetails.companySize}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Website:</span>
-                <span className={styles.value}>
-                  <a href={jobDetails.website} target="_blank" rel="noopener noreferrer">
-                    {jobDetails.website}
-                  </a>
-                </span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.label}>Location:</span>
+                <span className={styles.label}><h4>Location:</h4></span>
                 <span className={styles.value}>{jobDetails.location}</span>
               </div>
             </div>
           </section>
           <section className={styles.jobDetailsSection}>
             <h3>Job Description</h3>
-            <p className={styles.description}>{jobDetails.description}</p>
-            <h4>Responsibilities</h4>
-            <ul className={styles.responsibilitiesList}>
-              {jobDetails.responsibilities?.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-            <h4>Requirements</h4>
-            <ul className={styles.requirementsList}>
-              {jobDetails.requirements?.map((item, index) => (
-                <li key={index}>{item}</li>
-              ))}
-            </ul>
-            <h4>Benefits & Perks</h4>
-            <ul className={styles.benefitsList}>
-              {jobDetails.benefits?.map((item, index) => (
-                <li key={index}>{item}</li>
+            <h4>{jobDetails.description}</h4>
+            
+            <h3>Skills Required</h3>
+            <ul className={styles.skillsList}>
+              {jobDetails.tags?.map((skill, index) => (
+                <li key={index} className={styles.skillTag}>{skill}</li>
               ))}
             </ul>
           </section>
         </div>
         <aside className={styles.applicationSidebar}>
           <div className={styles.applicationCard}>
-            <h3>Apply Now</h3>
+            <h3>Application</h3>
             <div className={styles.applicationInfo}>
               <p className={styles.deadline}>Application closes on {jobDetails.deadline}</p>
-              <p className={styles.applicants}>{jobDetails.applicants} people have applied</p>
+              <p className={styles.applicants}>{jobDetails.applicants} People have applied</p>
             </div>
             <div className={styles.actionButtons}>
-              <button className={styles.applyButton}>Apply for Position</button>
+            <button className={styles.applyButton} onClick={() => navigate(`/jobseeker/application-details?jobId=${jobId}`)}>Apply for Position</button>
               <button className={styles.messageButton}>Message Employer</button>
               <button className={styles.shareButton}>Share Job</button>
             </div>

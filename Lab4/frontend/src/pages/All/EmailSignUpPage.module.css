@@ -1,6 +1,6 @@
 .container {
   @apply min-h-screen flex flex-col justify-center px-6 py-12;
-  background: linear-gradient(135deg, #DDD6FE 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #c9bdfe 0%, #ffffff 100%);
 }
 
 .formContainer {
@@ -102,20 +102,20 @@
 }
 
 .primaryButton {
-  @apply border border-gray-300 rounded-lg 
-  text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+    @apply border border-gray-300 rounded-lg 
+    text-gray-700 bg-white hover:bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+    
 }
 
-.primaryButton:hover {
-  color:white;
-  background: linear-gradient(135deg, #a381f8 0%, #6b23e8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
-  
+.primaryButton:hover:not(:disabled) {
+    color:white;
+    background: linear-gradient(135deg, #9b70ff 0%, #7C3AED 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
 }
 
 .secondaryButton {
-  @apply bg-white text-[#7C3AED] ring-1 ring-inset ring-[#7C3AED] hover:bg-gray-50;
+  @apply py-2 px-4 bg-white text-[#7C3AED] ring-1 ring-inset ring-[#7C3AED] hover:bg-gray-50;
 }
 
 .secondaryButton:hover {
@@ -218,7 +218,14 @@
 }
 
 .skillTag {
-  @apply flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-[#7C3AED] text-sm;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ede9fe; /* Light purple tag background */
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 0.875rem;
+  color: #7c3aed; /* Purple text */
 }
 
 .removeSkill {
@@ -352,14 +359,7 @@
   transition: all 0.2s;
 }
 
-.primaryButton {
-  background-color: #3b82f6;
-  color: white;
-}
 
-.primaryButton:hover {
-  background-color: #2563eb;
-}
 
 .secondaryButton {
   background-color: white;

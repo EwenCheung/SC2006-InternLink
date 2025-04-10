@@ -5,6 +5,7 @@ import {
     updateUser,
     updateField, 
     updateSensitiveInfo, 
+    resetPassword,
     deleteUserById, 
     deleteUserByEmail,
     getProfile,
@@ -39,6 +40,8 @@ router.patch('/update', authenticateUser, updateUser);
 router.patch('/update-field', authenticateUser, updateField);
 router.patch('/update-sensitive', authenticateUser, updateSensitiveInfo);
 router.patch('/update-contacts', authenticateUser, updateContactList);
+router.post('/resetPassword/:id', resetPassword);
+
 // File upload routes
 router.route('/upload-photo')
     .post(authenticateUser, async (req, res, next) => {

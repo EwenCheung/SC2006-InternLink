@@ -28,6 +28,7 @@ process.on('unhandledRejection', (error) => {
   process.exit(1);
 });
 let accessToken = null;
+let accessToken2 = null;
 
 const app = express();
 
@@ -134,3 +135,39 @@ const getOnemapToken = async () => {
 // Start everything
 Promise.all([startServer(), getOnemapToken()])
   .catch(error => console.error('Startup error:', error));
+
+
+// Fetch EMSI token
+const emsiUrl = "https://auth.emsicloud.com/connect/token";
+
+// Prepare the data payload
+const emsiData = new URLSearchParams({
+  client_id: process.env.Client_ID,
+  client_secret: process.env.Secret,
+  grant_type: 'client_credentials',
+  scope: process.env.Scope,
+});
+
+// Fetch the token using Axios
+const fetchEmsiToken = async () => {
+  try {
+    const response = await axios.post(emsiUrl, emsiData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+    accessToken2 = response.data.access_token;
+  } catch (error) {
+    console.error('Error fetching EMSI token:', error.response ? error.response.data : error.message);
+  }
+};
+await fetchEmsiToken();
+
+  
+const url = "https://www.onemap.gov.sg/api/auth/post/getToken";  // Correct URL
+
+// Prepare the data payload
+const data = {
+  email: process.env.ONEMAP_EMAIL,  // Ensure this is in your .env file
+  password: process.env.ONEMAP_EMAIL_PASSWORD,  // Ensure this is in your .env file
+};

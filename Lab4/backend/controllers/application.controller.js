@@ -59,31 +59,37 @@ export const getOneApplication = async (req, res) => {
 
 // Create an application
 export const createApplication = async (req, res) => {
-    const { jobId } = req.body;
+    const { jobId, coverLetter, resume } = req.body;
+    const applicantId = req.user.userId; // Ensure applicantId matches userId from authMiddleware
 
-    if (!jobId) {
-        return res.status(400).json({ success: false, message: 'Please provide a job ID' });
+    if (!jobId || !applicantId) {
+        return res.status(400).json({ success: false, message: 'Job ID and Applicant ID are required' });
     }
-
-    // Ensure the user is a jobseeker
-    if (req.user.role !== 'jobseeker') {
-        return res.status(403).json({ success: false, message: 'Only job seekers can create applications' });
-    }
-
-    const newApplication = new Application({
-        jobId,
-        applicantId: req.user.userId,
-        status: 'pending',
-        appliedDate: new Date()
-    });
 
     try {
+        console.log('Request Body:', req.body);
+        console.log('Authenticated User:', req.user);
+        // Check if the applicant has already applied for this job
+        const existingApplication = await Application.findOne({ job: jobId, jobSeeker: applicantId });
+        if (existingApplication) {
+            return res.status(400).json({ success: false, message: 'You have already applied for this job' });
+        }
+
+        // Create a new application
+        const newApplication = new Application({
+            jobSeeker: applicantId,
+            job: jobId,
+            coverLetter,
+            resume,
+            status: 'pending',
+            appliedDate: new Date(),
+        });
+
         await newApplication.save();
-        res.status(201).json({success: true, data: newApplication});
-    }
-    catch (error) {
-        console.error("Error in Create Application:", error.message);
-        res.status(500).json({ success: false, message: "Server Error"});
+        res.status(201).json({ success: true, data: newApplication });
+    } catch (error) {
+        console.error('Error in Create Application:', error.message, error.stack);
+        res.status(500).json({ success: false, message: 'Server Error', error: error.message });
     }
 };
 

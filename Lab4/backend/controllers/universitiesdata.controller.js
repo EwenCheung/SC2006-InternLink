@@ -11,8 +11,9 @@ export async function fetchUniversities() {
       
       if (data.result && data.result.records) {
         return [...new Set(data.result.records.map(record => record.university))]; // Remove duplicates
-      }
+    }
     } catch (error) {
+      return([]); // Return an empty array on error
       console.error("Error fetching university data:", error);
     }
     return [];

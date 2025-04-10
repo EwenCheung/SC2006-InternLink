@@ -1,5 +1,6 @@
 import React from 'react';
 
+<<<<<<< HEAD
 // Initial filter configuration with loading state
 const locationFilter = {
   label: "Location",
@@ -26,6 +27,9 @@ const updateLocationFilter = (locations) => {
 
 // Shared location filter
 async function getTokenAndFetchLocation(retryCount = 0) {
+=======
+async function getTokenAndFetchLocation() {
+>>>>>>> Alvin-Branch
   try {
     const tokenResponse = await fetch('http://localhost:5001/use-token');
     const tokenData = await tokenResponse.json();
@@ -68,10 +72,24 @@ async function getTokenAndFetchLocation(retryCount = 0) {
   }
 }
 
+<<<<<<< HEAD
 // Export the filter configuration
 export { locationFilter };
 
 // Export the filter options
+=======
+getTokenAndFetchLocation();
+
+
+
+export const locationFilter = {
+  label: "Location",
+  defaultOption: "All Locations",
+}
+
+
+
+>>>>>>> Alvin-Branch
 export const internshipFilterOptions = {
   location: locationFilter,
   course: {
