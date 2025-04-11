@@ -174,7 +174,25 @@ const JS_FindAdHocPage = () => {
         
         <button 
           className={styles.viewApplicationBtn}
-          onClick={() => navigate('/jobseeker/applications')}
+          onClick={() => {
+            try {
+              // Get jobseeker ID from localStorage
+              const user = localStorage.getItem('user');
+              if (user) {
+                const userData = JSON.parse(user);
+                const jobseekerID = userData._id;
+                // Navigate to applications with jobseeker ID
+                navigate(`/jobseeker/applications/${jobseekerID}`);
+              } else {
+                // If no user found, just navigate to applications
+                navigate('/jobseeker/applications');
+              }
+            } catch (error) {
+              console.error('Error parsing user data:', error);
+              // Fallback to simple navigation
+              navigate('/jobseeker/applications');
+            }
+          }}
         >
           View Applications
         </button>

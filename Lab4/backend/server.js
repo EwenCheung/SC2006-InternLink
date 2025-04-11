@@ -15,7 +15,6 @@ import { initGridFS } from './config/gridfs.js';
 import authUserRoutes from './routes/authUser.route.js';
 import jobRoutes from './routes/job.route.js';
 import messageRoutes from './routes/message.route.js';
-import applicationRoutes from './routes/application.route.js';
 
 // Import error handler middleware
 import { errorHandler, notFound } from './errors/errorMiddleware.js';
@@ -93,7 +92,6 @@ const startServer = async () => {
     app.use('/api/auth', authUserRoutes);
     app.use('/api/jobs', jobRoutes);
     app.use('/api/messages', messageRoutes);
-    app.use('/api/applications', applicationRoutes);
 
     // OneMap token endpoint
     app.get('/use-token', (req, res) => {

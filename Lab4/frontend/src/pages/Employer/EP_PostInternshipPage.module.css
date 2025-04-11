@@ -26,14 +26,14 @@
 
 .draftsHeader {
   composes: sectionHeader;
-  border-color: #6c757d;
-  color: #495057;
+  border-color: #9c7bc9;
+  color: #6f42c1;
 }
 
 .publishedHeader {
   composes: sectionHeader;
-  border-color: #6c757d;
-  color: #2c5530;
+  border-color: #6f42c1;
+  color: #5a2ca0;
 }
 
 .addButton {
@@ -41,7 +41,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
+  background-color: #6f42c1;
   color: white;
   border: none;
   border-radius: 4px;
@@ -51,16 +51,16 @@
 }
 
 .addButton:hover {
-  background-color: #0056b3;
+  background-color: #5a2ca0;
 }
 
 .error {
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 4px;
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ffcdd2;
+  background-color: #f8e9ff;
+  color: #9333ea;
+  border: 1px solid #d8b4fe;
 }
 
 .loadingContainer {
@@ -73,7 +73,7 @@
 
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
-  border-left-color: #007bff;
+  border-left-color: #6f42c1;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -107,30 +107,32 @@
 }
 
 .draftCard {
-  background-color: #f8f9fa;
-  border: 1px dashed #adb5bd;
+  background-color: #f9f5ff;
+  border: 1px dashed #9c7bc9;
 }
 
 .draftBadge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: #6c757d;
+  background-color: #9c7bc9;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
+  z-index: 1; /* Ensure the badge appears above other content */
 }
 
 .publishedBadge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: #28a745;
+  background-color: #6f42c1;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
+  z-index: 1; /* Ensure the badge appears above other content */
 }
 
 .jobDetails {
@@ -141,7 +143,8 @@
   font-size: 1.25rem;
   color: #333;
   margin-bottom: 1rem;
-  margin-right: 4rem;
+  padding-right: 6rem; /* Increase right padding to make room for the badge */
+  word-wrap: break-word; /* Ensure text wraps properly */
 }
 
 .jobDetails p {
@@ -153,7 +156,7 @@
 }
 
 .stipendInfo {
-  color: #28a745 !important;
+  color: #8a3ffc !important;
   font-weight: 500;
 }
 
@@ -165,8 +168,8 @@
 }
 
 .tag {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: #f3ebff;
+  color: #6f42c1;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
@@ -189,12 +192,12 @@
 }
 
 .viewButton {
-  background-color: #007bff;
+  background-color: #6f42c1;
   color: white;
 }
 
 .viewButton:hover {
-  background-color: #0056b3;
+  background-color: #5a2ca0;
 }
 
 .editButton {
@@ -219,7 +222,85 @@
   text-align: center;
   color: #666;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: #f9f5ff;
   border-radius: 8px;
   margin-top: 1rem;
+}
+
+/* Confirmation Dialog Styles */
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(106, 27, 154, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.dialogBox {
+  background-color: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 420px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.dialogBox h3 {
+  color: #6a1b9a;
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+.dialogBox p {
+  margin-bottom: 24px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.dialogButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.dialogButtons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancelButton {
+  background-color: white;
+  color: #6a1b9a;
+  border: 1px solid #6a1b9a !important; /* Add border to cancel button */
+}
+
+.cancelButton:hover {
+  background-color: #ffffff; /* Light purple background on hover */
+  transform: translateY(-2px);
+}
+
+.dialogButtons button:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

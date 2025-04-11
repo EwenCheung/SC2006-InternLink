@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });
+
 const ApplicationSchema = new mongoose.Schema({
   jobSeeker: {
     type: mongoose.Types.ObjectId,
@@ -13,7 +15,7 @@ const ApplicationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'rejected'],
+    enum: ['Pending', 'Accepted', 'Rejected'],
     default: 'pending'
   },
   coverLetter: {
@@ -31,6 +33,9 @@ const ApplicationSchema = new mongoose.Schema({
   },
   feedback: {
     type: String
+  },
+  jobType: {
+    type: String
   }
 }, {
   timestamps: true
@@ -41,4 +46,7 @@ ApplicationSchema.index({ jobSeeker: 1, job: 1 }, { unique: true });
 ApplicationSchema.index({ status: 1 });
 ApplicationSchema.index({ appliedDate: -1 });
 
-export default mongoose.model('Application', ApplicationSchema);
+const Application = jobListDb.model('Applications', ApplicationSchema);
+
+// Fix: Export the Application model directly instead of as an object
+export default Application;

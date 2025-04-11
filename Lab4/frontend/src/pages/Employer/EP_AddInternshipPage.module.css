@@ -350,3 +350,81 @@
 .singleSuggestion:hover {
   background-color: #e1bee7; /* Light purple hover */
 }
+
+/* Success Message Overlay */
+.successMessageOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(106, 27, 154, 0.7); /* Semi-transparent purple overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Ensure it's above everything else */
+  animation: fadeIn 0.3s ease;
+}
+
+.successMessage {
+  background-color: white;
+  padding: 30px 40px; /* Increased padding for better appearance */
+  border-radius: 12px; /* Slightly more rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow for better depth */
+  text-align: center;
+  width: 90%;
+  max-width: 420px;
+  position: relative;
+  z-index: 2001;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy animation */
+  transform-origin: center;
+}
+
+.successIcon {
+  margin: 0 auto 15px;
+  width: 60px;
+  height: 60px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 30px;
+  animation: scaleIn 0.5s ease;
+}
+
+.successMessage h3 {
+  margin: 0 0 10px;
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.successMessage p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}

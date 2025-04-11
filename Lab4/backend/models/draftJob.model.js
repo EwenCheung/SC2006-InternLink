@@ -96,7 +96,17 @@ const draftJobSchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'posted'],
     default: 'draft'
+  },
+  area: {
+    type:String
+  },
+  description: {
+    type: String
+  },
+  jobScope: {
+    type: String
   }
+
 });
 
 // Update lastModified on save
@@ -115,5 +125,6 @@ draftJobSchema.pre(['updateOne', 'findOneAndUpdate'], function(next) {
 const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });
 
 // Create and export model
+const AdHocDraft = jobListDb.model('AdHocDraft', draftJobSchema);
 const DraftJob = jobListDb.model('DraftJob', draftJobSchema);
-export default DraftJob;
+export {DraftJob, AdHocDraft};

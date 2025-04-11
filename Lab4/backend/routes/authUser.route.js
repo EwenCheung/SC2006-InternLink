@@ -12,7 +12,8 @@ import {
     uploadProfilePhoto,
     handleResumeUpload,
     streamFile,
-    updateContactList
+    updateContactList,
+    getJobSeekerProfile
 } from '../controllers/authUser.controller.js';
 import authenticateUser from '../middleware/authentication.js';
 import { uploadProfileImage, uploadResume, handleUploadError } from '../middleware/fileUpload.js';
@@ -36,6 +37,8 @@ router.route('/register')
     });
 router.post('/login', login);
 router.get('/profile', authenticateUser, getProfile);
+router.get('/jobseeker/:id', getJobSeekerProfile); // New route for jobseeker profiles
+router.get('/user/:id', authenticateUser, getProfile); // New route to get profile by ID
 router.patch('/update', authenticateUser, updateUser);
 router.patch('/update-field', authenticateUser, updateField);
 router.patch('/update-sensitive', authenticateUser, updateSensitiveInfo);

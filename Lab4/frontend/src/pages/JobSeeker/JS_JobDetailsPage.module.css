@@ -251,14 +251,45 @@ h4 {
 }
 
 .applyButton {
-    background-color: #840fab;
+    background-color: #6a0dad; /* Richer purple base color */
     color: white;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: all 0.4s ease;
+    border: none;
+    font-weight: 500;
 }
 
 .applyButton:hover {
-    background-color: #c538fd;
-    transform: translateY(-2px);
-    box-shadow: 0 0 5px rgba(26,26,26, 0.2);
+    background-color: #8e24aa; /* Brighter purple on hover */
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 4px 15px rgba(106, 13, 173, 0.4);
+}
+
+.applyButton:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2); /* Slightly brighter highlight */
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.applyButton:hover:before {
+    width: 200%;
+    height: 200%;
+}
+
+.applyButton:active {
+    background-color: #5c0096; /* Darker when clicked */
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 2px 8px rgba(106, 13, 173, 0.3);
 }
 
 .messageButton {

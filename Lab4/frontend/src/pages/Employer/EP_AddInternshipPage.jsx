@@ -45,7 +45,6 @@ const EP_AddInternshipPage = () => {
   const [error, setError] = useState('');
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [employerID, setEmployerID] = useState(null);
-  const { draftId } = useParams();
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
   const [currentTag, setCurrentTag] = useState('');
@@ -53,6 +52,10 @@ const EP_AddInternshipPage = () => {
   const [isLoading, setIsLoading] = useState(false); // To handle loading state for address suggestions
   const [suggestions, setSuggestions] = useState([]); // To store address suggestions
   const [areaOptions, setAreaOptions] = useState([]); // To store area options
+
+  // Add state for success message
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -112,6 +115,7 @@ const EP_AddInternshipPage = () => {
           yearOfStudy: draftData.yearOfStudy || 'Select Year',
           tags: draftData.tags || [],
           area: draftData.area || '',
+          jobScope: draftData.jobScope || ''
         });
       }
     };
@@ -301,8 +305,12 @@ const EP_AddInternshipPage = () => {
         return;
       }
 
+      // Make sure area, description, and jobScope are explicitly included
       const postData = {
         ...formData,
+        area: formData.area || '',
+        description: formData.description || '',
+        jobScope: formData.jobScope || '',
         employerID,
         type: 'internship_job',
         jobType: 'internship',
@@ -339,7 +347,37 @@ const EP_AddInternshipPage = () => {
           'Failed to publish internship post. Please ensure all required fields are filled.'));
       }
 
-      navigate('/employer/post-internship');
+      // If we're publishing from a draft, delete the draft
+      if (!isDraftSave && isDraft && draftID) {
+        try {
+          console.log('Deleting draft after successful publication...');
+          const deleteResponse = await fetch(`${API_BASE_URL}/api/jobs/drafts/${draftID}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (deleteResponse.ok) {
+            console.log('Draft deleted successfully after publication');
+          } else {
+            console.error('Failed to delete draft after publication');
+          }
+        } catch (deleteError) {
+          console.error('Error deleting draft after publication:', deleteError);
+          // We still continue even if draft deletion fails
+        }
+      }
+
+      // Show success message using our custom message box instead of alert
+      setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Internship published successfully!');
+      setShowSuccessMessage(true);
+      
+      // Delay navigation slightly to ensure the user sees the success message
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        navigate('/employer/post-internship');
+      }, 2000);
     } catch (err) {
       console.error('Error saving post:', err);
       setError(err.message || 'An error occurred while saving the post');
@@ -361,6 +399,17 @@ const EP_AddInternshipPage = () => {
           {isDraft ? 'Edit Draft Internship Post' : 'Create Internship Post'}
         </h2>
       </div>
+      
+      {/* Success Message Box */}
+      {showSuccessMessage && (
+        <div className={styles.successMessageOverlay}>
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
+            <h3>{successMessage}</h3>
+            <p>Redirecting to dashboard...</p>
+          </div>
+        </div>
+      )}
       
       {showExitDialog && (
         <div className={styles.dialog}>
@@ -400,7 +449,10 @@ const EP_AddInternshipPage = () => {
         </div>
       )}
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); savePost(false); }}>
+      <form className={styles.form} onSubmit={(e) => { 
+        e.preventDefault();
+        savePost(false); // This ensures we're publishing, not saving as draft
+      }}>
         <div className={styles.formGroup}>
           <label htmlFor="title">Job Title*</label>
           <input

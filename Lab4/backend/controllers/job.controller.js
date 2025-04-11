@@ -1,6 +1,7 @@
 import { InternshipJob, AdHocJob } from '../models/job.model.js';
-import DraftJob from '../models/draftJob.model.js';
+import {DraftJob, AdHocDraft} from '../models/draftJob.model.js';
 import Employer from '../models/Employer.model.js';
+import Application from '../models/application.model.js';
 
 const buildFilterQuery = (filters, jobType) => {
   const query = { status: 'posted' };
@@ -69,14 +70,54 @@ export const createDraftJob = async (req, res) => {
       return acc;
     }, {});
 
+    // Ensure area and description fields are properly set
+    draftData.area = draftData.area || req.body.area || '';
+    draftData.description = draftData.description || req.body.description || '';
+    draftData.jobScope = draftData.jobScope || req.body.jobScope || '';    
     draftData.employerID = req.user.userId;
-    draftData.type = 'internship_job';
-    draftData.jobType = 'internship';
+    draftData.jobType = req.body.jobType || 'internship';
     draftData.status = 'draft';
     draftData.lastModified = new Date();
 
     console.log('Processed draft data:', draftData);
     const draft = await DraftJob.create(draftData);
+    console.log('Created draft:', draft);
+    
+    res.status(201).json({ success: true, data: draft });
+  } catch (error) {
+    console.error('Error creating draft job:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+export const createDraftAdHoc = async (req, res) => {
+  try {
+    console.log('Creating draft with body:', req.body);
+    console.log('User ID:', req.user.userId);
+    
+    const draftData = Object.entries(req.body).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        if (key === 'stipend' && value) {
+          acc[key] = Number(value);
+        } else {
+          acc[key] = value;
+        }
+      }
+      return acc;
+    }, {});
+
+    // Ensure area and description fields are properly set
+    draftData.area = draftData.area || req.body.area || '';
+    draftData.description = draftData.description || req.body.description || '';
+    draftData.jobScope = draftData.jobScope || req.body.jobScope || '';    
+    draftData.employerID = req.user.userId;
+    draftData.type = 'adhoc_job';
+    draftData.jobType = 'ad-hoc';
+    draftData.status = 'draft';
+    draftData.lastModified = new Date();
+
+    console.log('Processed draft data:', draftData);
+    const draft = await AdHocDraft.create(draftData);
     console.log('Created draft:', draft);
     
     res.status(201).json({ success: true, data: draft });
@@ -95,11 +136,15 @@ export const updateDraftJob = async (req, res) => {
     const updateData = {
       ...req.body,
       lastModified: new Date(),
-      type: 'internship_job',
-      jobType: 'internship',
+    
       status: 'draft',
       employerID: req.user.userId
     };
+
+    // Ensure area and description fields are properly set
+    updateData.area = updateData.area || req.body.area || '';
+    updateData.description = updateData.description || req.body.description || '';
+    updateData.jobScope = updateData.jobScope || req.body.jobScope || '';
 
     if (updateData.stipend) {
       updateData.stipend = Number(updateData.stipend);
@@ -108,6 +153,53 @@ export const updateDraftJob = async (req, res) => {
     console.log('Final update data:', updateData);
 
     const updatedDraft = await DraftJob.findOneAndUpdate(
+      { _id: req.params.id, employerID: req.user.userId },
+      updateData,
+      { new: true, runValidators: false }
+    );
+
+    if (!updatedDraft) {
+      console.log('Draft not found or permission denied');
+      return res.status(404).json({
+        success: false,
+        message: 'Draft not found or you do not have permission to update it'
+      });
+    }
+
+    console.log('Updated draft:', updatedDraft);
+    res.status(200).json({ success: true, data: updatedDraft });
+  } catch (error) {
+    console.error('Error updating draft:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const updateAdHocDraft = async (req, res) => {
+  try {
+    console.log('Updating draft:', req.params.id);
+    console.log('User ID:', req.user.userId);
+    console.log('Update data:', req.body);
+
+    const updateData = {
+      ...req.body,
+      lastModified: new Date(),
+    
+      status: 'draft',
+      employerID: req.user.userId
+    };
+
+    // Ensure area and description fields are properly set
+    updateData.area = updateData.area || req.body.area || '';
+    updateData.description = updateData.description || req.body.description || '';
+    updateData.jobScope = updateData.jobScope || req.body.jobScope || '';
+
+    if (updateData.stipend) {
+      updateData.stipend = Number(updateData.stipend);
+    }
+
+    console.log('Final update data:', updateData);
+
+    const updatedDraft = await AdHocDraft.findOneAndUpdate(
       { _id: req.params.id, employerID: req.user.userId },
       updateData,
       { new: true, runValidators: false }
@@ -400,3 +492,5 @@ export const deleteAdHocJob = async (req, res) => {
     res.status(400).json({ success: false, error: error.message });
   }
 };
+
+

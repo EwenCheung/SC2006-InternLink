@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './EP_PostInternshipPage.module.css';
 import { FaPlus, FaDollarSign, FaMapMarkerAlt, FaBuilding, FaCalendarAlt } from 'react-icons/fa';
+import SuccessMessageBox from '../../components/Common/SuccessMessageBox';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -11,6 +12,18 @@ const EP_PostInternshipPage = () => {
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Add state for success message
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Add state for confirmation dialogs
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmMessage, setConfirmMessage] = useState('');
+  const [confirmTitle, setConfirmTitle] = useState('');
+  const [confirmItemId, setConfirmItemId] = useState(null);
+  const [confirmIsDraft, setConfirmIsDraft] = useState(false);
 
   useEffect(() => {
     fetchJobs();
@@ -48,11 +61,29 @@ const EP_PostInternshipPage = () => {
     });
   };
 
-  const handleDelete = async (id, isDraft = false) => {
-    if (!window.confirm('Are you sure you want to delete this ' + (isDraft ? 'draft' : 'post') + '?')) {
-      return;
-    }
+  // New method to show confirmation dialog
+  const showConfirmationDialog = (title, message, action, id, isDraft = false) => {
+    setConfirmTitle(title);
+    setConfirmMessage(message);
+    setConfirmAction(action);
+    setConfirmItemId(id);
+    setConfirmIsDraft(isDraft);
+    setShowConfirmDialog(true);
+  };
 
+  // Handle the confirmation result
+  const handleConfirmAction = async () => {
+    setShowConfirmDialog(false);
+    
+    if (confirmAction === 'delete') {
+      await performDelete(confirmItemId, confirmIsDraft);
+    } else if (confirmAction === 'publish') {
+      await performPublish(confirmItemId);
+    }
+  };
+
+  // Extract delete logic to a separate function
+  const performDelete = async (id, isDraft) => {
     try {
       const token = localStorage.getItem('token');
       const endpoint = isDraft ? 'drafts' : 'internship';
@@ -69,26 +100,23 @@ const EP_PostInternshipPage = () => {
         throw new Error(data.message || 'Failed to delete job');
       }
 
-      // Refresh the jobs list
-      fetchJobs();
+      // Show success message
+      setSuccessMessage(`${isDraft ? 'Draft' : 'Job Posting'} deleted successfully!`);
+      setShowSuccessMessage(true);
+
+      // Set a timer to hide the message after 2 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        // Refresh the jobs list
+        fetchJobs();
+      }, 2000);
     } catch (err) {
       setError(err.message || 'Error deleting job');
     }
   };
 
-  const handleEditPost = (id) => {
-    navigate(`/employer/edit-internship/${id}`);
-  };
-
-  const handleViewDetails = (id) => {
-    navigate(`/employer/internship/${id}`);
-  };
-
-  const handlePublishDraft = async (draftId) => {
-    if (!window.confirm('Are you sure you want to publish this draft?')) {
-      return;
-    }
-
+  // Extract publish logic to a separate function
+  const performPublish = async (draftId) => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${API_BASE_URL}/api/jobs/drafts/${draftId}/publish`, {
@@ -104,11 +132,47 @@ const EP_PostInternshipPage = () => {
         throw new Error(data.message || 'Failed to publish draft. Please ensure all required fields are filled.');
       }
 
-      // Refresh the jobs list
-      fetchJobs();
+      // Show success message
+      setSuccessMessage('Draft published successfully!');
+      setShowSuccessMessage(true);
+
+      // Set a timer to hide the message after 2 seconds
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        // Refresh the jobs list
+        fetchJobs();
+      }, 2000);
     } catch (err) {
       setError(err.message || 'Error publishing draft');
     }
+  };
+
+  // Update the handler methods to use our confirmation dialog
+  const handleDelete = (id, isDraft = false) => {
+    showConfirmationDialog(
+      'Confirm Deletion',
+      `Are you sure you want to delete this ${isDraft ? 'draft' : 'job post'}?`,
+      'delete',
+      id,
+      isDraft
+    );
+  };
+
+  const handleEditPost = (id) => {
+    navigate(`/employer/edit-internship/${id}`);
+  };
+
+  const handleViewDetails = (id) => {
+    navigate(`/employer/internship-details/${id}`);
+  };
+
+  const handlePublishDraft = (draftId) => {
+    showConfirmationDialog(
+      'Confirm Publication',
+      'Are you sure you want to publish this draft? Once published, it will be visible to job seekers.',
+      'publish',
+      draftId
+    );
   };
 
   if (loading) {
@@ -131,6 +195,37 @@ const EP_PostInternshipPage = () => {
           <FaPlus /> Add New Internship
         </button>
       </div>
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className={styles.dialogOverlay}>
+          <div className={styles.dialogBox}>
+            <h3>{confirmTitle}</h3>
+            <p>{confirmMessage}</p>
+            <div className={styles.dialogButtons}>
+              <button 
+                className={styles.cancelButton}
+                onClick={() => setShowConfirmDialog(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className={`${confirmAction === 'delete' ? styles.deleteButton : styles.viewButton}`}
+                onClick={handleConfirmAction}
+              >
+                {confirmAction === 'delete' ? 'Delete' : 'Publish'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message Box */}
+      <SuccessMessageBox 
+        show={showSuccessMessage}
+        message={successMessage}
+        onClose={() => setShowSuccessMessage(false)}
+      />
 
       {error && <div className={styles.error}>{error}</div>}
 
@@ -213,12 +308,6 @@ const EP_PostInternshipPage = () => {
                     className={styles.viewButton}
                   >
                     View
-                  </button>
-                  <button
-                    onClick={() => handleEditPost(job._id)}
-                    className={styles.editButton}
-                  >
-                    Edit
                   </button>
                   <button
                     onClick={() => handleDelete(job._id)}
