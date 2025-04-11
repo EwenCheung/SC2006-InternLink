@@ -27,6 +27,7 @@ import EP_ProfilePage from './pages/Employer/EP_ProfilePage';
 import EP_MessagesPage from './pages/Employer/EP_MessagesPage';
 import EP_ViewCandidatesPage from './pages/Employer/EP_ViewCandidatesPage';
 import EP_ViewApplicantProfilePage from './pages/Employer/EP_ViewApplicantProfilePage';
+import EP_PrivacySettings from './pages/Employer/EP_PrivacySettings';
 import LogOutConfirmation from './pages/LogOutConfirmation';
 import ProtectedRoute from './components/Common/ProtectedRoute';
 import ErrorBoundary from './components/Common/ErrorBoundary';
@@ -95,7 +96,9 @@ const App = () => {
             <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
             <Route path="/employer/messages" element={<EP_MessagesPage />} />
             <Route path="/employer/profile" element={<EP_ProfilePage />} />
+            <Route path="/employer/ep-privacy-settings" element={<EP_PrivacySettings />} />
             <Route path="/employer/applicant/:id" element={<EP_ViewApplicantProfilePage />} />
+            
           </Route>
         </Route>
 

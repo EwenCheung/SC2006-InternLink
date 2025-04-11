@@ -68,7 +68,8 @@ async function getTokenAndFetchLocation(retryCount = 0) {
   }
 }
 
-// Export the filter configuration
+getTokenAndFetchLocation();
+
 export { locationFilter };
 
 // Export the filter options

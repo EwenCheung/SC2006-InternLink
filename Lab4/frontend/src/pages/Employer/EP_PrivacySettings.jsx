@@ -51,17 +51,17 @@ const PrivacySettings = () => {
     try {
       const user = localStorage.getItem('user');
       const userData = JSON.parse(user);
-      const jobseekerID = userData._id; // Use _id directly from userData
+      const employerID = userData._id; // Use _id directly from userData
       const token = localStorage.getItem('token'); // Retrieve token from localStorage
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/resetPassword/${jobseekerID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resetPassword/${employerID}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          id: jobseekerID,
+          id: employerID,
           currentPassword,
           password: newPassword,
         }),
@@ -84,7 +84,7 @@ const PrivacySettings = () => {
       setTimeout(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        navigate('/jobseeker/login');
+        navigate('/employer/login');
       }, 3000); // 3 second delay
       
     } catch (err) {
@@ -205,15 +205,5 @@ const PrivacySettings = () => {
     </div>
   );
 };
-
-// Add this to your global CSS or use inline styles
-// .animate-progressBar {
-//   width: 0%;
-//   animation: progressAnimation 3s linear forwards;
-// }
-// @keyframes progressAnimation {
-//   0% { width: 0%; }
-//   100% { width: 100%; }
-// }
 
 export default PrivacySettings;

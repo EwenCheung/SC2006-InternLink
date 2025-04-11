@@ -28,29 +28,29 @@ const EmployerNav = () => {
       >
         Profile
       </Link>
-<div 
-  className="relative group"
->
-  <button className="text-gray-600 hover:text-purple-600">
-    Settings
-  </button>
-  <div 
-    className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-  >
-    <Link 
-      to="/employer/privacy-settings"
-      className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
-    >
-      Privacy Settings
-    </Link>
-    <Link 
-      to="/logout"
-      className="block px-4 py-2 text-red-500 hover:bg-gray-100"
-    >
-      Logout
-    </Link>
-  </div>
-</div>
+      <div 
+        className="relative group"
+      >
+        <button className="text-gray-600 hover:text-purple-600">
+          Settings
+        </button>
+        <div 
+          className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg hidden group-hover:block transition-all duration-300 group-hover:duration-200 group-hover:delay-0 delay-700 pt-2 pb-1 before:content-[''] before:absolute before:top-[-16px] before:left-0 before:right-0 before:h-4"
+        >
+          <Link 
+            to="/employer/ep-privacy-settings"
+            className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+          >
+            Change Password
+          </Link>
+          <Link 
+            to="/logout"
+            className="block px-4 py-2 text-red-500 hover:bg-gray-100"
+          >
+            Logout
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };
