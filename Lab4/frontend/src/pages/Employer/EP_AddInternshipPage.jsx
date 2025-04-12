@@ -43,7 +43,6 @@ const EP_AddInternshipPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const [employerID, setEmployerID] = useState(null);
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
@@ -80,12 +79,6 @@ const EP_AddInternshipPage = () => {
       } catch (err) {
         console.error('Error parsing user data:', err);
         navigate('/employer/login');
-      }
-      // Trigger search only if location input is not empty
-      if (name === 'location' && value.trim()) {
-        fetchAddressSuggestions(value);
-      } else {
-        setSuggestions([]); // Clear suggestions if input is empty
       }
     } else {
       navigate('/employer/login');
@@ -202,8 +195,8 @@ const EP_AddInternshipPage = () => {
     // Trigger search only if location input is not empty
     if (name === 'location' && value.trim()) {
       fetchAddressSuggestions(value);
-    } else {
-      setSuggestions([]);  // Clear suggestions if input is empty
+    } else if (name === 'location') {
+      setSuggestions([]);  // Clear suggestions if location input is empty
     }
   };
 
@@ -276,21 +269,19 @@ const EP_AddInternshipPage = () => {
       formData.tags.length > 0 ||
       formData.area
     ) {
-      setShowExitDialog(true);
+      // Automatically save as draft and then navigate back
+      savePost(true, true); // Pass true as second param to indicate back navigation after save
     } else {
+      // If no data to save, just navigate back
       navigate('/employer/post-internship');
     }
-  };
-
-  const handleExitWithoutSaving = () => {
-    navigate('/employer/post-internship');
   };
 
   const handleSaveAsDraft = async () => {
     await savePost(true);
   };
 
-  const savePost = async (isDraftSave) => {
+  const savePost = async (isDraftSave, isBackNavigation = false) => {
     try {
       setLoading(true);
       setError('');
@@ -369,6 +360,12 @@ const EP_AddInternshipPage = () => {
         }
       }
 
+      // If navigating back after saving a draft, skip the success message
+      if (isBackNavigation) {
+        navigate('/employer/post-internship');
+        return;
+      }
+
       // Show success message using our custom message box instead of alert
       setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Internship published successfully!');
       setShowSuccessMessage(true);
@@ -381,6 +378,11 @@ const EP_AddInternshipPage = () => {
     } catch (err) {
       console.error('Error saving post:', err);
       setError(err.message || 'An error occurred while saving the post');
+      
+      // If this was a back navigation, still navigate back even if save failed
+      if (isBackNavigation) {
+        navigate('/employer/post-internship');
+      }
     } finally {
       setLoading(false);
     }
@@ -411,35 +413,6 @@ const EP_AddInternshipPage = () => {
         </div>
       )}
       
-      {showExitDialog && (
-        <div className={styles.dialog}>
-          <div className={styles.dialogContent}>
-            <h3>Save changes?</h3>
-            <p>Do you want to save your changes as a draft before leaving?</p>
-            <div className={styles.dialogButtons}>
-              <button
-                onClick={handleExitWithoutSaving}
-                className={styles.exitButton}
-              >
-                Don't Save
-              </button>
-              <button
-                onClick={handleSaveAsDraft}
-                className={styles.saveButton}
-              >
-                Save as Draft
-              </button>
-              <button
-                onClick={() => setShowExitDialog(false)}
-                className={styles.cancelButton}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {error && (
         <div className={styles.error}>
           <h4>Please fix the following issues:</h4>
@@ -487,27 +460,21 @@ const EP_AddInternshipPage = () => {
             onChange={handleChange}
             placeholder="e.g. Singapore"
             className={styles.inputBox}
+            autoComplete="off" // Prevents browser autocomplete from interfering
           />
-          {isLoading && <div>Loading...</div>}
-          {suggestions.length > 1 && (
-            <select
-              className={styles.suggestionsDropdown}
-              onChange={(e) => handleSuggestionSelect(e.target.value)}
-              size={suggestions.length > 5 ? 5 : suggestions.length} // Limit visible options
-            >
+          {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
+          
+          {!isLoading && suggestions.length > 0 && (
+            <div className={styles.suggestionsContainer}>
               {suggestions.map((suggestion, index) => (
-                <option key={index} value={suggestion.ADDRESS}>
+                <div 
+                  key={index} 
+                  className={styles.suggestionItem}
+                  onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
+                >
                   {suggestion.ADDRESS}
-                </option>
+                </div>
               ))}
-            </select>
-          )}
-          {suggestions.length === 1 && (
-            <div
-              className={styles.singleSuggestion}
-              onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
-            >
-              {suggestions[0].ADDRESS}
             </div>
           )}
         </div>
@@ -616,33 +583,32 @@ const EP_AddInternshipPage = () => {
         </div>
 
         <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
+          <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
             Skills <span className={styles.optional}>(optional)</span>
           </label>
           
-        <div className={`${styles.skillsContainer} flex flex-wrap gap-2`}>
-          {formData.tags.map((skill, index) => (
-            <div key={index} className={styles.skillTag}>
-              <span>{skill}</span>
-              <button
-                type="button"
-                onClick={() => removeTag(index)}
-                className={styles.removeSkill}
-              >
-                <FaTimes />
-              </button>
-            </div>
-          ))}
-        </div>
+          <div className={styles.skillsContainer}>
+            {formData.tags.map((skill, index) => (
+              <div key={index} className={styles.skillTag}>
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className={styles.removeSkill}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+          </div>
 
-
-          <div className="flex items-start gap-2 mt-2 relative items-center">
-          <div className={`${styles.tagInput} w-full relative`}>
+          <div className={styles.skillInputContainer}>
+            <div className={styles.skillInputWrapper}>
               <input
                 type="text"
                 value={currentTag}
                 onChange={handleTagInput}
-                className={`${styles.formGroup}`}
+                className={styles.formGroup}
                 placeholder="Add a skill"
                 onKeyDown={(e) => e.key === 'Enter' && addTag()}
               />
@@ -659,13 +625,13 @@ const EP_AddInternshipPage = () => {
                       <li
                         key={index}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    tags: [...prev.tags, skill]
-                  }));
-                  setCurrentTag('');
-                }}
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            tags: [...prev.tags, skill]
+                          }));
+                          setCurrentTag('');
+                        }}
                       >
                         {skill}
                       </li>
@@ -673,15 +639,13 @@ const EP_AddInternshipPage = () => {
                 </ul>
               )}
             </div>
-            <div className="gap-2 flex items-center">
-              <button
-                type="button"
-                onClick={addTag}
-                className={`${styles.button} ${styles.secondaryButton}`}
-              >
-                Add
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={addTag}
+              className={`${styles.button} ${styles.secondaryButton} ${styles.addButton}`}
+            >
+              Add
+            </button>
           </div>
         </div>
 

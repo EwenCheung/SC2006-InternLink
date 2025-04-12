@@ -158,9 +158,7 @@ const EP_PostInternshipPage = () => {
     );
   };
 
-  const handleEditPost = (id) => {
-    navigate(`/employer/edit-internship/${id}`);
-  };
+
 
   const handleViewDetails = (id) => {
     navigate(`/employer/internship-details/${id}`);

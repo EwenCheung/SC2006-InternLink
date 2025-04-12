@@ -98,6 +98,7 @@ const App = () => {
             <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
             <Route path="/employer/messages" element={<EP_MessagesPage />} />
             <Route path="/employer/profile" element={<EP_ProfilePage />} />
+            <Route path="/employer/adhoc-details/:id" element={<EP_AdHocDetailsPage />} />
             <Route path="/employer/internship-details/:id" element={<EP_InternshipDetailsPage />} />
             <Route path="/employer/ep-privacy-settings" element={<EP_PrivacySettings />} />
             <Route path="/employer/applicant/:id" element={<EP_ViewApplicantProfilePage />} />

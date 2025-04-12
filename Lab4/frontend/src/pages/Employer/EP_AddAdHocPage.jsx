@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css'; // Reusing the same styles
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
+import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -10,7 +11,6 @@ const EP_AddAdHocPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const [employerID, setEmployerID] = useState(null);
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
@@ -47,7 +47,7 @@ const EP_AddAdHocPage = () => {
       navigate('/employer/login');
     }
     
-    // Load skills for tag suggestions
+   // Load skills for tag suggestions
     const loadSkills = async () => {
       const skillNames = await fetchSkillsData();
       setSkillNames(skillNames);
@@ -121,12 +121,11 @@ const EP_AddAdHocPage = () => {
   const fetchAddressSuggestions = async (searchVal) => {
     setIsLoading(true);
     const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
-    
-    try {
-      const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
-      const tokenData = await tokenResponse.json();
-      const authToken = tokenData.token;
+    const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+    const tokenData = await tokenResponse.json();
+    const authToken = tokenData.token;
 
+    try {
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -149,17 +148,6 @@ const EP_AddAdHocPage = () => {
     }
   };
 
-  const fetchSkillsData = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/skills`);
-      const data = await response.json();
-      return data.data || [];
-    } catch (error) {
-      console.error('Error fetching skills:', error);
-      return [];
-    }
-  };
-
   const handleSuggestionSelect = (address) => {
     setFormData({
       ...formData,
@@ -170,24 +158,16 @@ const EP_AddAdHocPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'payPerHour') {
-      const numericValue = value.replace(/\D/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numericValue
-      }));
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
 
-      // Trigger address suggestion search for location input
-      if (name === 'location' && value.trim()) {
-        fetchAddressSuggestions(value);
-      } else if (name === 'location') {
-        setSuggestions([]);
-      }
+    // Trigger address suggestion search for location input
+    if (name === 'location' && value.trim()) {
+      fetchAddressSuggestions(value);
+    } else if (name === 'location') {
+      setSuggestions([]);
     }
   };
 
@@ -245,6 +225,7 @@ const EP_AddAdHocPage = () => {
   };
 
   const handleBack = () => {
+    // Check if there's any data to save
     if (
       formData.title ||
       formData.company ||
@@ -254,21 +235,19 @@ const EP_AddAdHocPage = () => {
       formData.payPerHour ||
       formData.tags.length > 0
     ) {
-      setShowExitDialog(true);
+      // Automatically save as draft and then navigate back
+      savePost(true, true); // Pass true as second param to indicate back navigation after save
     } else {
+      // If no data to save, just navigate back
       navigate('/employer/post-adhoc');
     }
-  };
-
-  const handleExitWithoutSaving = () => {
-    navigate('/employer/post-adhoc');
   };
 
   const handleSaveAsDraft = async () => {
     await savePost(true);
   };
 
-  const savePost = async (isDraftSave) => {
+  const savePost = async (isDraftSave, isBackNavigation = false) => {
     try {
       setLoading(true);
       setError('');
@@ -307,7 +286,7 @@ const EP_AddAdHocPage = () => {
           url = `${API_BASE_URL}/api/jobs/drafts/${draftID}`;
           method = 'PUT';
         } else {
-          url = `${API_BASE_URL}/api/jobs/adhoc/drafts`;
+          url = `${API_BASE_URL}/api/jobs/drafts`;  // Fixed URL - removing /adhoc
           method = 'POST';
         }
       } else {
@@ -354,6 +333,12 @@ const EP_AddAdHocPage = () => {
         }
       }
 
+      // If navigating back after saving a draft, skip the success message
+      if (isBackNavigation) {
+        navigate('/employer/post-adhoc');
+        return;
+      }
+
       // Show success message
       setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Ad-hoc job published successfully!');
       setShowSuccessMessage(true);
@@ -366,6 +351,11 @@ const EP_AddAdHocPage = () => {
     } catch (err) {
       console.error('Error saving post:', err);
       setError(err.message || 'An error occurred while saving the post');
+      
+      // If this was a back navigation, still navigate back even if save failed
+      if (isBackNavigation) {
+        navigate('/employer/post-adhoc');
+      }
     } finally {
       setLoading(false);
     }
@@ -392,35 +382,6 @@ const EP_AddAdHocPage = () => {
             <div className={styles.successIcon}>✓</div>
             <h3>{successMessage}</h3>
             <p>Redirecting to dashboard...</p>
-          </div>
-        </div>
-      )}
-      
-      {showExitDialog && (
-        <div className={styles.dialog}>
-          <div className={styles.dialogContent}>
-            <h3>Save changes?</h3>
-            <p>Do you want to save your changes as a draft before leaving?</p>
-            <div className={styles.dialogButtons}>
-              <button
-                onClick={handleExitWithoutSaving}
-                className={styles.exitButton}
-              >
-                Don't Save
-              </button>
-              <button
-                onClick={handleSaveAsDraft}
-                className={styles.saveButton}
-              >
-                Save as Draft
-              </button>
-              <button
-                onClick={() => setShowExitDialog(false)}
-                className={styles.cancelButton}
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -460,7 +421,7 @@ const EP_AddAdHocPage = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="location">Location*</label>
+          <label htmlFor="location">Address*</label>
           <input
             type="text"
             id="location"
@@ -469,31 +430,41 @@ const EP_AddAdHocPage = () => {
             onChange={handleChange}
             placeholder="e.g. Singapore"
             className={styles.inputBox}
+            autoComplete="off"
           />
-          {isLoading && <div>Loading...</div>}
-          {suggestions.length > 1 && (
-            <select
-              className={styles.suggestionsDropdown}
-              onChange={(e) => handleSuggestionSelect(e.target.value)}
-              size={suggestions.length > 5 ? 5 : suggestions.length} // Limit visible options
-            >
+          {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
+          {!isLoading && suggestions.length > 0 && (
+            <div className={styles.suggestionsContainer}>
               {suggestions.map((suggestion, index) => (
-                <option key={index} value={suggestion.ADDRESS}>
+                <div 
+                  key={index} 
+                  className={styles.suggestionItem}
+                  onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
+                >
                   {suggestion.ADDRESS}
-                </option>
+                </div>
               ))}
-            </select>
-          )}
-          {suggestions.length === 1 && (
-            <div
-              className={styles.singleSuggestion}
-              onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
-            >
-              {suggestions[0].ADDRESS}
             </div>
           )}
         </div>
-
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="area">Area</label>
+          <select
+            id="area"
+            name="area"
+            value={formData.area}
+            onChange={handleChange}
+          >
+            <option value="">Select an area</option>
+            {areaOptions.map((area, index) => (
+              <option key={index} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
+        </div>
+        
         <div className={styles.formGroup}>
           <label htmlFor="description">Job Description*</label>
           <textarea
@@ -532,46 +503,14 @@ const EP_AddAdHocPage = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="area">Area</label>
-          <select
-            id="area"
-            name="area"
-            value={formData.area}
-            onChange={handleChange}
-          >
-            <option value="">Select an area</option>
-            {areaOptions.map((area, index) => (
-              <option key={index} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="tags">Skills Required (Press Enter or comma to add)</label>
-          <div className={`${styles.skillsContainer} flex flex-wrap gap-2`}>
-            {formData.tags.map((skill, index) => (
-              <div key={index} className={styles.skillTag}>
-                <span>{skill}</span>
-                <button
-                  type="button"
-                  onClick={() => removeTag(index)}
-                  className={styles.removeSkill}
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-start gap-2 mt-2 relative items-center">
-            <div className={`${styles.tagInput} w-full relative`}>
+          <label htmlFor="tags">Skills Required</label>
+          <div className={styles.skillInputContainer}>
+            <div className={styles.skillInputWrapper}>
               <input
                 type="text"
                 value={currentTag}
                 onChange={handleTagInput}
-                className={`${styles.formGroup}`}
+                className={styles.formGroup}
                 placeholder="Add a skill"
                 onKeyDown={(e) => e.key === 'Enter' && addTag()}
               />
@@ -602,15 +541,13 @@ const EP_AddAdHocPage = () => {
                 </ul>
               )}
             </div>
-            <div className="gap-2 flex items-center">
-              <button
-                type="button"
-                onClick={addTag}
-                className={`${styles.button} ${styles.secondaryButton}`}
-              >
-                Add
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={addTag}
+              className={`${styles.button} ${styles.secondaryButton} ${styles.addButton}`}
+            >
+              Add
+            </button>
           </div>
         </div>
 

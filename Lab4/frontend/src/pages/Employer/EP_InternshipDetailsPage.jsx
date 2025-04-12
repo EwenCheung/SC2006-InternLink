@@ -296,12 +296,7 @@ const EP_InternshipDetailsPage = () => {
         >
           <FaArrowLeft /> Back to Internship Posts
         </button>
-        <button
-          onClick={handleEditInternship}
-          className={styles.editButton}
-        >
-          Edit Internship
-        </button>
+        
       </div>
 
       <div className={styles.jobDetailsSection}>
@@ -466,7 +461,7 @@ const EP_InternshipDetailsPage = () => {
                     className={styles.statusButton}
                     onClick={() => setShowStatusDialog(applicant.id)}
                   >
-                    Change Status
+                    Update Status
                   </button>
                 </div>
               </div>

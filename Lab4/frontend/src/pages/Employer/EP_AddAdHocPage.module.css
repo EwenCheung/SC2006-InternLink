@@ -296,17 +296,16 @@
   border-radius: 4px;
   font-size: 1rem;
   padding: 0.5rem;
-  background-color: white; /* Changed from #f3e5f5 to white */
+  background-color: #f3e5f5; /* Light purple background */
 }
 
 .suggestionsDropdown option {
   padding: 0.5rem;
   cursor: pointer;
-  background-color: white; /* Ensure options have white background */
 }
 
 .suggestionsDropdown option:hover {
-  background-color: #f3f4f6; /* Light gray hover instead of light purple */
+  background-color: #e1bee7; /* Light purple hover */
 }
 
 /* Custom input field and dropdown list styles */
@@ -361,35 +360,6 @@
 
 .suggestionItem:hover {
   background-color: #f3e5f5; /* Light purple background on hover */
-}
-
-.suggestionsContainer {
-  position: absolute;
-  z-index: 10;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: 4px;
-  background-color: white;
-  border: 1px solid #e1e1e1;
-  border-radius: 5px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.suggestionItem {
-  padding: 10px 12px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s;
-}
-
-.suggestionItem:last-child {
-  border-bottom: none;
-}
-
-.suggestionItem:hover {
-  background-color: #f3f4f6;
 }
 
 .dropdownList {
@@ -505,34 +475,4 @@
   0% { transform: scale(0.8); opacity: 0; }
   70% { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-/* Add a new class for the Add button to align it with the input */
-.addButton {
-  height: 46px; /* Match input height exactly */
-  margin-top: 0; /* Remove top margin */
-  width: auto !important; 
-  min-width: 80px;
-  padding: 0 16px !important;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0; /* Prevent button from shrinking */
-  align-self: flex-end; /* Align to bottom of flex container */
-  margin-bottom: 18px; /* Match the bottom margin of formGroup */
-}
-
-/* Add a container for the skills input and button */
-.skillInputContainer {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-  align-items: flex-start;
-}
-
-/* Adjust the skill input within the container */
-.skillInputWrapper {
-  flex-grow: 1;
-  position: relative;
 }

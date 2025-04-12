@@ -625,6 +625,26 @@
   background-color: #5a2ca0;
 }
 
+.successMessage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #4caf50;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+}
+
+.successIcon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 1rem;

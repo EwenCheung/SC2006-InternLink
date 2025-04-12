@@ -94,7 +94,7 @@ const JS_EmailSignupPage = () => {
   // Utility functions and handlers
   const validatePassword = (password) => {
     const reqs = {
-      length: password.length >= 6 && password.length <= 50,
+      length: password.length >= 8 && password.length <= 12,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
@@ -147,9 +147,20 @@ const JS_EmailSignupPage = () => {
 
     setFieldErrors(newErrors);
 
+    // Filter out password error from missing fields
     const missingFields = fieldsToValidate
-      .filter(field => newErrors[field.name])
+      .filter(field => newErrors[field.name] && field.name !== 'password')
       .map(field => field.label);
+
+    // Handle password error separately
+    if (newErrors.password) {
+      if (!requiredData.password) {
+        missingFields.push('Password');
+      } else {
+        setError('Password is invalid. Please ensure it meets all requirements.');
+        return false;
+      }
+    }
 
     if (missingFields.length > 0) {
       setError('Missing required fields:\n' + missingFields.map(field => `• ${field}`).join('\n'));
@@ -512,7 +523,7 @@ const JS_EmailSignupPage = () => {
                   <svg className={styles.checkIcon} viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span>6-50 characters</span>
+                  <span>8-12 characters</span>
                 </div>
                 <div className={`${styles.requirement} ${passwordReqs.uppercase ? styles.requirementMet : styles.requirementNotMet}`}>
                   <svg className={styles.checkIcon} viewBox="0 0 20 20" fill="currentColor">

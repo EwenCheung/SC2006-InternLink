@@ -104,12 +104,12 @@ const EP_PostAdHocPage = () => {
       setSuccessMessage(`${isDraft ? 'Draft' : 'Job Posting'} deleted successfully!`);
       setShowSuccessMessage(true);
 
-      // Set a timer to hide the message after 2 seconds
+      // Shortened timeout period (from 2000ms to 800ms)
       setTimeout(() => {
         setShowSuccessMessage(false);
         // Refresh the jobs list
         fetchJobs();
-      }, 2000);
+      }, 800);
     } catch (err) {
       setError(err.message || 'Error deleting job');
     }
@@ -136,12 +136,12 @@ const EP_PostAdHocPage = () => {
       setSuccessMessage('Draft published successfully!');
       setShowSuccessMessage(true);
 
-      // Set a timer to hide the message after 2 seconds
+      // Shortened timeout period (from 2000ms to 800ms)
       setTimeout(() => {
         setShowSuccessMessage(false);
         // Refresh the jobs list
         fetchJobs();
-      }, 2000);
+      }, 800);
     } catch (err) {
       setError(err.message || 'Error publishing draft');
     }
@@ -309,12 +309,7 @@ const EP_PostAdHocPage = () => {
                   >
                     View
                   </button>
-                  <button
-                    onClick={() => handleEditPost(job._id)}
-                    className={styles.editButton}
-                  >
-                    Edit
-                  </button>
+                  
                   <button
                     onClick={() => handleDelete(job._id)}
                     className={styles.deleteButton}
