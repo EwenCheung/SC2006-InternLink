@@ -14,7 +14,7 @@ const EP_AddAdHocPage = () => {
   const [employerID, setEmployerID] = useState(null);
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
-  const [currentTag, setCurrentTag] = useState('');
+  const [newSkill, setNewSkill] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,7 @@ const EP_AddAdHocPage = () => {
     payPerHour: '',
     tags: [],
     area: '',
+    applicationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
   });
 
   useEffect(() => {
@@ -110,7 +111,8 @@ const EP_AddAdHocPage = () => {
           payPerHour: draftData.payPerHour || '',
           tags: draftData.tags || [],
           area: draftData.area || '',
-          jobType: 'adhoc'
+          jobType: 'adhoc',
+          applicationDeadline: draftData.applicationDeadline ? new Date(draftData.applicationDeadline).toISOString().split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         });
       }
     };
@@ -179,17 +181,27 @@ const EP_AddAdHocPage = () => {
   };
 
   const handleTagInput = (e) => {
-    setCurrentTag(e.target.value);
+    setNewSkill(e.target.value);
   };
 
   const addTag = () => {
-    const trimmedTag = currentTag.trim();
+    const trimmedTag = newSkill.trim();
     if (trimmedTag && !formData.tags.includes(trimmedTag)) {
       setFormData(prev => ({
         ...prev,
         tags: [...prev.tags, trimmedTag]
       }));
-      setCurrentTag('');
+      setNewSkill('');
+    }
+  };
+
+  const handleSkillSelect = (skill) => {
+    if (!formData.tags.includes(skill)) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, skill]
+      }));
+      setNewSkill('');
     }
   };
 
@@ -209,6 +221,7 @@ const EP_AddAdHocPage = () => {
     if (!formData.description) missing.push('Job Description');
     if (!formData.jobScope) missing.push('Job Scope');
     if (!formData.payPerHour) missing.push('Pay Per Hour');
+    if (!formData.applicationDeadline) missing.push('Application Deadline');
 
     if (missing.length > 0) {
       setError(`Please fill in all required fields:\n${missing.join('\n')}`);
@@ -233,7 +246,9 @@ const EP_AddAdHocPage = () => {
       formData.description ||
       formData.jobScope ||
       formData.payPerHour ||
-      formData.tags.length > 0
+      formData.tags.length > 0 ||
+      formData.applicationDeadline ||
+      formData.area
     ) {
       // Automatically save as draft and then navigate back
       savePost(true, true); // Pass true as second param to indicate back navigation after save
@@ -270,30 +285,36 @@ const EP_AddAdHocPage = () => {
         status: isDraftSave ? 'draft' : 'posted'
       };
 
-      // Convert pay per hour to number
+      // Convert payPerHour to number if it exists
       if (postData.payPerHour) {
         postData.payPerHour = Number(postData.payPerHour);
       }
 
       const token = localStorage.getItem('token');
       
-      // Use the same draft routes as internship page
-      let url, method;
+      // Fix: Use different endpoint approach compared to internship page
+      // When publishing a draft, we should use the adhoc endpoint, not drafts
+      let endpoint, method, url;
       
       if (isDraftSave) {
-        // For draft saving/updating
-        if (isDraft && draftID) {
-          url = `${API_BASE_URL}/api/jobs/drafts/${draftID}`;
-          method = 'PUT';
-        } else {
-          url = `${API_BASE_URL}/api/jobs/drafts`;  // Fixed URL - removing /adhoc
-          method = 'POST';
-        }
+        // If saving as draft
+        endpoint = 'drafts';
+        method = isDraft ? 'PUT' : 'POST';
+        url = `${API_BASE_URL}/api/jobs/${endpoint}${isDraft ? `/${draftID}` : ''}`;
       } else {
-        // For publishing
-        url = `${API_BASE_URL}/api/jobs/adhoc`;
+        // If publishing (even from a draft)
+        endpoint = 'adhoc';
         method = 'POST';
+        url = `${API_BASE_URL}/api/jobs/${endpoint}`;
       }
+
+      console.log('Saving ad-hoc job:', { 
+        isDraftSave, 
+        method, 
+        url, 
+        postData,
+        status: postData.status 
+      });
 
       const response = await fetch(url, {
         method,
@@ -305,6 +326,7 @@ const EP_AddAdHocPage = () => {
       });
 
       const data = await response.json();
+      console.log('Response:', data);
 
       if (!response.ok) {
         throw new Error(data.message || (isDraftSave ? 
@@ -330,6 +352,7 @@ const EP_AddAdHocPage = () => {
           }
         } catch (deleteError) {
           console.error('Error deleting draft after publication:', deleteError);
+          // We still continue even if draft deletion fails
         }
       }
 
@@ -339,11 +362,11 @@ const EP_AddAdHocPage = () => {
         return;
       }
 
-      // Show success message
+      // Show success message using our custom message box
       setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Ad-hoc job published successfully!');
       setShowSuccessMessage(true);
       
-      // Delay navigation to ensure the user sees the success message
+      // Delay navigation slightly to ensure the user sees the success message
       setTimeout(() => {
         setShowSuccessMessage(false);
         navigate('/employer/post-adhoc');
@@ -502,24 +525,43 @@ const EP_AddAdHocPage = () => {
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="tags">Skills Required</label>
+        {/* Skills Input Section */}
+        <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+          <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
+            Skills <span className={styles.optional}>(optional)</span>
+          </label>
+          
+          <div className={styles.skillsContainer}>
+            {formData.tags.map((skill, index) => (
+              <div key={index} className={styles.skillTag}>
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className={styles.removeSkill}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+          </div>
+
           <div className={styles.skillInputContainer}>
             <div className={styles.skillInputWrapper}>
               <input
                 type="text"
-                value={currentTag}
+                value={newSkill}
                 onChange={handleTagInput}
                 className={styles.formGroup}
                 placeholder="Add a skill"
-                onKeyDown={(e) => e.key === 'Enter' && addTag()}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault() && addTag()}
               />
-              {currentTag.trim() !== '' && (
+              {newSkill.trim() !== '' && (
                 <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
                   {skillNames
                     .filter(
                       (skill) =>
-                        skill.toLowerCase().includes(currentTag.toLowerCase()) &&
+                        skill.toLowerCase().includes(newSkill.toLowerCase()) &&
                         !formData.tags.includes(skill)
                     )
                     .slice(0, 50)
@@ -527,13 +569,7 @@ const EP_AddAdHocPage = () => {
                       <li
                         key={index}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setFormData(prev => ({
-                            ...prev,
-                            tags: [...prev.tags, skill]
-                          }));
-                          setCurrentTag('');
-                        }}
+                        onClick={() => handleSkillSelect(skill)}
                       >
                         {skill}
                       </li>
@@ -549,6 +585,19 @@ const EP_AddAdHocPage = () => {
               Add
             </button>
           </div>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="applicationDeadline">Application Deadline*</label>
+          <input
+            type="date"
+            id="applicationDeadline"
+            name="applicationDeadline"
+            value={formData.applicationDeadline}
+            onChange={handleChange}
+            min={new Date().toISOString().split('T')[0]} // Can't select dates in the past
+            className={styles.inputBox}
+          />
         </div>
 
         <div className={styles.note}>

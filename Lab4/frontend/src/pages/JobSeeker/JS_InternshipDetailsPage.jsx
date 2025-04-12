@@ -13,12 +13,12 @@ const JS_InternshipDetailsPage = () => {
   const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isApplied, setIsApplied] = useState(false);
-  const [applicationId, setApplicationId] = useState(null);
   const [jobseekerId, setJobseekerId] = useState(null);
+  const [isApplied, setIsApplied] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showFeatureMessage, setShowFeatureMessage] = useState(false);
   const [featureMessage, setFeatureMessage] = useState('');
+  const [formattedDeadline, setFormattedDeadline] = useState('');
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -39,6 +39,16 @@ const JS_InternshipDetailsPage = () => {
         const { data } = await response.json();
         if (response.ok && data) {
           setJobDetails(data);
+          
+          // Format the application deadline
+          if (data.applicationDeadline) {
+            const deadlineDate = new Date(data.applicationDeadline);
+            setFormattedDeadline(deadlineDate.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }));
+          }
         } else {
           setError(data.message || 'Failed to fetch job details');
         }
@@ -101,10 +111,8 @@ const JS_InternshipDetailsPage = () => {
           
           if (data.hasApplied) {
             setIsApplied(true);
-            setApplicationId(data.applicationId);
           } else {
             setIsApplied(false);
-            setApplicationId(null);
           }
         }
       } catch (err) {
@@ -128,7 +136,7 @@ const JS_InternshipDetailsPage = () => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/jobs/delete-application/${applicationId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/jobs/delete-application/${jobId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -141,7 +149,6 @@ const JS_InternshipDetailsPage = () => {
       }
 
       setIsApplied(false);
-      setApplicationId(null);
       setShowConfirmation(false);
 
       alert('Application withdrawn successfully');
@@ -188,90 +195,102 @@ const JS_InternshipDetailsPage = () => {
   }
 
   return (
-    <div>
-      <div className={styles.container}>
-        <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-internship')}>
-          ← Back to Listings
-        </button>
-        <div className={styles.jobHeader}>
-          <div className={styles.companyInfo}>
-            <img src={jobDetails.companyLogo || '/images/Logo2.png'} alt="Company Logo" className={styles.companyLogo} />
-            <div className={styles.basicInfo}>
-              <h1 className={styles.jobTitle}>{jobDetails.title}</h1>
-              <h2 className={styles.companyName}>{jobDetails.company}</h2>
-              <div className={styles.quickInfo}>
-                <span className={styles.location}>📍 {jobDetails.location}</span>
-                <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
-                <span className={styles.year}>🎓 {jobDetails.yearOfStudy}</span>
-                <span className={styles.salary}>💰 {jobDetails.stipend}/month</span>
-              </div>
-            </div>
-          </div>
-          <div className={styles.deadlineInfo}>
-            <div className={styles.deadlineTimer}>
-              <span className={styles.deadlineLabel}>Application Deadline</span>
-              <span className={styles.deadlineDate}>{jobDetails.deadline}</span>
+    <div className={styles.container}>
+      <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-internship')}>
+        ← Back to Listings
+      </button>
+      <div className={styles.jobHeader}>
+        <div className={styles.companyInfo}>
+          <img src={jobDetails.companyLogo || '/images/Logo2.png'} alt="Company Logo" className={styles.companyLogo} />
+          <div className={styles.basicInfo}>
+            <h1 className={styles.jobTitle}>{jobDetails.title}</h1>
+            <h2 className={styles.companyName}>{jobDetails.company}</h2>
+            <div className={styles.quickInfo}>
+              <span className={styles.location}>📍 {jobDetails.location}</span>
+              <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
+              <span className={styles.year}>🎓 {jobDetails.yearOfStudy}</span>
+              <span className={styles.salary}>💰 {jobDetails.stipend}/month</span>
             </div>
           </div>
         </div>
-        <div className={styles.contentWrapper}>
-          <div className={styles.mainContent}>
-            <section className={styles.companySection}>
-              <h3>About the Company</h3>
-              <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
-              <div className={styles.companyDetails}>
+        <div className={styles.deadlineInfo}>
+          <div className={styles.deadlineTimer}>
+            <span className={styles.deadlineLabel}>Application Deadline</span>
+            <span className={styles.deadlineDate}>{formattedDeadline || 'Not specified'}</span>
+          </div>
+        </div>
+      </div>
+      <div className={styles.contentWrapper}>
+        <div className={styles.mainContent}>
+          <section className={styles.companySection}>
+            <h3>About the Company</h3>
+            <p className={styles.companyDescription}>{jobDetails.companyDescription || jobDetails.description}</p>
+            <div className={styles.companyDetails}>
+              <div className={styles.detailItem}>
+                <span className={styles.label}><h4>Location:</h4></span>
+                <span className={styles.value}>{jobDetails.location}</span>
+              </div>
+              {jobDetails.area && (
                 <div className={styles.detailItem}>
-                  <span className={styles.label}><h4>Location:</h4></span>
-                  <span className={styles.value}>{jobDetails.location}</span>
+                  <span className={styles.label}><h4>Area:</h4></span>
+                  <span className={styles.value}>{jobDetails.area}</span>
                 </div>
-              </div>
-            </section>
-            <section className={styles.jobDetailsSection}>
-              <h3>Job Description</h3>
-              <h4>{jobDetails.description}</h4>
-              <h3>Skills Required</h3>
-              <ul className={styles.skillsList}>
-                {jobDetails.tags?.map((skill, index) => (
-                  <li key={index} className={styles.skillTag}>{skill}</li>
-                ))}
-              </ul>
-            </section>
-          </div>
-          <aside className={styles.applicationSidebar}>
-            <div className={styles.applicationCard}>
-              <h3>Application</h3>
-              <div className={styles.applicationInfo}>
-                <p className={styles.deadline}>Application closes on {jobDetails.deadline}</p>
-                <p className={styles.applicants}>{jobDetails.applicants} People have applied</p>
-              </div>
-              <div className={styles.actionButtons}>
-                {isApplied ? (
-                  <button className={styles.withdrawButton} onClick={handleWithdrawApplication}>
-                    Withdraw Application
-                  </button>
-                ) : (
-                  <button className={styles.applyButton} onClick={() => navigate(`/jobseeker/internship-application/${jobId}`)}>
-                    Apply for Position
-                  </button>
-                )}
-                <button className={styles.messageButton} onClick={handleMessageEmployer}>Message Employer</button>
-                <button className={styles.shareButton} onClick={handleShareJob}>Share Job</button>
-              </div>
+              )}
             </div>
-            <div className={styles.minimapCard}>
-              <h3>Location On Map</h3>
-              <iframe
-                src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
-                height="300"
-                width="300"
-                scrolling="no"
-                frameBorder="0"
-                allowFullScreen="allowfullscreen"
-                title="Location Map"
-              ></iframe>
-            </div>
-          </aside>
+          </section>
+          <section className={styles.jobDetailsSection}>
+            <h3>Job Description</h3>
+            <p className={styles.description}>{jobDetails.description}</p>
+            
+            {jobDetails.jobScope && (
+              <>
+                <h3>Job Scope</h3>
+                <p className={styles.description}>{jobDetails.jobScope}</p>
+              </>
+            )}
+            
+            <h3>Skills Required</h3>
+            <ul className={styles.skillsList}>
+              {jobDetails.tags?.map((skill, index) => (
+                <li key={index} className={styles.skillTag}>{skill}</li>
+              ))}
+            </ul>
+          </section>
         </div>
+        <aside className={styles.applicationSidebar}>
+          <div className={styles.applicationCard}>
+            <h3>Application</h3>
+            <div className={styles.applicationInfo}>
+              <p className={styles.deadline}>Application closes on {formattedDeadline || 'Not specified'}</p>
+              {jobDetails.applicants && <p className={styles.applicants}>{jobDetails.applicants} People have applied</p>}
+            </div>
+            <div className={styles.actionButtons}>
+              {isApplied ? (
+                <button className={styles.withdrawButton} onClick={handleWithdrawApplication}>
+                  Withdraw Application
+                </button>
+              ) : (
+                <button className={styles.applyButton} onClick={() => navigate(`/jobseeker/internship-application/${jobId}`)}>
+                  Apply for Position
+                </button>
+              )}
+              <button className={styles.messageButton} onClick={handleMessageEmployer}>Message Employer</button>
+              <button className={styles.shareButton} onClick={handleShareJob}>Share Job</button>
+            </div>
+          </div>
+          <div className={styles.minimapCard}>
+            <h3>Location On Map</h3>
+            <iframe
+              src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
+              height="300"
+              width="300"
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen="allowfullscreen"
+              title="Location Map"
+            ></iframe>
+          </div>
+        </aside>
       </div>
 
       {showConfirmation && (
@@ -299,8 +318,8 @@ const JS_InternshipDetailsPage = () => {
 
       {showFeatureMessage && (
         <div className={styles.featureMessageOverlay}>
-          <div className={styles.featureMessageDialog}>
-            <p>{featureMessage}</p>
+          <div className={styles.featureMessage}>
+            {featureMessage}
           </div>
         </div>
       )}

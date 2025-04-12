@@ -88,6 +88,16 @@ const adHocJobSchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'posted'],
     default: 'posted'
+  },
+  applicationDeadline: {
+    type: Date,
+    required: function() { return this.status !== 'draft'; },
+    validate: {
+      validator: function(value) {
+        return this.status === 'draft' || value > new Date();
+      },
+      message: 'Application deadline must be a future date'
+    }
   }
 });
 
@@ -173,6 +183,16 @@ const internshipJobSchema = new mongoose.Schema({
     type: String,
     enum: ['draft', 'posted'],
     default: 'draft' // Changed default to draft
+  },
+  applicationDeadline: {
+    type: Date,
+    required: function() { return this.status !== 'draft'; },
+    validate: {
+      validator: function(value) {
+        return this.status === 'draft' || value > new Date();
+      },
+      message: 'Application deadline must be a future date'
+    }
   }
 });
 
@@ -180,7 +200,7 @@ const internshipJobSchema = new mongoose.Schema({
 const validatePostedJob = function(next) {
   if (this.status === 'posted') {
     const requiredFields = [
-      'title', 'description', 'company', 'location'
+      'title', 'description', 'company', 'location', 'applicationDeadline'
     ];
 
     if (this.jobType === 'internship') {
@@ -211,6 +231,12 @@ const validatePostedJob = function(next) {
         return;
       }
     }
+
+    // Validate application deadline
+    if (this.applicationDeadline && this.applicationDeadline <= new Date()) {
+      next(new Error('Application deadline must be a future date'));
+      return;
+    }
   }
   next();
 };
@@ -224,6 +250,9 @@ export const INTERNSHIP_OPTIONS = {
   YEARS: VALID_YEARS,
   COURSES: VALID_COURSES
 };
+
+// Add default deadline values (30 days from current date)
+export const DEFAULT_DEADLINE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
 // Get job_list database connection
 const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });

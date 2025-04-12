@@ -49,11 +49,21 @@ const JS_FindAdHocPage = () => {
     const fetchInitialJobs = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc`);
+        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/all`);
         const data = await response.json();
-        if (data.success && Array.isArray(data.data)) {
-          setJobs(data.data);
+        
+        if (response.ok) {
+          console.log('Fetched ad-hoc jobs:', data);
+          if (data.success && Array.isArray(data.data)) {
+            // Filter out any jobs with status that isn't 'posted'
+            const activeJobs = data.data.filter(job => job.status === 'posted');
+            setJobs(activeJobs);
+          } else {
+            console.error('Unexpected data format:', data);
+            setJobs([]);
+          }
         } else {
+          console.error('Error response from server:', data);
           setJobs([]);
         }
       } catch (error) {

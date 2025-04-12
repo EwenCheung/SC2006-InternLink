@@ -68,6 +68,7 @@ const EP_AddInternshipPage = () => {
     yearOfStudy: 'Select Year',
     tags: [],
     area: '',
+    applicationDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Default to 30 days from now
   });
 
   useEffect(() => {
@@ -108,7 +109,8 @@ const EP_AddInternshipPage = () => {
           yearOfStudy: draftData.yearOfStudy || 'Select Year',
           tags: draftData.tags || [],
           area: draftData.area || '',
-          jobScope: draftData.jobScope || ''
+          jobScope: draftData.jobScope || '',
+          applicationDeadline: draftData.applicationDeadline ? new Date(draftData.applicationDeadline).toISOString().split('T')[0] : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         });
       }
     };
@@ -222,6 +224,16 @@ const EP_AddInternshipPage = () => {
     }
   };
 
+  const handleSkillSelect = (skill) => {
+    if (!formData.tags.includes(skill)) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, skill]
+      }));
+      setCurrentTag('');
+    }
+  };
+
   const removeTag = (indexToRemove) => {
     setFormData(prev => ({
       ...prev,
@@ -241,6 +253,7 @@ const EP_AddInternshipPage = () => {
     if (formData.courseStudy === 'Select Course') missing.push('Course of Study');
     if (formData.yearOfStudy === 'Select Year') missing.push('Year of Study');
     if (!formData.area) missing.push('Area');
+    if (!formData.applicationDeadline) missing.push('Application Deadline');
 
     if (missing.length > 0) {
       setError(`Please fill in all required fields:\n${missing.join('\n')}`);
@@ -582,6 +595,20 @@ const EP_AddInternshipPage = () => {
           </select>
         </div>
 
+        <div className={styles.formGroup}>
+          <label htmlFor="applicationDeadline">Application Deadline*</label>
+          <input
+            type="date"
+            id="applicationDeadline"
+            name="applicationDeadline"
+            value={formData.applicationDeadline}
+            onChange={handleChange}
+            min={new Date().toISOString().split('T')[0]} // Can't select dates in the past
+            className={styles.inputBox}
+          />
+        </div>
+
+        {/* Skills Input Section */}
         <div className={`${styles.formGroup} ${styles.fullWidth}`}>
           <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
             Skills <span className={styles.optional}>(optional)</span>
@@ -610,7 +637,7 @@ const EP_AddInternshipPage = () => {
                 onChange={handleTagInput}
                 className={styles.formGroup}
                 placeholder="Add a skill"
-                onKeyDown={(e) => e.key === 'Enter' && addTag()}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault() && addTag()}
               />
               {currentTag.trim() !== '' && (
                 <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
@@ -625,13 +652,7 @@ const EP_AddInternshipPage = () => {
                       <li
                         key={index}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setFormData(prev => ({
-                            ...prev,
-                            tags: [...prev.tags, skill]
-                          }));
-                          setCurrentTag('');
-                        }}
+                        onClick={() => handleSkillSelect(skill)}
                       >
                         {skill}
                       </li>
