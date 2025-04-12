@@ -17,6 +17,8 @@ const JS_InternshipDetailsPage = () => {
   const [applicationId, setApplicationId] = useState(null);
   const [jobseekerId, setJobseekerId] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showFeatureMessage, setShowFeatureMessage] = useState(false);
+  const [featureMessage, setFeatureMessage] = useState('');
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -88,7 +90,6 @@ const JS_InternshipDetailsPage = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        // More efficient API endpoint that checks for a specific job application
         const response = await fetch(`${API_BASE_URL}/api/jobs/check-application-status/${jobseekerId}/${jobId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -152,6 +153,26 @@ const JS_InternshipDetailsPage = () => {
 
   const cancelWithdrawal = () => {
     setShowConfirmation(false);
+  };
+
+  const handleMessageEmployer = () => {
+    setFeatureMessage('The messaging feature is currently under development and will be available soon!');
+    setShowFeatureMessage(true);
+    
+    // Auto-hide message after 1.5 seconds (reduced from 3 seconds)
+    setTimeout(() => {
+      setShowFeatureMessage(false);
+    }, 1500);
+  };
+
+  const handleShareJob = () => {
+    setFeatureMessage('The job sharing feature is currently under development and will be available soon!');
+    setShowFeatureMessage(true);
+    
+    // Auto-hide message after 1.5 seconds (reduced from 3 seconds)
+    setTimeout(() => {
+      setShowFeatureMessage(false);
+    }, 1500);
   };
 
   if (loading) {
@@ -233,8 +254,8 @@ const JS_InternshipDetailsPage = () => {
                     Apply for Position
                   </button>
                 )}
-                <button className={styles.messageButton}>Message Employer</button>
-                <button className={styles.shareButton}>Share Job</button>
+                <button className={styles.messageButton} onClick={handleMessageEmployer}>Message Employer</button>
+                <button className={styles.shareButton} onClick={handleShareJob}>Share Job</button>
               </div>
             </div>
             <div className={styles.minimapCard}>
@@ -272,6 +293,14 @@ const JS_InternshipDetailsPage = () => {
                 Withdraw
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showFeatureMessage && (
+        <div className={styles.featureMessageOverlay}>
+          <div className={styles.featureMessageDialog}>
+            <p>{featureMessage}</p>
           </div>
         </div>
       )}

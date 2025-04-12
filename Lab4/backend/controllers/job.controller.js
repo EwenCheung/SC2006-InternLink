@@ -337,10 +337,21 @@ export const getEmployerInternshipJobs = async (req, res) => {
 
 export const getInternshipJobById = async (req, res) => {
   try {
+    // Check if this is a job seeker viewing the job
+    const isJobSeeker = req.user && req.user.role === 'jobseeker';
+    
+    // Find the job by ID
     const job = await InternshipJob.findById(req.params.id);
     if (!job) {
       return res.status(404).json({ success: false, error: 'Job not found' });
     }
+    
+    // Increment view count if it's a job seeker viewing the job
+    if (isJobSeeker) {
+      job.views += 1;
+      await job.save();
+    }
+    
     res.status(200).json({ success: true, data: job });
   } catch (error) {
     console.error('Error getting internship by ID:', error);
@@ -438,10 +449,21 @@ export const getEmployerAdHocJobs = async (req, res) => {
 
 export const getAdHocJobById = async (req, res) => {
   try {
+    // Check if this is a job seeker viewing the job
+    const isJobSeeker = req.user && req.user.role === 'jobseeker';
+    
+    // Find the job by ID
     const job = await AdHocJob.findById(req.params.id);
     if (!job) {
       return res.status(404).json({ success: false, error: 'Job not found' });
     }
+    
+    // Increment view count if it's a job seeker viewing the job
+    if (isJobSeeker) {
+      job.views += 1;
+      await job.save();
+    }
+    
     res.status(200).json({ success: true, data: job });
   } catch (error) {
     console.error('Error getting ad hoc job by ID:', error);

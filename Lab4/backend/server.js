@@ -114,6 +114,7 @@ const startServer = async () => {
     app.use('/api/auth', authUserRoutes);
     app.use('/api/jobs', jobRoutes);
     app.use('/api/applications', applicationRoutes);
+    app.use('/api/messages', messageRoutes);
     
     // Error handler middleware
     app.use(errorHandlerMiddleware);
@@ -130,8 +131,6 @@ const startServer = async () => {
     
     console.log('Server initialization complete');
     
-    app.use('/api/messages', messageRoutes);
-
     // OneMap token endpoint
     app.get('/use-token', (req, res) => {
       if (!accessToken) {
@@ -139,20 +138,12 @@ const startServer = async () => {
       }
       res.json({ message: 'Access token is available', token: accessToken, token2: accessToken2 });
     });
-    
-    // Error handling middleware
-    app.use(notFound);
-    app.use(errorHandler);
 
-    const port = await findPort(process.env.PORT);
-    app.listen(port, () => console.log(`Backend running on port ${port}`));
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);
   }
 };
-
-startServer();
 
 export default app;
 // Fetch EMSI token

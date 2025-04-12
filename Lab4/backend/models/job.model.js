@@ -76,6 +76,10 @@ const adHocJobSchema = new mongoose.Schema({
     ref: 'Employer',
     required: true,
   },
+  views: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -151,6 +155,10 @@ const internshipJobSchema = new mongoose.Schema({
       values: VALID_YEARS,
       message: 'Invalid year of study selected'
     }
+  },
+  views: {
+    type: Number,
+    default: 0
   },
   employerID: {
     type: mongoose.Schema.Types.ObjectId,

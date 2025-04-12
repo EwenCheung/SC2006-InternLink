@@ -47,11 +47,13 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
 }
 
 .addButton:hover {
   background-color: #5a2ca0;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(111, 66, 193, 0.3);
 }
 
 .error {
@@ -79,6 +81,12 @@
   height: 40px;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.loadingContainer:hover .spinner {
+  transform: scale(1.1);
+  border-left-color: #9c7bc9;
 }
 
 @keyframes spin {
@@ -104,6 +112,34 @@
   flex-direction: column;
   gap: 1rem;
   border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.jobCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(111, 66, 193, 0.25);
+  border-color: #9c7bc9;
+}
+
+/* Add subtle pulse animation for the badge on hover */
+.jobCard:hover .draftBadge,
+.jobCard:hover .publishedBadge {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(156, 123, 201, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(156, 123, 201, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(156, 123, 201, 0);
+  }
 }
 
 .draftCard {
@@ -111,28 +147,24 @@
   border: 1px dashed #9c7bc9;
 }
 
-.draftBadge {
+.draftBadge, .publishedBadge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: #9c7bc9;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
-  z-index: 1; /* Ensure the badge appears above other content */
+  z-index: 1;
+  transition: all 0.3s ease;
+}
+
+.draftBadge {
+  background-color: #9c7bc9;
 }
 
 .publishedBadge {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   background-color: #6f42c1;
-  color: white;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  z-index: 1; /* Ensure the badge appears above other content */
 }
 
 .jobDetails {
@@ -173,6 +205,13 @@
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
   font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.tag:hover {
+  background-color: #e2d5f7;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 6px -1px rgba(111, 66, 193, 0.2);
 }
 
 .cardActions {
@@ -188,7 +227,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .viewButton {
@@ -198,6 +237,8 @@
 
 .viewButton:hover {
   background-color: #5a2ca0;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px -3px rgba(111, 66, 193, 0.3);
 }
 
 .editButton {
@@ -207,6 +248,8 @@
 
 .editButton:hover {
   background-color: #5a6268;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px -3px rgba(108, 117, 125, 0.3);
 }
 
 .deleteButton {
@@ -216,6 +259,8 @@
 
 .deleteButton:hover {
   background-color: #c82333;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px -3px rgba(220, 53, 69, 0.3);
 }
 
 .noJobs {
@@ -277,7 +322,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
 }
 
 .cancelButton {
@@ -287,8 +332,15 @@
 }
 
 .cancelButton:hover {
-  background-color: #ffffff; /* Light purple background on hover */
-  transform: translateY(-2px);
+  background-color: #f3ebff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px -3px rgba(111, 66, 193, 0.2);
+}
+
+.confirmDeleteButton:hover {
+  background-color: #c82333;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px -3px rgba(220, 53, 69, 0.3);
 }
 
 .dialogButtons button:hover {

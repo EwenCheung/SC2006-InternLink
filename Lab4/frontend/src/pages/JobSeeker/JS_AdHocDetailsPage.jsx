@@ -13,6 +13,26 @@ const JS_AdHocDetailsPage = () => {
   const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showFeatureMessage, setShowFeatureMessage] = useState(false);
+  const [featureMessage, setFeatureMessage] = useState('');
+
+  const handleMessageEmployer = () => {
+    setFeatureMessage('The messaging feature is currently under development and will be available soon!');
+    setShowFeatureMessage(true);
+
+    setTimeout(() => {
+      setShowFeatureMessage(false);
+    }, 1500);
+  };
+
+  const handleShareJob = () => {
+    setFeatureMessage('The job sharing feature is currently under development and will be available soon!');
+    setShowFeatureMessage(true);
+
+    setTimeout(() => {
+      setShowFeatureMessage(false);
+    }, 1500);
+  };
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -34,20 +54,20 @@ const JS_AdHocDetailsPage = () => {
     const fetchCoordinates = async (address) => {
       try {
         const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${address}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
-        const tokenResponse = await fetch('http://localhost:5001/use-token'); // Fetch token from backend
+        const tokenResponse = await fetch('http://localhost:5001/use-token');
         const tokenData = await tokenResponse.json();
-        const authToken = tokenData.token; // Use the token from the response
+        const authToken = tokenData.token;
 
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'Authorization': `${authToken}`,  // API token for authorization
+            'Authorization': `${authToken}`,
           }
         });
         const data = await response.json();
         if (data.results?.length > 0) {
           const { LATITUDE: fetchedLatitude, LONGITUDE: fetchedLongitude } = data.results[0];
-          if (!latitude && !longitude) { // Only set if not already set
+          if (!latitude && !longitude) {
             setLatitude(fetchedLatitude);
             setLongitude(fetchedLongitude);
           }
@@ -78,92 +98,106 @@ const JS_AdHocDetailsPage = () => {
 
   return (
     <div>
-    <div className={styles.container}>
-      <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-adhoc')}>
-        ← Back to Listings
-      </button>
-      <div className={styles.jobHeader}>
-        <div className={styles.companyInfo}>
-          <img src={jobDetails.companyLogo || '/images/Logo2.png'} alt="Company Logo" className={styles.companyLogo} />
-          <div className={styles.basicInfo}>
-            <h1 className={styles.jobTitle}>{jobDetails.title}</h1>
-            <h2 className={styles.companyName}>{jobDetails.company}</h2>
-            <div className={styles.quickInfo}>
-              <span className={styles.location}>📍 {jobDetails.location}</span>
-              <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
-              <span className={styles.year}>🎓 {jobDetails.yearOfStudy}</span>
-              <span className={styles.salary}>💰 {jobDetails.stipend}/month</span>
-          </div>
-          </div>
-        </div>
-        <div className={styles.deadlineInfo}>
-          <div className={styles.deadlineTimer}>
-            <span className={styles.deadlineLabel}>Application Deadline</span>
-            <span className={styles.deadlineDate}>{jobDetails.deadline}</span>
-          </div>
-        </div>
-      </div>
-      <div className={styles.contentWrapper}>
-        <div className={styles.mainContent}>
-          <section className={styles.companySection}>
-            <h3>About the Company</h3>
-            <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
-            <div className={styles.companyDetails}>
-            
-              <div className={styles.detailItem}>
-                <span className={styles.label}><h4>Location:</h4></span>
-                <span className={styles.value}>{jobDetails.location}</span>
+      <div className={styles.container}>
+        <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-adhoc')}>
+          ← Back to Listings
+        </button>
+        <div className={styles.jobHeader}>
+          <div className={styles.companyInfo}>
+            <img src={jobDetails.companyLogo || '/images/Logo2.png'} alt="Company Logo" className={styles.companyLogo} />
+            <div className={styles.basicInfo}>
+              <h1 className={styles.jobTitle}>{jobDetails.title}</h1>
+              <h2 className={styles.companyName}>{jobDetails.company}</h2>
+              <div className={styles.quickInfo}>
+                <span className={styles.location}>📍 {jobDetails.location}</span>
+                <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
+                <span className={styles.year}>🎓 {jobDetails.yearOfStudy}</span>
+                <span className={styles.salary}>💰 {jobDetails.stipend}/month</span>
               </div>
             </div>
-          </section>
-          <section className={styles.jobDetailsSection}>
-            <h3>Job Description</h3>
-            <p className={styles.description}>{jobDetails.description}</p>
-            
-            
-            <h3>Skills Required</h3>
+          </div>
+          <div className={styles.deadlineInfo}>
+            <div className={styles.deadlineTimer}>
+              <span className={styles.deadlineLabel}>Application Deadline</span>
+              <span className={styles.deadlineDate}>{jobDetails.deadline}</span>
+            </div>
+          </div>
+        </div>
+        <div className={styles.contentWrapper}>
+          <div className={styles.mainContent}>
+            <section className={styles.companySection}>
+              <h3>About the Company</h3>
+              <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
+              <div className={styles.companyDetails}>
+                <div className={styles.detailItem}>
+                  <span className={styles.label}><h4>Location:</h4></span>
+                  <span className={styles.value}>{jobDetails.location}</span>
+                </div>
+              </div>
+            </section>
+            <section className={styles.jobDetailsSection}>
+              <h3>Job Description</h3>
+              <p className={styles.description}>{jobDetails.description}</p>
+              <h3>Skills Required</h3>
               <ul className={styles.skillsList}>
                 {jobDetails.tags?.map((skill, index) => (
-                <li key={index} className={styles.skillTag}>{skill}</li>
+                  <li key={index} className={styles.skillTag}>{skill}</li>
                 ))}
-              </ul>      
-          </section>
+              </ul>
+            </section>
+          </div>
+          <aside className={styles.applicationSidebar}>
+            <div className={styles.applicationCard}>
+              <h3>Apply Now</h3>
+              <div className={styles.applicationInfo}>
+                <p className={styles.deadline}>Application closes on {jobDetails.deadline}</p>
+                <p className={styles.applicants}>{jobDetails.applicants} people have applied</p>
+              </div>
+              <div className={styles.actionButtons}>
+                <button 
+                  className={styles.applyButton}
+                  onClick={() => navigate(`/jobseeker/adhoc-application/${jobId}`)}
+                >
+                  Apply for Position
+                </button>
+                <button 
+                  className={styles.messageButton} 
+                  onClick={handleMessageEmployer}
+                >
+                  Message Employer
+                </button>
+                <button 
+                  className={styles.shareButton}
+                  onClick={handleShareJob}
+                >
+                  Share Job
+                </button>
+              </div>
+            </div>
+            <div className={styles.minimapCard}>
+              <h3>Location On Map</h3>
+              <iframe
+                src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
+                height="300"
+                width="300"
+                scrolling="no"
+                frameBorder="0"
+                allowFullScreen="allowfullscreen"
+                title="Location Map"
+              ></iframe>
+            </div>
+          </aside>
         </div>
-        <aside className={styles.applicationSidebar}>
-          <div className={styles.applicationCard}>
-            <h3>Apply Now</h3>
-            <div className={styles.applicationInfo}>
-              <p className={styles.deadline}>Application closes on {jobDetails.deadline}</p>
-              <p className={styles.applicants}>{jobDetails.applicants} people have applied</p>
-            </div>
-            <div className={styles.actionButtons}>
-              <button 
-                className={styles.applyButton}
-                onClick={() => navigate(`/jobseeker/adhoc-application/${jobId}`)}
-              >
-                Apply for Position
-              </button>
-              <button className={styles.messageButton}>Message Employer</button>
-              <button className={styles.shareButton}>Share Job</button>
-            </div>
-          </div>
-          <div className={styles.minimapCard}>
-            <h3>Location On Map</h3>
-            <iframe
-              src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRVBsZWFzZSUyMGVudGVyJTIweW91ciUyMHRleHQlMjBpbiUyMHRoZSUyMGluJTIwdGhlJTIwUG9wdXAlMjBDcmVhdG9yLiUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NpbWclMjBzcmMlM0QlMjIlMkZ3ZWItYXNzZXRzJTJGaW1hZ2VzJTJGbG9nbyUyRm9tX2xvZ29fMjU2LnBuZyUyMiUyMCUyRiUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0UlM0NhJTIwaHJlZiUzRCUyMiUyRiUyMiUzRU9uZU1hcCUzQyUyRmElM0UlM0MlMkZwJTNF&popupWidth=200`}
-              height="300"
-              width="300"
-              scrolling="no"
-              frameBorder="0"
-              allowFullScreen="allowfullscreen"
-              title="Location Map"
-            ></iframe>
-          </div>
-        </aside>
-        
       </div>
+
+      {showFeatureMessage && (
+        <div className={styles.featureMessageOverlay}>
+          <div className={styles.featureMessageDialog}>
+            <p>{featureMessage}</p>
+          </div>
+        </div>
+      )}
     </div>
-  </div>
   );
 };
 

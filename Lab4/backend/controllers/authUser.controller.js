@@ -194,6 +194,81 @@ export const getProfile = async (req, res) => {
   }
 };
 
+// Get Job Seeker Profile by ID
+export const getJobSeekerProfile = async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    let user = await JobSeeker.findById(id);
+    
+    // If user not found, return 404
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+    
+    // Get profile image and resume info if they exist
+    if (user.profileImage?.fileId) {
+      const fileInfo = await getFileInfo(user.profileImage.fileId, 'profileImages');
+      if (fileInfo) {
+        user.profileImage = {
+          ...user.profileImage,
+          contentType: fileInfo.metadata?.contentType || 'image/jpeg',
+          originalName: fileInfo.metadata?.originalName || fileInfo.filename,
+          filename: fileInfo.filename,
+          size: fileInfo.length || 0
+        };
+      }
+    }
+    
+    if (user.resume?.fileId) {
+      const resumeInfo = await getFileInfo(user.resume.fileId, 'resumes');
+      if (resumeInfo) {
+        user.resume = {
+          ...user.resume,
+          contentType: resumeInfo.metadata?.contentType || 'application/pdf',
+          originalName: resumeInfo.metadata?.originalName || resumeInfo.filename,
+          filename: resumeInfo.filename,
+          size: resumeInfo.length || 0
+        };
+      }
+    }
+
+    // Transform resume information
+    const userObj = user.toObject();
+    const { password, ...userProfile } = userObj;
+
+    // Add URLs for profile image and resume
+    if (userProfile.profileImage?.fileId) {
+      userProfile.profileImage.url = `/api/auth/files/profileImage/${userProfile.profileImage.fileId}`;
+    }
+
+    if (userProfile.resume?.fileId) {
+      const resumeInfo = await getFileInfo(userProfile.resume.fileId, 'resumes');
+      if (resumeInfo) {
+        userProfile.resume = {
+          ...userProfile.resume,
+          url: `/api/auth/files/resume/${userProfile.resume.fileId}`,
+          contentType: resumeInfo.metadata?.contentType || 'application/pdf',
+          originalName: resumeInfo.metadata?.originalName || resumeInfo.filename,
+          filename: resumeInfo.filename,
+          size: resumeInfo.length || 0
+        };
+      }
+    }
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: userProfile
+    });
+  } catch (error) {
+    throw new BadRequestError(error.message);
+  }
+};
+
+
 // Update User
 export const updateUser = async (req, res) => {
   try {

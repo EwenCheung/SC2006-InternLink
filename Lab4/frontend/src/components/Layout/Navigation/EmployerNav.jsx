@@ -1,55 +1,144 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const EmployerNav = () => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
+  // Navigation item configuration
+  const navItems = [
+    { label: 'Post Internship', path: '/employer/post-internship', icon: 'M12 4v16m8-8H4' },
+    { label: 'Post Ad-Hoc', path: '/employer/post-adhoc', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
+    { label: 'Messages', path: '/employer/messages', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+    { label: 'Profile', path: '/employer/profile', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+  ];
+
+  // Check if the path matches the current location
+  const isActive = (path) => {
+    return currentPath.startsWith(path);
+  };
+
   return (
-    <div className="flex items-center space-x-4">
-      <Link 
-        to="/employer/post-internship"
-        className="text-gray-600 hover:text-purple-600"
-      >
-        Post Internship
-      </Link>
-      <Link 
-        to="/employer/post-adhoc"
-        className="text-gray-600 hover:text-purple-600"
-      >
-        Post Ad-Hoc
-      </Link>
-      <Link 
-        to="/employer/messages"
-        className="text-gray-600 hover:text-purple-600"
-      >
-        Messages
-      </Link>
-      <Link 
-        to="/employer/profile"
-        className="text-gray-600 hover:text-purple-600"
-      >
-        Profile
-      </Link>
-      <div 
-        className="relative group"
-      >
-        <button className="text-gray-600 hover:text-purple-600">
-          Settings
-        </button>
-        <div 
-          className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded shadow-lg hidden group-hover:block transition-all duration-300 group-hover:duration-200 group-hover:delay-0 delay-700 pt-2 pb-1 before:content-[''] before:absolute before:top-[-16px] before:left-0 before:right-0 before:h-4"
-        >
+    <div className="flex items-center">
+      {/* Desktop Navigation */}
+      <div className="hidden md:flex items-center space-x-1">
+        {navItems.map((item) => (
           <Link 
-            to="/employer/ep-privacy-settings"
-            className="block px-4 py-2 text-gray-600 hover:bg-gray-100"
+            key={item.path}
+            to={item.path}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative whitespace-nowrap
+              ${isActive(item.path) 
+                ? 'bg-purple-100 text-purple-700 shadow-sm' 
+                : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'}`}
           >
-            Change Password
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+            </svg>
+            <span>{item.label}</span>
+            {isActive(item.path) && (
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 transform translate-y-1"></div>
+            )}
           </Link>
-          <Link 
-            to="/logout"
-            className="block px-4 py-2 text-red-500 hover:bg-gray-100"
+        ))}
+
+        {/* Settings Dropdown - Fixed hover behavior */}
+        <div className="relative group">
+          <button 
+            className="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200 flex items-center space-x-1 whitespace-nowrap"
           >
-            Logout
-          </Link>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor" 
+              strokeWidth={2}
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" 
+              />
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" 
+              />
+            </svg>
+            <span>Settings</span>
+          </button>
+          
+          {/* Invisible connector that ensures continuous hover area */}
+          <div className="absolute top-full left-0 h-2 w-full group-hover:block hidden"></div>
+          
+          <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-100 rounded-md shadow-lg hidden group-hover:block transition-opacity duration-150 z-50">
+            <div className="py-1">
+              <Link 
+                to="/employer/ep-privacy-settings"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  strokeWidth={2}
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                  />
+                </svg>
+                Change Password
+              </Link>
+              <Link 
+                to="/logout"
+                className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor" 
+                  strokeWidth={2}
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" 
+                  />
+                </svg>
+                Logout
+              </Link>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Mobile Navigation Menu Button */}
+      <div className="md:hidden flex items-center">
+        <button className="mobile-menu-button p-2 rounded-md text-gray-600 hover:text-purple-600 hover:bg-purple-50 focus:outline-none">
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            className="h-6 w-6" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor" 
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </div>
   );
