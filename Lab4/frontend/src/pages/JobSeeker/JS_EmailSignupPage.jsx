@@ -2,8 +2,224 @@ import { useState, useEffect } from 'react';
 import { fetchUniversities } from '../../../../backend/controllers/universitiesdata.controller.js';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
-import { FaGoogle, FaGithub, FaArrowLeft, FaTimes } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaArrowLeft, FaTimes, FaPlus } from 'react-icons/fa';
 import {fetchSkillsData} from '../../../../backend/controllers/skillsdata.controller.js';
+
+// Get course fields and course list from VALID_COURSES in job.model.js plus additional options
+const FIELDS_AND_COURSES = {
+  "Computer Science & IT": [
+    "Computer Science",
+    "Information Technology",
+    "Software Engineering",
+    "Information Systems",
+    "Cybersecurity",
+    "Artificial Intelligence",
+    "Data Science",
+    "Computer Graphics",
+    "Computer Networking",
+    "Human-Computer Interaction",
+    "Machine Learning",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Robotics",
+    "Quantum Computing",
+    "Cloud Computing",
+    "Internet of Things (IoT)",
+    "Blockchain Technology",
+    "Augmented Reality",
+    "Virtual Reality"
+  ],
+  "Business & Analytics": [
+    "Business Administration",
+    "Business Analytics",
+    "Marketing Analytics",
+    "Financial Analytics",
+    "Business Intelligence",
+    "Operations Management",
+    "Management Information Systems",
+    "Supply Chain Analytics",
+    "Accounting",
+    "Finance",
+    "Marketing",
+    "Human Resource Management",
+    "International Business",
+    "Entrepreneurship",
+    "Economics",
+    "E-commerce",
+    "Organizational Behavior",
+    "Strategic Management",
+    "Project Management"
+  ],
+  "Engineering": [
+    "Computer Engineering",
+    "Electrical Engineering",
+    "Mechanical Engineering",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Biomedical Engineering",
+    "Environmental Engineering",
+    "Aerospace Engineering",
+    "Materials Engineering",
+    "Industrial Engineering",
+    "Nuclear Engineering",
+    "Petroleum Engineering",
+    "Automotive Engineering",
+    "Marine Engineering",
+    "Mechatronics Engineering",
+    "Structural Engineering",
+    "Telecommunications Engineering",
+    "Systems Engineering",
+    "Geotechnical Engineering"
+  ],
+  "Natural Sciences": [
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Mathematics",
+    "Statistics",
+    "Environmental Science",
+    "Biotechnology",
+    "Neuroscience",
+    "Geology",
+    "Astronomy",
+    "Oceanography",
+    "Meteorology",
+    "Ecology",
+    "Zoology",
+    "Botany",
+    "Genetics",
+    "Microbiology",
+    "Paleontology",
+    "Astrophysics"
+  ],
+  "Social Sciences & Humanities": [
+    "Psychology",
+    "Economics",
+    "Sociology",
+    "Political Science",
+    "Communication Studies",
+    "Linguistics",
+    "History",
+    "Philosophy",
+    "International Relations",
+    "Anthropology",
+    "Archaeology",
+    "Religious Studies",
+    "Cultural Studies",
+    "Gender Studies",
+    "Human Geography",
+    "Education",
+    "Law",
+    "Social Work",
+    "Criminology"
+  ],
+  "Design & Media": [
+    "Digital Media",
+    "Graphic Design",
+    "User Experience Design",
+    "Animation",
+    "Game Design",
+    "Music Technology",
+    "Film Studies",
+    "Fashion Design",
+    "Interior Design",
+    "Industrial Design",
+    "Photography",
+    "Visual Arts",
+    "Performing Arts",
+    "Theatre Studies",
+    "Sound Design",
+    "Media Production",
+    "Advertising",
+    "Public Relations",
+    "Journalism"
+  ],
+  "Health & Medical Sciences": [
+    "Medicine",
+    "Nursing",
+    "Pharmacy",
+    "Dentistry",
+    "Public Health",
+    "Physiotherapy",
+    "Occupational Therapy",
+    "Nutrition and Dietetics",
+    "Biomedical Science",
+    "Veterinary Medicine",
+    "Radiography",
+    "Speech and Language Therapy",
+    "Optometry",
+    "Midwifery",
+    "Medical Laboratory Science",
+    "Health Informatics",
+    "Clinical Psychology",
+    "Epidemiology",
+    "Genetic Counseling"
+  ],
+  "Education": [
+    "Early Childhood Education",
+    "Primary Education",
+    "Secondary Education",
+    "Special Education",
+    "Educational Leadership",
+    "Curriculum and Instruction",
+    "Educational Technology",
+    "Adult Education",
+    "Higher Education",
+    "Educational Psychology",
+    "Counselor Education",
+    "Language Education",
+    "Mathematics Education",
+    "Science Education",
+    "Physical Education",
+    "Art Education",
+    "Music Education",
+    "Vocational Education",
+    "Instructional Design"
+  ],
+  "Agriculture & Environmental Studies": [
+    "Agricultural Science",
+    "Horticulture",
+    "Animal Science",
+    "Soil Science",
+    "Agribusiness",
+    "Forestry",
+    "Fisheries Science",
+    "Wildlife Management",
+    "Environmental Management",
+    "Sustainable Agriculture",
+    "Food Science and Technology",
+    "Plant Pathology",
+    "Entomology",
+    "Agricultural Engineering",
+    "Agroecology",
+    "Climate Science",
+    "Natural Resource Management",
+    "Water Resources Management",
+    "Rural Development"
+  ],
+  "Architecture & Built Environment": [
+    "Architecture",
+    "Urban Planning",
+    "Landscape Architecture",
+    "Interior Architecture",
+    "Construction Management",
+    "Quantity Surveying",
+    "Building Services Engineering",
+    "Real Estate",
+    "Sustainable Design",
+    "Historic Preservation",
+    "Urban Design",
+    "Environmental Design",
+    "Structural Engineering",
+    "Building Information Modeling (BIM)",
+    "Housing Studies",
+    "Transportation Planning",
+    "Regional Planning",
+    "Urban Studies",
+    "Facility Management"
+  ]
+};
+
 
 const ProfileCompletionModal = ({ onFillNow, onFillLater }) => (
   <div className={styles.modal}>
@@ -71,7 +287,7 @@ const JS_EmailSignupPage = () => {
 
   const [optionalData, setOptionalData] = useState({ // Step 2 - Optional fields
     profileImage: null,
-    phoneNumber: '',
+    phoneNumber: '+65',  // Initialize with Singapore country code
     dateOfBirth: '',
     school: '',
     course: '',
@@ -79,6 +295,10 @@ const JS_EmailSignupPage = () => {
     resume: null,
     skills: [],
   });
+  
+  // Image and file preview states
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [resumeFileName, setResumeFileName] = useState('');
 
   // Validation states
   const [touchedFields, setTouchedFields] = useState({}); // Track field interactions
@@ -115,6 +335,8 @@ const JS_EmailSignupPage = () => {
         return validatePassword(value) ? '' : 'Password does not meet requirements';
       case 'confirmPassword':
         return value === requiredData.password ? '' : 'Passwords do not match';
+      case 'phoneNumber':
+        return /^\+\d{1,3}\d{7,14}$/.test(value) ? '' : 'Valid phone number with country code is required';
       default:
         return '';
     }
@@ -242,11 +464,39 @@ const JS_EmailSignupPage = () => {
         ...prev,
         [name]: file
       }));
+
+      // Set preview states
+      if (name === 'profileImage') {
+        setProfileImagePreview(URL.createObjectURL(file));
+      }
+      if (name === 'resume') {
+        setResumeFileName(file.name);
+      }
     } else {
-      setOptionalData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+      if (name === 'course' && value) {
+        // Auto-assign field of study based on the selected course
+        let fieldOfCourse = null;
+        
+        // Find which field this course belongs to
+        for (const [field, courses] of Object.entries(FIELDS_AND_COURSES)) {
+          if (courses.includes(value)) {
+            fieldOfCourse = field;
+            break;
+          }
+        }
+        
+        // Update both course and fieldOfStudy
+        setOptionalData(prev => ({
+          ...prev,
+          [name]: value,
+          fieldOfStudy: fieldOfCourse
+        }));
+      } else {
+        setOptionalData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
     }
   };
 
@@ -666,21 +916,44 @@ const JS_EmailSignupPage = () => {
                   onChange={handleOptionalChange}
                   className={styles.fileInput}
                 />
+                {profileImagePreview && (
+                  <div className={styles.previewContainer}>
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile Preview"
+                      className={styles.previewImage}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="phoneNumber" className={styles.label}>
                   Phone Number <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={optionalData.phoneNumber}
-                  onChange={handleOptionalChange}
-                  className={styles.input}
-                  placeholder="Enter your phone number"
-                />
+                <div className={styles.phoneInputContainer}>
+                  <span className={styles.countryCode}>+65</span>
+                  <input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    type="tel"
+                    value={optionalData.phoneNumber.replace(/^\+65/, '')}
+                    onChange={(e) => {
+                      // Only allow digits
+                      const numericValue = e.target.value.replace(/\D/g, '');
+                      setOptionalData(prev => ({
+                        ...prev,
+                        phoneNumber: `+65${numericValue}`
+                      }));
+                    }}
+                    onBlur={handleBlur}
+                    className={`${styles.phoneInput} ${fieldErrors.phoneNumber && touchedFields.phoneNumber ? styles.inputError : ''}`}
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+                {fieldErrors.phoneNumber && touchedFields.phoneNumber && (
+                  <div className={styles.error}>{fieldErrors.phoneNumber}</div>
+                )}
               </div>
 
               <div className={styles.inputGroup}>
@@ -721,30 +994,44 @@ const JS_EmailSignupPage = () => {
                 <label htmlFor="course" className={styles.label}>
                   Course of Study <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
+                <select
                   id="course"
                   name="course"
-                  type="text"
                   value={optionalData.course}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="Enter your course"
-                />
+                >
+                  <option value="">Select a course</option>
+                  {Object.entries(FIELDS_AND_COURSES).map(([field, courses], index) => (
+                    <optgroup key={index} label={field}>
+                      {courses.map((course, courseIndex) => (
+                        <option key={courseIndex} value={course}>
+                          {course}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="yearOfStudy" className={styles.label}>
                   Study Year <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
+                <select
                   id="yearOfStudy"
                   name="yearOfStudy"
-                  type="text"
                   value={optionalData.yearOfStudy}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="Enter your study year"
-                />
+                >
+                  <option value="">Select year</option>
+                  {["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year"].map((year, index) => (
+                    <option key={index} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.inputGroup}>
@@ -759,6 +1046,10 @@ const JS_EmailSignupPage = () => {
                   onChange={handleOptionalChange}
                   className={styles.fileInput}
                 />
+                {resumeFileName && (
+                  <div className={styles.fileNameDisplay}>
+                  </div>
+                )}
               </div>
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
   
@@ -795,14 +1086,14 @@ const JS_EmailSignupPage = () => {
 
                   {newSkill.trim() !== '' && (
                     <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
-                      {skills
+                      {Array.isArray(skills) && skills.length > 0 ? skills
                         .filter(
                           (skill) =>
                             skill.toLowerCase().includes(newSkill.toLowerCase()) &&
                             !optionalData.skills.includes(skill)
                         )
                         .slice(0, 50)
-                                    .map((skill, index) => (
+                        .map((skill, index) => (
                           <li
                             key={index}
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -810,7 +1101,7 @@ const JS_EmailSignupPage = () => {
                           >
                             {skill}
                           </li>
-                        ))}
+                        )) : <li className="px-4 py-2">Loading skills...</li>}
                     </ul>
                   )}
                 </div>
@@ -836,50 +1127,41 @@ const JS_EmailSignupPage = () => {
                 <span>{error}</span>
               </div>
             )}
-
-            <div className="flex gap-4">
-
-            <div className="flex flex-col items-center w-full">
-              <div className="w-full">
-                <button
-                  type="submit"
-                  className={`${styles.button} ${styles.primaryButton} w-full`}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Creating Account...
-                    </span>
-                  ) : (
-                    'Create Account & Save Profile'
-                  )}
-                </button>
-              </div>
             </div>
-                        </div>
-                      </div>
-                      </form>
-        
-          
-                   )}
-                  </div>
-                </div>
-              );
-            };
+
+            <button
+              type="submit"
+              className={`${styles.button} ${styles.primaryButton} ${styles.formWidthButton}`}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Creating Account & Save Profile
+                </span>
+              ) : (
+                'Create Account & Save Profile'
+              )}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default JS_EmailSignupPage;

@@ -20,15 +20,225 @@ const VALID_YEARS = [
   'Any Year'
 ];
 
-const VALID_COURSES = [
-  'Computer Science',
-  'Information Technology',
-  'Software Engineering',
-  'Business Analytics',
-  'Information Systems',
-  'Computer Engineering',
-  'Any Related Field'
-];
+// Enhanced structure for fields and courses
+const FIELDS_AND_COURSES = {
+  "Computer Science & IT": [
+    "Computer Science",
+    "Information Technology",
+    "Software Engineering",
+    "Information Systems",
+    "Cybersecurity",
+    "Artificial Intelligence",
+    "Data Science",
+    "Computer Graphics",
+    "Computer Networking",
+    "Human-Computer Interaction",
+    "Machine Learning",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Robotics",
+    "Quantum Computing",
+    "Cloud Computing",
+    "Internet of Things (IoT)",
+    "Blockchain Technology",
+    "Augmented Reality",
+    "Virtual Reality"
+  ],
+  "Business & Analytics": [
+    "Business Administration",
+    "Business Analytics",
+    "Marketing Analytics",
+    "Financial Analytics",
+    "Business Intelligence",
+    "Operations Management",
+    "Management Information Systems",
+    "Supply Chain Analytics",
+    "Accounting",
+    "Finance",
+    "Marketing",
+    "Human Resource Management",
+    "International Business",
+    "Entrepreneurship",
+    "Economics",
+    "E-commerce",
+    "Organizational Behavior",
+    "Strategic Management",
+    "Project Management"
+  ],
+  "Engineering": [
+    "Computer Engineering",
+    "Electrical Engineering",
+    "Mechanical Engineering",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Biomedical Engineering",
+    "Environmental Engineering",
+    "Aerospace Engineering",
+    "Materials Engineering",
+    "Industrial Engineering",
+    "Nuclear Engineering",
+    "Petroleum Engineering",
+    "Automotive Engineering",
+    "Marine Engineering",
+    "Mechatronics Engineering",
+    "Structural Engineering",
+    "Telecommunications Engineering",
+    "Systems Engineering",
+    "Geotechnical Engineering"
+  ],
+  "Natural Sciences": [
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Mathematics",
+    "Statistics",
+    "Environmental Science",
+    "Biotechnology",
+    "Neuroscience",
+    "Geology",
+    "Astronomy",
+    "Oceanography",
+    "Meteorology",
+    "Ecology",
+    "Zoology",
+    "Botany",
+    "Genetics",
+    "Microbiology",
+    "Paleontology",
+    "Astrophysics"
+  ],
+  "Social Sciences & Humanities": [
+    "Psychology",
+    "Economics",
+    "Sociology",
+    "Political Science",
+    "Communication Studies",
+    "Linguistics",
+    "History",
+    "Philosophy",
+    "International Relations",
+    "Anthropology",
+    "Archaeology",
+    "Religious Studies",
+    "Cultural Studies",
+    "Gender Studies",
+    "Human Geography",
+    "Education",
+    "Law",
+    "Social Work",
+    "Criminology"
+  ],
+  "Design & Media": [
+    "Digital Media",
+    "Graphic Design",
+    "User Experience Design",
+    "Animation",
+    "Game Design",
+    "Music Technology",
+    "Film Studies",
+    "Fashion Design",
+    "Interior Design",
+    "Industrial Design",
+    "Photography",
+    "Visual Arts",
+    "Performing Arts",
+    "Theatre Studies",
+    "Sound Design",
+    "Media Production",
+    "Advertising",
+    "Public Relations",
+    "Journalism"
+  ],
+  "Health & Medical Sciences": [
+    "Medicine",
+    "Nursing",
+    "Pharmacy",
+    "Dentistry",
+    "Public Health",
+    "Physiotherapy",
+    "Occupational Therapy",
+    "Nutrition and Dietetics",
+    "Biomedical Science",
+    "Veterinary Medicine",
+    "Radiography",
+    "Speech and Language Therapy",
+    "Optometry",
+    "Midwifery",
+    "Medical Laboratory Science",
+    "Health Informatics",
+    "Clinical Psychology",
+    "Epidemiology",
+    "Genetic Counseling"
+  ],
+  "Education": [
+    "Early Childhood Education",
+    "Primary Education",
+    "Secondary Education",
+    "Special Education",
+    "Educational Leadership",
+    "Curriculum and Instruction",
+    "Educational Technology",
+    "Adult Education",
+    "Higher Education",
+    "Educational Psychology",
+    "Counselor Education",
+    "Language Education",
+    "Mathematics Education",
+    "Science Education",
+    "Physical Education",
+    "Art Education",
+    "Music Education",
+    "Vocational Education",
+    "Instructional Design"
+  ],
+  "Agriculture & Environmental Studies": [
+    "Agricultural Science",
+    "Horticulture",
+    "Animal Science",
+    "Soil Science",
+    "Agribusiness",
+    "Forestry",
+    "Fisheries Science",
+    "Wildlife Management",
+    "Environmental Management",
+    "Sustainable Agriculture",
+    "Food Science and Technology",
+    "Plant Pathology",
+    "Entomology",
+    "Agricultural Engineering",
+    "Agroecology",
+    "Climate Science",
+    "Natural Resource Management",
+    "Water Resources Management",
+    "Rural Development"
+  ],
+  "Architecture & Built Environment": [
+    "Architecture",
+    "Urban Planning",
+    "Landscape Architecture",
+    "Interior Architecture",
+    "Construction Management",
+    "Quantity Surveying",
+    "Building Services Engineering",
+    "Real Estate",
+    "Sustainable Design",
+    "Historic Preservation",
+    "Urban Design",
+    "Environmental Design",
+    "Structural Engineering",
+    "Building Information Modeling (BIM)",
+    "Housing Studies",
+    "Transportation Planning",
+    "Regional Planning",
+    "Urban Studies",
+    "Facility Management"
+  ]
+};
+
+// Flatten the FIELDS_AND_COURSES structure for validation
+const VALID_COURSES = Object.values(FIELDS_AND_COURSES).flat();
+
+const VALID_FIELDS = Object.keys(FIELDS_AND_COURSES);
 
 // Ad Hoc Job Schema
 const adHocJobSchema = new mongoose.Schema({
@@ -150,6 +360,13 @@ const internshipJobSchema = new mongoose.Schema({
     default: 'internship',
     required: true,
   },
+  fieldOfStudy: {
+    type: String,
+    enum: {
+      values: VALID_FIELDS,
+      message: 'Invalid field selected'
+    }
+  },
   courseStudy: {
     type: String,
     required: function() { return this.status !== 'draft'; },
@@ -248,7 +465,9 @@ adHocJobSchema.pre('save', validatePostedJob);
 export const INTERNSHIP_OPTIONS = {
   DURATIONS: VALID_DURATIONS,
   YEARS: VALID_YEARS,
-  COURSES: VALID_COURSES
+  COURSES: VALID_COURSES,
+  FIELDS: VALID_FIELDS,
+  FIELDS_AND_COURSES: FIELDS_AND_COURSES
 };
 
 // Add default deadline values (30 days from current date)

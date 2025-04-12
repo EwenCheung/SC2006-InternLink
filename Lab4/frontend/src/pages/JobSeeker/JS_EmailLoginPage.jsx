@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailLoginPage.module.css';
-import { FaGoogle, FaGithub, FaExchangeAlt } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaExchangeAlt, FaArrowLeft } from 'react-icons/fa';
+import AuthFactory from '../../services/AuthFactory';
 
 const JS_EmailLoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -28,38 +28,30 @@ const JS_EmailLoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // Use the AuthFactory to get a JobSeeker authenticator
+      const authenticator = AuthFactory.getAuthenticator('jobseeker');
+      const result = await authenticator.login(formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Get error message from server response
-        const errorData = data || {};
-        if (response.status === 401) {
-          setError('No account found with these credentials. Please sign up or try again.');
-        } else if (response.status === 400) {
-          setError(errorData.message || 'Please provide both email and password');
-        } else {
-          setError(errorData.message || 'Login failed. Please try again.');
+      if (!result.success) {
+        // Handle different error types from the AuthFactory
+        switch (result.errorType) {
+          case 'wrong_password':
+            setError('Incorrect password. Please try again.');
+            break;
+          case 'account_not_found':
+            setError('No account found with this email. Please sign up first.');
+            break;
+          case 'wrong_role':
+            setError(result.message);
+            break;
+          case 'connection_error':
+            setError('Unable to connect to the server. Please try again later.');
+            break;
+          default:
+            setError(result.message || 'Login failed. Please try again.');
         }
         return;
       }
-
-      // If we got here, login was successful
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userRole', data.user.role);
-      
-      const userData = {
-        ...data.user,
-        _id: data.user.id, // Convert id to _id for consistency
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
 
       // Navigate to find-internship page directly
       navigate('/jobseeker/find-internship', { replace: true });
@@ -84,6 +76,13 @@ const JS_EmailLoginPage = () => {
 
   return (
     <div className={styles.container}>
+      <button 
+        onClick={() => navigate('/')}
+        className={styles.backButton}
+      >
+        <FaArrowLeft /> Back
+      </button>
+
       <button 
         onClick={() => navigate('/employer/login')}
         className={styles.switchRoleButton}

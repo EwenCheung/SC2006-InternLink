@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './EP_EmailLoginPage.module.css';
-import { FaGoogle, FaGithub, FaExchangeAlt } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaExchangeAlt, FaArrowLeft } from 'react-icons/fa';
+import AuthFactory from '../../services/AuthFactory';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -29,48 +30,34 @@ const EP_EmailLoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      // Use the AuthFactory to get an Employer authenticator
+      const authenticator = AuthFactory.getAuthenticator('employer');
+      const result = await authenticator.login(formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Get error message from server response
-        const errorData = data || {};
-        if (response.status === 401) {
-          setError('No account found with these credentials. Please sign up or try again.');
-        } else if (response.status === 400) {
-          setError(errorData.message || 'Please provide both email and password');
-        } else {
-          setError(errorData.message || 'Login failed. Please try again.');
+      if (!result.success) {
+        // Handle different error types from the AuthFactory
+        switch (result.errorType) {
+          case 'wrong_password':
+            setError('Incorrect password. Please try again.');
+            break;
+          case 'account_not_found':
+            setError('No account found with this email. Please sign up first.');
+            break;
+          case 'wrong_role':
+            setError(result.message);
+            break;
+          case 'connection_error':
+            setError('Unable to connect to the server. Please try again later.');
+            break;
+          default:
+            setError(result.message || 'Login failed. Please try again.');
         }
         return;
       }
 
-      // Verify correct role
-      if (data.user.role !== 'employer') {
-        setError('This account is not an employer account. Please use the JobSeeker login page.');
-        return;
-      }
-
-      // Store token and transformed user data in localStorage
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userRole', data.user.role);
+      // Navigate to post-internship page
+      navigate('/employer/post-internship', { replace: true });
       
-      // Store user data with proper ID format
-      const userData = {
-        ...data.user,
-        _id: data.user.id, // Convert id to _id for consistency
-      };
-      localStorage.setItem('user', JSON.stringify(userData));
-
-      // Redirect to post internship page
-      navigate('/employer/post-internship');
     } catch (err) {
       if (!navigator.onLine) {
         setError('Please check your internet connection and try again.');
@@ -91,6 +78,13 @@ const EP_EmailLoginPage = () => {
 
   return (
     <div className={styles.container}>
+      <button 
+        onClick={() => navigate('/choose-role')}
+        className={styles.backButton}
+      >
+        <FaArrowLeft /> Back
+      </button>
+
       <button 
         onClick={() => navigate('/jobseeker/login')}
         className={styles.switchRoleButton}

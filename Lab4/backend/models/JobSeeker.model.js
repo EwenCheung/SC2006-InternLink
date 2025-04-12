@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { INTERNSHIP_OPTIONS } from './job.model.js';
 
 const JobSeekerSchema = new mongoose.Schema({
   userName: {
@@ -13,7 +14,7 @@ const JobSeekerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide email'],
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide a valid email',
     ],
     unique: true,
@@ -123,7 +124,24 @@ const JobSeekerSchema = new mongoose.Schema({
     }
   }],
   school: String,
-  course: String,
+  fieldOfStudy: {
+    type: String,
+    validate: {
+      validator: function(value) {
+        return !value || INTERNSHIP_OPTIONS.FIELDS.includes(value);
+      },
+      message: 'Invalid field of study selected'
+    }
+  },
+  course: {
+    type: String,
+    validate: {
+      validator: function(value) {
+        return !value || INTERNSHIP_OPTIONS.COURSES.includes(value);
+      },
+      message: 'Invalid course selected'
+    }
+  },
   yearOfStudy: String,
   personalDescription: String,
   skills: [String],
