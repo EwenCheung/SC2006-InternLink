@@ -13,6 +13,7 @@ const JS_AdHocDetailsPage = () => {
   const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [formattedDeadline, setFormattedDeadline] = useState('');
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -21,6 +22,16 @@ const JS_AdHocDetailsPage = () => {
         const { data } = await response.json();
         if (response.ok && data) {
           setJobDetails(data);
+          
+          // Format the application deadline
+          if (data.applicationDeadline) {
+            const deadlineDate = new Date(data.applicationDeadline);
+            setFormattedDeadline(deadlineDate.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            }));
+          }
         } else {
           setError(data.message || 'Failed to fetch job details');
         }
@@ -92,14 +103,14 @@ const JS_AdHocDetailsPage = () => {
               <span className={styles.location}>📍 {jobDetails.location}</span>
               <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
               <span className={styles.year}>🎓 {jobDetails.yearOfStudy}</span>
-              <span className={styles.salary}>💰 {jobDetails.stipend}/month</span>
-          </div>
+              <span className={styles.salary}>💰 {jobDetails.payPerHour}/hour</span>
+            </div>
           </div>
         </div>
         <div className={styles.deadlineInfo}>
           <div className={styles.deadlineTimer}>
             <span className={styles.deadlineLabel}>Application Deadline</span>
-            <span className={styles.deadlineDate}>{jobDetails.deadline}</span>
+            <span className={styles.deadlineDate}>{formattedDeadline || 'Not specified'}</span>
           </div>
         </div>
       </div>
@@ -107,34 +118,49 @@ const JS_AdHocDetailsPage = () => {
         <div className={styles.mainContent}>
           <section className={styles.companySection}>
             <h3>About the Company</h3>
-            <p className={styles.companyDescription}>{jobDetails.companyDescription}</p>
+            <p className={styles.companyDescription}>{jobDetails.companyDescription || jobDetails.description}</p>
             <div className={styles.companyDetails}>
             
               <div className={styles.detailItem}>
                 <span className={styles.label}><h4>Location:</h4></span>
                 <span className={styles.value}>{jobDetails.location}</span>
               </div>
+              {jobDetails.area && (
+                <div className={styles.detailItem}>
+                  <span className={styles.label}><h4>Area:</h4></span>
+                  <span className={styles.value}>{jobDetails.area}</span>
+                </div>
+              )}
             </div>
           </section>
           <section className={styles.jobDetailsSection}>
             <h3>Job Description</h3>
             <p className={styles.description}>{jobDetails.description}</p>
             
+            {jobDetails.jobScope && (
+              <>
+                <h3>Job Scope</h3>
+                <p className={styles.description}>{jobDetails.jobScope}</p>
+              </>
+            )}
             
-            <h3>Skills Required</h3>
-              <ul className={styles.skillsList}>
-                {jobDetails.tags?.map((skill, index) => (
-                <li key={index} className={styles.skillTag}>{skill}</li>
-                ))}
-              </ul>      
+            {jobDetails.tags && jobDetails.tags.length > 0 && (
+              <>
+                <h3>Skills Required</h3>
+                <ul className={styles.skillsList}>
+                  {jobDetails.tags.map((skill, index) => (
+                    <li key={index} className={styles.skillTag}>{skill}</li>
+                  ))}
+                </ul>
+              </>
+            )}
           </section>
         </div>
         <aside className={styles.applicationSidebar}>
           <div className={styles.applicationCard}>
-            <h3>Apply Now</h3>
+            <h3>Application</h3>
             <div className={styles.applicationInfo}>
-              <p className={styles.deadline}>Application closes on {jobDetails.deadline}</p>
-              <p className={styles.applicants}>{jobDetails.applicants} people have applied</p>
+              <p className={styles.deadline}>Application closes on {formattedDeadline || 'Not specified'}</p>
             </div>
             <div className={styles.actionButtons}>
               <button 
@@ -160,7 +186,6 @@ const JS_AdHocDetailsPage = () => {
             ></iframe>
           </div>
         </aside>
-        
       </div>
     </div>
   </div>

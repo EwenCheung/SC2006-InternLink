@@ -2,6 +2,7 @@ import { InternshipJob, AdHocJob } from '../models/job.model.js';
 import {DraftJob, AdHocDraft} from '../models/draftJob.model.js';
 import Employer from '../models/Employer.model.js';
 import Application from '../models/application.model.js';
+import { application } from 'express';
 
 const buildFilterQuery = (filters, jobType) => {
   const query = { status: 'posted' };
@@ -78,12 +79,20 @@ export const createDraftJob = async (req, res) => {
     draftData.jobType = req.body.jobType || 'internship';
     draftData.status = 'draft';
     draftData.lastModified = new Date();
-
-    console.log('Processed draft data:', draftData);
-    const draft = await DraftJob.create(draftData);
-    console.log('Created draft:', draft);
+    draftData.applicationDeadline = new Date(req.body.applicationDeadline);
     
-    res.status(201).json({ success: true, data: draft });
+    console.log('Setting application deadline in draft to:', draftData.applicationDeadline);
+    console.log('Processed draft data:', draftData);
+    
+    const draft = await DraftJob.create(draftData);
+    const responseData = draft.toObject();
+    
+    if (responseData.applicationDeadline) {
+      responseData.applicationDeadline = new Date(responseData.applicationDeadline);
+    }
+    
+    console.log('Created draft:', responseData);
+    res.status(201).json({ success: true, data: responseData });
   } catch (error) {
     console.error('Error creating draft job:', error);
     res.status(400).json({ success: false, error: error.message });
@@ -92,7 +101,7 @@ export const createDraftJob = async (req, res) => {
 
 export const createDraftAdHoc = async (req, res) => {
   try {
-    console.log('Creating draft with body:', req.body);
+    console.log('Creating ad hoc draft with body:', req.body);
     console.log('User ID:', req.user.userId);
     
     const draftData = Object.entries(req.body).reduce((acc, [key, value]) => {
@@ -115,12 +124,26 @@ export const createDraftAdHoc = async (req, res) => {
     draftData.jobType = 'ad-hoc';
     draftData.status = 'draft';
     draftData.lastModified = new Date();
-
-    console.log('Processed draft data:', draftData);
-    const draft = await AdHocDraft.create(draftData);
-    console.log('Created draft:', draft);
     
-    res.status(201).json({ success: true, data: draft });
+    // Ensure application deadline is set exactly as provided by employer
+    if (req.body.applicationDeadline) {
+      draftData.applicationDeadline = new Date(req.body.applicationDeadline);
+    } else {
+      draftData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+
+    console.log('Setting application deadline in ad hoc draft to:', draftData.applicationDeadline);
+    console.log('Processed draft data:', draftData);
+    
+    const draft = await AdHocDraft.create(draftData);
+    const responseData = draft.toObject();
+    
+    if (responseData.applicationDeadline) {
+      responseData.applicationDeadline = new Date(responseData.applicationDeadline);
+    }
+    
+    console.log('Created ad hoc draft:', responseData);
+    res.status(201).json({ success: true, data: responseData });
   } catch (error) {
     console.error('Error creating draft job:', error);
     res.status(400).json({ success: false, error: error.message });
@@ -133,10 +156,18 @@ export const updateDraftJob = async (req, res) => {
     console.log('User ID:', req.user.userId);
     console.log('Update data:', req.body);
 
+    // First find the existing draft to get the current applicationDeadline if not provided
+    const existingDraft = await DraftJob.findOne({ _id: req.params.id, employerID: req.user.userId });
+    if (!existingDraft) {
+      return res.status(404).json({
+        success: false,
+        message: 'Draft not found or you do not have permission to update it'
+      });
+    }
+
     const updateData = {
       ...req.body,
       lastModified: new Date(),
-    
       status: 'draft',
       employerID: req.user.userId
     };
@@ -145,6 +176,17 @@ export const updateDraftJob = async (req, res) => {
     updateData.area = updateData.area || req.body.area || '';
     updateData.description = updateData.description || req.body.description || '';
     updateData.jobScope = updateData.jobScope || req.body.jobScope || '';
+
+    // Preserve application deadline - use the one from request, or keep existing one
+    if (req.body.applicationDeadline) {
+      updateData.applicationDeadline = new Date(req.body.applicationDeadline);
+    } else if (existingDraft.applicationDeadline) {
+      updateData.applicationDeadline = new Date(existingDraft.applicationDeadline);
+    } else {
+      updateData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+
+    console.log('Setting application deadline in update to:', updateData.applicationDeadline);
 
     if (updateData.stipend) {
       updateData.stipend = Number(updateData.stipend);
@@ -166,8 +208,13 @@ export const updateDraftJob = async (req, res) => {
       });
     }
 
-    console.log('Updated draft:', updatedDraft);
-    res.status(200).json({ success: true, data: updatedDraft });
+    const draftData = updatedDraft.toObject();
+    if (draftData.applicationDeadline) {
+      draftData.applicationDeadline = new Date(draftData.applicationDeadline);
+    }
+
+    console.log('Updated draft:', draftData);
+    res.status(200).json({ success: true, data: draftData });
   } catch (error) {
     console.error('Error updating draft:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -176,14 +223,22 @@ export const updateDraftJob = async (req, res) => {
 
 export const updateAdHocDraft = async (req, res) => {
   try {
-    console.log('Updating draft:', req.params.id);
+    console.log('Updating ad hoc draft:', req.params.id);
     console.log('User ID:', req.user.userId);
     console.log('Update data:', req.body);
+
+    // First find the existing draft to get the current applicationDeadline if not provided
+    const existingDraft = await AdHocDraft.findOne({ _id: req.params.id, employerID: req.user.userId });
+    if (!existingDraft) {
+      return res.status(404).json({
+        success: false,
+        message: 'Draft not found or you do not have permission to update it'
+      });
+    }
 
     const updateData = {
       ...req.body,
       lastModified: new Date(),
-    
       status: 'draft',
       employerID: req.user.userId
     };
@@ -192,6 +247,20 @@ export const updateAdHocDraft = async (req, res) => {
     updateData.area = updateData.area || req.body.area || '';
     updateData.description = updateData.description || req.body.description || '';
     updateData.jobScope = updateData.jobScope || req.body.jobScope || '';
+    
+    // Ensure applicationDeadline is properly set and formatted
+    console.log('Deadline from request:', req.body.applicationDeadline);
+    console.log('Existing deadline:', existingDraft.applicationDeadline);
+    
+    if (req.body.applicationDeadline) {
+      updateData.applicationDeadline = new Date(req.body.applicationDeadline);
+    } else if (existingDraft.applicationDeadline) {
+      updateData.applicationDeadline = new Date(existingDraft.applicationDeadline);
+    } else {
+      updateData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
+    
+    console.log('Setting application deadline in update to:', updateData.applicationDeadline);
 
     if (updateData.stipend) {
       updateData.stipend = Number(updateData.stipend);
@@ -213,10 +282,15 @@ export const updateAdHocDraft = async (req, res) => {
       });
     }
 
-    console.log('Updated draft:', updatedDraft);
-    res.status(200).json({ success: true, data: updatedDraft });
+    const draftData = updatedDraft.toObject();
+    if (draftData.applicationDeadline) {
+      draftData.applicationDeadline = new Date(draftData.applicationDeadline);
+    }
+
+    console.log('Updated ad hoc draft:', draftData);
+    res.status(200).json({ success: true, data: draftData });
   } catch (error) {
-    console.error('Error updating draft:', error);
+    console.error('Error updating ad hoc draft:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -231,6 +305,62 @@ export const getEmployerDrafts = async (req, res) => {
   }
 };
 
+export const getDraftById = async (req, res) => {
+  try {
+    const draft = await DraftJob.findOne({ 
+      _id: req.params.id, 
+      employerID: req.user.userId 
+    });
+    
+    if (!draft) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Draft not found or you do not have permission to access it' 
+      });
+    }
+    
+    // Ensure the applicationDeadline is properly formatted
+    const draftData = draft.toObject();
+    if (draftData.applicationDeadline) {
+      draftData.applicationDeadline = new Date(draftData.applicationDeadline);
+    }
+    
+    console.log('Returning draft data with deadline:', draftData.applicationDeadline);
+    res.status(200).json({ success: true, data: draftData });
+  } catch (error) {
+    console.error('Error getting draft by ID:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+export const getAdHocDraftById = async (req, res) => {
+  try {
+    const draft = await AdHocDraft.findOne({ 
+      _id: req.params.id, 
+      employerID: req.user.userId 
+    });
+    
+    if (!draft) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Draft not found or you do not have permission to access it' 
+      });
+    }
+    
+    // Ensure the applicationDeadline is properly formatted
+    const draftData = draft.toObject();
+    if (draftData.applicationDeadline) {
+      draftData.applicationDeadline = new Date(draftData.applicationDeadline);
+    }
+    
+    console.log('Returning ad-hoc draft data with deadline:', draftData.applicationDeadline);
+    res.status(200).json({ success: true, data: draftData });
+  } catch (error) {
+    console.error('Error getting ad-hoc draft by ID:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 export const convertDraftToPost = async (req, res) => {
   try {
     const draft = await DraftJob.findById(req.params.draftId);
@@ -238,7 +368,7 @@ export const convertDraftToPost = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Draft not found' });
     }
 
-    const requiredFields = ['title', 'company', 'location', 'description'];
+    const requiredFields = ['title', 'company', 'location', 'description', 'applicationDeadline'];
     if (draft.type === 'internship_job') {
       requiredFields.push('stipend', 'duration', 'courseStudy', 'yearOfStudy');
     } else {
@@ -258,6 +388,13 @@ export const convertDraftToPost = async (req, res) => {
     delete postData._id;
     delete postData.lastModified;
     postData.status = 'posted';
+    
+    // Ensure application deadline is maintained when converting from draft to post
+    if (postData.applicationDeadline) {
+      postData.applicationDeadline = new Date(postData.applicationDeadline);
+    } else {
+      postData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
 
     const job = await JobModel.create(postData);
     await Employer.findByIdAndUpdate(draft.employerID, { $push: { jobPosts: job._id } });
@@ -300,6 +437,13 @@ export const createInternshipJob = async (req, res) => {
       jobType: 'internship',
       status: 'posted'
     };
+    
+    // Use employer-provided application deadline or default to 30 days
+    if (req.body.applicationDeadline) {
+      jobData.applicationDeadline = new Date(req.body.applicationDeadline);
+    } else {
+      jobData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
 
     const job = await InternshipJob.create(jobData);
     await Employer.findByIdAndUpdate(req.user.userId, { $push: { jobPosts: job._id } });
@@ -401,6 +545,13 @@ export const createAdHocJob = async (req, res) => {
       jobType: 'adhoc',
       status: 'posted'
     };
+    
+    // Use employer-provided application deadline or default to 30 days
+    if (req.body.applicationDeadline) {
+      jobData.applicationDeadline = new Date(req.body.applicationDeadline);
+    } else {
+      jobData.applicationDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    }
 
     const job = await AdHocJob.create(jobData);
     await Employer.findByIdAndUpdate(req.user.userId, { $push: { jobPosts: job._id } });

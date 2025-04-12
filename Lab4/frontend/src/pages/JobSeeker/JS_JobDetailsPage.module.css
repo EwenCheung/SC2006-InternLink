@@ -191,8 +191,10 @@ h4 {
 
 /* Job Details Styling */
 .description {
-    color: #555;
+    color: #000000; /* Changed from #555 to black */
     line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 1rem;
 }
 
 .responsibilitiesList,

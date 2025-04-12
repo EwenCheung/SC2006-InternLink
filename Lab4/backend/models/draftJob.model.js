@@ -105,6 +105,9 @@ const draftJobSchema = new mongoose.Schema({
   },
   jobScope: {
     type: String
+  },
+  applicationDeadline:{
+    type: Date,
   }
 
 });
