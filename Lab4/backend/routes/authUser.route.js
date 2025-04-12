@@ -8,7 +8,12 @@ import {
     updateContactList,
     deleteFile,
     updateWorkExperience,
-    updateAcademicHistory
+    updateAcademicHistory,
+    uploadProfilePhoto,
+    handleResumeUpload,
+    streamFile,
+    updateContactList,
+    getJobSeekerProfile
 } from '../controllers/authUser.controller.js';
 
 import authenticateUser from '../middleware/authentication.js';
@@ -50,6 +55,10 @@ router.patch('/update',
     uploadMultipleFiles,
     updateUser
 );
+router.get('/jobseeker/:id', getJobSeekerProfile); // New route for jobseeker profiles
+router.get('/user/:id', authenticateUser, getProfile); // New route to get profile by ID
+router.patch('/update-field', authenticateUser, updateField);
+router.patch('/update-sensitive', authenticateUser, updateSensitiveInfo);
 router.patch('/update-contacts', authenticateUser, updateContactList);
 
 // Work experience and academic history routes

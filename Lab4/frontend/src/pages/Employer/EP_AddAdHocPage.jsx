@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css'; // Reusing the same styles
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
+import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -10,11 +11,16 @@ const EP_AddAdHocPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const [employerID, setEmployerID] = useState(null);
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
   const [currentTag, setCurrentTag] = useState('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [skillNames, setSkillNames] = useState([]);
+  const [areaOptions, setAreaOptions] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -24,6 +30,7 @@ const EP_AddAdHocPage = () => {
     jobScope: '',
     payPerHour: '',
     tags: [],
+    area: '',
   });
 
   useEffect(() => {
@@ -39,13 +46,59 @@ const EP_AddAdHocPage = () => {
     } else {
       navigate('/employer/login');
     }
+    
+   // Load skills for tag suggestions
+    const loadSkills = async () => {
+      const skillNames = await fetchSkillsData();
+      setSkillNames(skillNames);
+    };
+    loadSkills();
   }, [navigate]);
+
+  useEffect(() => {
+    fetchAreaOptions();
+  }, []);
+
+  // Function to fetch area options from OneMap API
+  const fetchAreaOptions = async () => {
+    const url = "https://www.onemap.gov.sg/api/public/popapi/getPlanningareaNames?year=2019";
+    
+    try {
+      const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+      const tokenData = await tokenResponse.json();
+      const authToken = tokenData.token;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        },
+      });
+
+      const data = await response.json();
+      if (data && Array.isArray(data)) {
+        setAreaOptions(data.map(area => area.pln_area_n));
+      } else {
+        console.error('Unexpected API response format:', data);
+        setAreaOptions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching area options:', error);
+      setAreaOptions([]);
+    }
+  };
 
   useEffect(() => {
     // Load draft data if editing a draft
     const loadDraft = async () => {
       const draftData = location.state?.draftData;
       if (draftData) {
+        // Check if the post is published (not a draft) and redirect
+        if (draftData.status === 'posted') {
+          navigate('/employer/post-adhoc');
+          return;
+        }
+        
         setIsDraft(true);
         setDraftID(draftData._id);
         setFormData({
@@ -56,26 +109,65 @@ const EP_AddAdHocPage = () => {
           jobScope: draftData.jobScope || '',
           payPerHour: draftData.payPerHour || '',
           tags: draftData.tags || [],
+          area: draftData.area || '',
+          jobType: 'adhoc'
         });
       }
     };
 
     loadDraft();
-  }, [location.state]);
+  }, [location.state, navigate]);
+
+  const fetchAddressSuggestions = async (searchVal) => {
+    setIsLoading(true);
+    const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+    const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+    const tokenData = await tokenResponse.json();
+    const authToken = tokenData.token;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data && data.results) {
+        setSuggestions(data.results);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching address suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestionSelect = (address) => {
+    setFormData({
+      ...formData,
+      location: address,
+    });
+    setSuggestions([]);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'payPerHour') {
-      const numericValue = value.replace(/\D/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numericValue
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    // Trigger address suggestion search for location input
+    if (name === 'location' && value.trim()) {
+      fetchAddressSuggestions(value);
+    } else if (name === 'location') {
+      setSuggestions([]);
     }
   };
 
@@ -133,6 +225,7 @@ const EP_AddAdHocPage = () => {
   };
 
   const handleBack = () => {
+    // Check if there's any data to save
     if (
       formData.title ||
       formData.company ||
@@ -142,21 +235,19 @@ const EP_AddAdHocPage = () => {
       formData.payPerHour ||
       formData.tags.length > 0
     ) {
-      setShowExitDialog(true);
+      // Automatically save as draft and then navigate back
+      savePost(true, true); // Pass true as second param to indicate back navigation after save
     } else {
+      // If no data to save, just navigate back
       navigate('/employer/post-adhoc');
     }
-  };
-
-  const handleExitWithoutSaving = () => {
-    navigate('/employer/post-adhoc');
   };
 
   const handleSaveAsDraft = async () => {
     await savePost(true);
   };
 
-  const savePost = async (isDraftSave) => {
+  const savePost = async (isDraftSave, isBackNavigation = false) => {
     try {
       setLoading(true);
       setError('');
@@ -185,9 +276,24 @@ const EP_AddAdHocPage = () => {
       }
 
       const token = localStorage.getItem('token');
-      const endpoint = isDraftSave ? 'drafts' : 'adhoc';
-      const method = (isDraft && isDraftSave) ? 'PUT' : 'POST';
-      const url = `${API_BASE_URL}/api/jobs/${endpoint}${(isDraft && isDraftSave && draftID) ? `/${draftID}` : ''}`;
+      
+      // Use the same draft routes as internship page
+      let url, method;
+      
+      if (isDraftSave) {
+        // For draft saving/updating
+        if (isDraft && draftID) {
+          url = `${API_BASE_URL}/api/jobs/drafts/${draftID}`;
+          method = 'PUT';
+        } else {
+          url = `${API_BASE_URL}/api/jobs/drafts`;  // Fixed URL - removing /adhoc
+          method = 'POST';
+        }
+      } else {
+        // For publishing
+        url = `${API_BASE_URL}/api/jobs/adhoc`;
+        method = 'POST';
+      }
 
       const response = await fetch(url, {
         method,
@@ -206,10 +312,50 @@ const EP_AddAdHocPage = () => {
           'Failed to publish ad-hoc job post. Please ensure all required fields are filled.'));
       }
 
-      navigate('/employer/post-adhoc');
+      // If we're publishing from a draft, delete the draft
+      if (!isDraftSave && isDraft && draftID) {
+        try {
+          console.log('Deleting draft after successful publication...');
+          const deleteResponse = await fetch(`${API_BASE_URL}/api/jobs/drafts/${draftID}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (deleteResponse.ok) {
+            console.log('Draft deleted successfully after publication');
+          } else {
+            console.error('Failed to delete draft after publication');
+          }
+        } catch (deleteError) {
+          console.error('Error deleting draft after publication:', deleteError);
+        }
+      }
+
+      // If navigating back after saving a draft, skip the success message
+      if (isBackNavigation) {
+        navigate('/employer/post-adhoc');
+        return;
+      }
+
+      // Show success message
+      setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Ad-hoc job published successfully!');
+      setShowSuccessMessage(true);
+      
+      // Delay navigation to ensure the user sees the success message
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        navigate('/employer/post-adhoc');
+      }, 2000);
     } catch (err) {
       console.error('Error saving post:', err);
       setError(err.message || 'An error occurred while saving the post');
+      
+      // If this was a back navigation, still navigate back even if save failed
+      if (isBackNavigation) {
+        navigate('/employer/post-adhoc');
+      }
     } finally {
       setLoading(false);
     }
@@ -229,31 +375,13 @@ const EP_AddAdHocPage = () => {
         </h2>
       </div>
       
-      {showExitDialog && (
-        <div className={styles.dialog}>
-          <div className={styles.dialogContent}>
-            <h3>Save changes?</h3>
-            <p>Do you want to save your changes as a draft before leaving?</p>
-            <div className={styles.dialogButtons}>
-              <button
-                onClick={handleExitWithoutSaving}
-                className={styles.exitButton}
-              >
-                Don't Save
-              </button>
-              <button
-                onClick={handleSaveAsDraft}
-                className={styles.saveButton}
-              >
-                Save as Draft
-              </button>
-              <button
-                onClick={() => setShowExitDialog(false)}
-                className={styles.cancelButton}
-              >
-                Cancel
-              </button>
-            </div>
+      {/* Success Message Box */}
+      {showSuccessMessage && (
+        <div className={styles.successMessageOverlay}>
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
+            <h3>{successMessage}</h3>
+            <p>Redirecting to dashboard...</p>
           </div>
         </div>
       )}
@@ -293,7 +421,7 @@ const EP_AddAdHocPage = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="location">Location*</label>
+          <label htmlFor="location">Address*</label>
           <input
             type="text"
             id="location"
@@ -301,9 +429,42 @@ const EP_AddAdHocPage = () => {
             value={formData.location}
             onChange={handleChange}
             placeholder="e.g. Singapore"
+            className={styles.inputBox}
+            autoComplete="off"
           />
+          {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
+          {!isLoading && suggestions.length > 0 && (
+            <div className={styles.suggestionsContainer}>
+              {suggestions.map((suggestion, index) => (
+                <div 
+                  key={index} 
+                  className={styles.suggestionItem}
+                  onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
+                >
+                  {suggestion.ADDRESS}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-
+        
+        <div className={styles.formGroup}>
+          <label htmlFor="area">Area</label>
+          <select
+            id="area"
+            name="area"
+            value={formData.area}
+            onChange={handleChange}
+          >
+            <option value="">Select an area</option>
+            {areaOptions.map((area, index) => (
+              <option key={index} value={area}>
+                {area}
+              </option>
+            ))}
+          </select>
+        </div>
+        
         <div className={styles.formGroup}>
           <label htmlFor="description">Job Description*</label>
           <textarea
@@ -342,32 +503,51 @@ const EP_AddAdHocPage = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="tags">Tags (Press Enter or comma to add)</label>
-          <div className={styles.tagInput}>
-            {formData.tags.length > 0 && (
-              <div className={styles.tagList}>
-                {formData.tags.map((tag, index) => (
-                  <span key={index} className={styles.tag}>
-                    {tag}
-                    <button
-                      type="button"
-                      className={styles.deleteTag}
-                      onClick={() => removeTag(index)}
-                    >
-                      <FaTimes />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-            <input
-              type="text"
-              id="tags"
-              value={currentTag}
-              onChange={handleTagInput}
-              onKeyDown={handleTagInputKeyDown}
-              placeholder="e.g. Event Management, Customer Service"
-            />
+          <label htmlFor="tags">Skills Required</label>
+          <div className={styles.skillInputContainer}>
+            <div className={styles.skillInputWrapper}>
+              <input
+                type="text"
+                value={currentTag}
+                onChange={handleTagInput}
+                className={styles.formGroup}
+                placeholder="Add a skill"
+                onKeyDown={(e) => e.key === 'Enter' && addTag()}
+              />
+              {currentTag.trim() !== '' && (
+                <ul className="absolute z-10 bg-white border border-gray-300 w-full mt-1 rounded max-h-40 overflow-auto shadow">
+                  {skillNames
+                    .filter(
+                      (skill) =>
+                        skill.toLowerCase().includes(currentTag.toLowerCase()) &&
+                        !formData.tags.includes(skill)
+                    )
+                    .slice(0, 50)
+                    .map((skill, index) => (
+                      <li
+                        key={index}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            tags: [...prev.tags, skill]
+                          }));
+                          setCurrentTag('');
+                        }}
+                      >
+                        {skill}
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={addTag}
+              className={`${styles.button} ${styles.secondaryButton} ${styles.addButton}`}
+            >
+              Add
+            </button>
           </div>
         </div>
 
@@ -379,14 +559,14 @@ const EP_AddAdHocPage = () => {
           <button 
             type="button" 
             onClick={() => savePost(true)} 
-            className={`${styles.button} ${styles.draftButton}`}
+            className={`${styles.button} ${styles.primaryButton}`}
             disabled={loading}
           >
             {loading ? 'Saving...' : (isDraft ? 'Update Draft' : 'Save as Draft')}
           </button>
           <button 
             type="submit"
-            className={`${styles.button} ${styles.postButton}`}
+            className={`${styles.button} ${styles.secondaryButton}`}
             disabled={loading}
           >
             {loading ? 'Publishing...' : 'Publish Job'}

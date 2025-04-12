@@ -137,7 +137,12 @@ const JS_AdHocDetailsPage = () => {
               <p className={styles.applicants}>{jobDetails.applicants} people have applied</p>
             </div>
             <div className={styles.actionButtons}>
-              <button className={styles.applyButton}>Apply for Position</button>
+              <button 
+                className={styles.applyButton}
+                onClick={() => navigate(`/jobseeker/adhoc-application/${jobId}`)}
+              >
+                Apply for Position
+              </button>
               <button className={styles.messageButton}>Message Employer</button>
               <button className={styles.shareButton}>Share Job</button>
             </div>

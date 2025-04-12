@@ -43,9 +43,7 @@ const EP_AddInternshipPage = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const [employerID, setEmployerID] = useState(null);
-  const { draftId } = useParams();
   const [isDraft, setIsDraft] = useState(false);
   const [draftID, setDraftID] = useState(null);
   const [currentTag, setCurrentTag] = useState('');
@@ -53,6 +51,10 @@ const EP_AddInternshipPage = () => {
   const [isLoading, setIsLoading] = useState(false); // To handle loading state for address suggestions
   const [suggestions, setSuggestions] = useState([]); // To store address suggestions
   const [areaOptions, setAreaOptions] = useState([]); // To store area options
+
+  // Add state for success message
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -77,12 +79,6 @@ const EP_AddInternshipPage = () => {
       } catch (err) {
         console.error('Error parsing user data:', err);
         navigate('/employer/login');
-      }
-      // Trigger search only if location input is not empty
-      if (name === 'location' && value.trim()) {
-        fetchAddressSuggestions(value);
-      } else {
-        setSuggestions([]); // Clear suggestions if input is empty
       }
     } else {
       navigate('/employer/login');
@@ -112,6 +108,7 @@ const EP_AddInternshipPage = () => {
           yearOfStudy: draftData.yearOfStudy || 'Select Year',
           tags: draftData.tags || [],
           area: draftData.area || '',
+          jobScope: draftData.jobScope || ''
         });
       }
     };
@@ -198,8 +195,8 @@ const EP_AddInternshipPage = () => {
     // Trigger search only if location input is not empty
     if (name === 'location' && value.trim()) {
       fetchAddressSuggestions(value);
-    } else {
-      setSuggestions([]);  // Clear suggestions if input is empty
+    } else if (name === 'location') {
+      setSuggestions([]);  // Clear suggestions if location input is empty
     }
   };
 
@@ -272,21 +269,19 @@ const EP_AddInternshipPage = () => {
       formData.tags.length > 0 ||
       formData.area
     ) {
-      setShowExitDialog(true);
+      // Automatically save as draft and then navigate back
+      savePost(true, true); // Pass true as second param to indicate back navigation after save
     } else {
+      // If no data to save, just navigate back
       navigate('/employer/post-internship');
     }
-  };
-
-  const handleExitWithoutSaving = () => {
-    navigate('/employer/post-internship');
   };
 
   const handleSaveAsDraft = async () => {
     await savePost(true);
   };
 
-  const savePost = async (isDraftSave) => {
+  const savePost = async (isDraftSave, isBackNavigation = false) => {
     try {
       setLoading(true);
       setError('');
@@ -301,8 +296,12 @@ const EP_AddInternshipPage = () => {
         return;
       }
 
+      // Make sure area, description, and jobScope are explicitly included
       const postData = {
         ...formData,
+        area: formData.area || '',
+        description: formData.description || '',
+        jobScope: formData.jobScope || '',
         employerID,
         type: 'internship_job',
         jobType: 'internship',
@@ -339,10 +338,51 @@ const EP_AddInternshipPage = () => {
           'Failed to publish internship post. Please ensure all required fields are filled.'));
       }
 
-      navigate('/employer/post-internship');
+      // If we're publishing from a draft, delete the draft
+      if (!isDraftSave && isDraft && draftID) {
+        try {
+          console.log('Deleting draft after successful publication...');
+          const deleteResponse = await fetch(`${API_BASE_URL}/api/jobs/drafts/${draftID}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (deleteResponse.ok) {
+            console.log('Draft deleted successfully after publication');
+          } else {
+            console.error('Failed to delete draft after publication');
+          }
+        } catch (deleteError) {
+          console.error('Error deleting draft after publication:', deleteError);
+          // We still continue even if draft deletion fails
+        }
+      }
+
+      // If navigating back after saving a draft, skip the success message
+      if (isBackNavigation) {
+        navigate('/employer/post-internship');
+        return;
+      }
+
+      // Show success message using our custom message box instead of alert
+      setSuccessMessage(isDraftSave ? 'Draft saved successfully!' : 'Internship published successfully!');
+      setShowSuccessMessage(true);
+      
+      // Delay navigation slightly to ensure the user sees the success message
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+        navigate('/employer/post-internship');
+      }, 2000);
     } catch (err) {
       console.error('Error saving post:', err);
       setError(err.message || 'An error occurred while saving the post');
+      
+      // If this was a back navigation, still navigate back even if save failed
+      if (isBackNavigation) {
+        navigate('/employer/post-internship');
+      }
     } finally {
       setLoading(false);
     }
@@ -362,35 +402,17 @@ const EP_AddInternshipPage = () => {
         </h2>
       </div>
       
-      {showExitDialog && (
-        <div className={styles.dialog}>
-          <div className={styles.dialogContent}>
-            <h3>Save changes?</h3>
-            <p>Do you want to save your changes as a draft before leaving?</p>
-            <div className={styles.dialogButtons}>
-              <button
-                onClick={handleExitWithoutSaving}
-                className={styles.exitButton}
-              >
-                Don't Save
-              </button>
-              <button
-                onClick={handleSaveAsDraft}
-                className={styles.saveButton}
-              >
-                Save as Draft
-              </button>
-              <button
-                onClick={() => setShowExitDialog(false)}
-                className={styles.cancelButton}
-              >
-                Cancel
-              </button>
-            </div>
+      {/* Success Message Box */}
+      {showSuccessMessage && (
+        <div className={styles.successMessageOverlay}>
+          <div className={styles.successMessage}>
+            <div className={styles.successIcon}>✓</div>
+            <h3>{successMessage}</h3>
+            <p>Redirecting to dashboard...</p>
           </div>
         </div>
       )}
-
+      
       {error && (
         <div className={styles.error}>
           <h4>Please fix the following issues:</h4>
@@ -400,7 +422,10 @@ const EP_AddInternshipPage = () => {
         </div>
       )}
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); savePost(false); }}>
+      <form className={styles.form} onSubmit={(e) => { 
+        e.preventDefault();
+        savePost(false); // This ensures we're publishing, not saving as draft
+      }}>
         <div className={styles.formGroup}>
           <label htmlFor="title">Job Title*</label>
           <input
@@ -435,27 +460,21 @@ const EP_AddInternshipPage = () => {
             onChange={handleChange}
             placeholder="e.g. Singapore"
             className={styles.inputBox}
+            autoComplete="off" // Prevents browser autocomplete from interfering
           />
-          {isLoading && <div>Loading...</div>}
-          {suggestions.length > 1 && (
-            <select
-              className={styles.suggestionsDropdown}
-              onChange={(e) => handleSuggestionSelect(e.target.value)}
-              size={suggestions.length > 5 ? 5 : suggestions.length} // Limit visible options
-            >
+          {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
+          
+          {!isLoading && suggestions.length > 0 && (
+            <div className={styles.suggestionsContainer}>
               {suggestions.map((suggestion, index) => (
-                <option key={index} value={suggestion.ADDRESS}>
+                <div 
+                  key={index} 
+                  className={styles.suggestionItem}
+                  onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
+                >
                   {suggestion.ADDRESS}
-                </option>
+                </div>
               ))}
-            </select>
-          )}
-          {suggestions.length === 1 && (
-            <div
-              className={styles.singleSuggestion}
-              onClick={() => handleSuggestionSelect(suggestions[0].ADDRESS)}
-            >
-              {suggestions[0].ADDRESS}
             </div>
           )}
         </div>
@@ -564,33 +583,32 @@ const EP_AddInternshipPage = () => {
         </div>
 
         <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
+          <label htmlFor="skills" className={`${styles.label} ${styles.tagLabel}`}>
             Skills <span className={styles.optional}>(optional)</span>
           </label>
           
-        <div className={`${styles.skillsContainer} flex flex-wrap gap-2`}>
-          {formData.tags.map((skill, index) => (
-            <div key={index} className={styles.skillTag}>
-              <span>{skill}</span>
-              <button
-                type="button"
-                onClick={() => removeTag(index)}
-                className={styles.removeSkill}
-              >
-                <FaTimes />
-              </button>
-            </div>
-          ))}
-        </div>
+          <div className={styles.skillsContainer}>
+            {formData.tags.map((skill, index) => (
+              <div key={index} className={styles.skillTag}>
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className={styles.removeSkill}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ))}
+          </div>
 
-
-          <div className="flex items-start gap-2 mt-2 relative items-center">
-          <div className={`${styles.tagInput} w-full relative`}>
+          <div className={styles.skillInputContainer}>
+            <div className={styles.skillInputWrapper}>
               <input
                 type="text"
                 value={currentTag}
                 onChange={handleTagInput}
-                className={`${styles.formGroup}`}
+                className={styles.formGroup}
                 placeholder="Add a skill"
                 onKeyDown={(e) => e.key === 'Enter' && addTag()}
               />
@@ -607,13 +625,13 @@ const EP_AddInternshipPage = () => {
                       <li
                         key={index}
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => {
-                  setFormData(prev => ({
-                    ...prev,
-                    tags: [...prev.tags, skill]
-                  }));
-                  setCurrentTag('');
-                }}
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            tags: [...prev.tags, skill]
+                          }));
+                          setCurrentTag('');
+                        }}
                       >
                         {skill}
                       </li>
@@ -621,15 +639,13 @@ const EP_AddInternshipPage = () => {
                 </ul>
               )}
             </div>
-            <div className="gap-2 flex items-center">
-              <button
-                type="button"
-                onClick={addTag}
-                className={`${styles.button} ${styles.secondaryButton}`}
-              >
-                Add
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={addTag}
+              className={`${styles.button} ${styles.secondaryButton} ${styles.addButton}`}
+            >
+              Add
+            </button>
           </div>
         </div>
 

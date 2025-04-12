@@ -14,6 +14,7 @@ import connectDB from './config/db.js';
 import authUserRoutes from './routes/authUser.route.js';
 import jobRoutes from './routes/job.route.js';
 import applicationRoutes from './routes/application.route.js';
+import messageRoutes from './routes/message.route.js';
 
 // Import error handler middleware
 import errorHandlerMiddleware from './middleware/error-handler.js';
@@ -129,6 +130,22 @@ const startServer = async () => {
     
     console.log('Server initialization complete');
     
+    app.use('/api/messages', messageRoutes);
+
+    // OneMap token endpoint
+    app.get('/use-token', (req, res) => {
+      if (!accessToken) {
+        return res.status(400).json({ error: 'Access token not available' });
+      }
+      res.json({ message: 'Access token is available', token: accessToken, token2: accessToken2 });
+    });
+    
+    // Error handling middleware
+    app.use(notFound);
+    app.use(errorHandler);
+
+    const port = await findPort(process.env.PORT);
+    app.listen(port, () => console.log(`Backend running on port ${port}`));
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);
@@ -138,3 +155,53 @@ const startServer = async () => {
 startServer();
 
 export default app;
+// Fetch EMSI token
+const fetchEmsiToken = async () => {
+  try {
+    const emsiUrl = "https://auth.emsicloud.com/connect/token";
+    const emsiData = new URLSearchParams({
+      client_id: process.env.Client_ID,
+      client_secret: process.env.Secret,
+      grant_type: 'client_credentials',
+      scope: process.env.Scope,
+    });
+    
+    const response = await axios.post(emsiUrl, emsiData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+    accessToken2 = response.data.access_token;
+    console.log('EMSI token acquired');
+  } catch (error) {
+    console.error('Error fetching EMSI token:', error.response ? error.response.data : error.message);
+  }
+};
+
+// Fetch OneMap token
+const fetchOneMapToken = async () => {
+  try {
+    const url = "https://www.onemap.gov.sg/api/auth/post/getToken";
+    const data = {
+      email: process.env.ONEMAP_EMAIL,
+      password: process.env.ONEMAP_EMAIL_PASSWORD,
+    };
+    
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    accessToken = response.data.access_token;
+    console.log('OneMap token acquired');
+  } catch (error) {
+    console.error('Error fetching OneMap token:', error.response ? error.response.data : error.message);
+  }
+};
+
+// Start everything
+Promise.all([fetchEmsiToken(), fetchOneMapToken()])
+  .then(() => startServer())
+  .catch(error => console.error('Startup error:', error));
+
+

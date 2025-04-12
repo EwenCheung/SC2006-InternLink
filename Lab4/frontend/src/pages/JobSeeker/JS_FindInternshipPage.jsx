@@ -66,9 +66,25 @@ const JS_FindInternshipPage = () => {
     fetchInitialJobs();
   }, [setLoading, setJobs]);
 
-const handleViewDetails = (jobId) => {
-    navigate(`/jobseeker/internship/${jobId}`);
-};
+  const handleViewDetails = (jobId) => {
+    try {
+      // Get jobseeker ID from localStorage
+      const user = localStorage.getItem('user');
+      if (user) {
+        const userData = JSON.parse(user);
+        const jobseekerId = userData._id;
+        // Navigate to job details with jobId
+        navigate(`/jobseeker/internship/${jobId}`);
+      } else {
+        // If no user found, just navigate to job details without ID
+        navigate(`/jobseeker/internship/${jobId}`);
+      }
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      // Fallback to simple navigation
+      navigate(`/jobseeker/internship/${jobId}`);
+    }
+  };
 
   const renderTags = (job) => {
     const allTags = job.tags || [];
@@ -181,7 +197,25 @@ const handleViewDetails = (jobId) => {
         
         <button 
           className={styles.viewApplicationBtn}
-          onClick={() => navigate('/jobseeker/applications')}
+          onClick={() => {
+            try {
+              // Get jobseeker ID from localStorage
+              const user = localStorage.getItem('user');
+              if (user) {
+                const userData = JSON.parse(user);
+                const jobseekerID = userData._id;
+                // Navigate to applications with jobseeker ID
+                navigate(`/jobseeker/applications/${jobseekerID}`);
+              } else {
+                // If no user found, just navigate to applications
+                navigate('/jobseeker/applications');
+              }
+            } catch (error) {
+              console.error('Error parsing user data:', error);
+              // Fallback to simple navigation
+              navigate('/jobseeker/applications');
+            }
+          }}
         >
           View Applications
         </button>

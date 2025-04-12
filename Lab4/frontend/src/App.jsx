@@ -14,7 +14,8 @@ import JS_ProfilePage from './pages/JobSeeker/JS_ProfilePage';
 import JS_MessagesPage from './pages/JobSeeker/JS_MessagesPage';
 import JS_ViewApplicationPage from './pages/JobSeeker/JS_ViewApplicationPage';
 import JS_PrivacySettings from './pages/JobSeeker/JS_PrivacySettings';
-import ApplicationDetailPage from './pages/JobSeeker/ApplicationDetailPage';
+import JS_InternshipApplicationPage from './pages/JobSeeker/JS_InternshipApplicationPage';
+import JS_AdHocApplicationPage from './pages/JobSeeker/JS_AdHocApplicationPage';
 import EP_EmailLoginPage from './pages/Employer/EP_EmailLoginPage';
 import EP_EmailSignupPage from './pages/Employer/EP_EmailSignupPage';
 import EP_PostInternshipPage from './pages/Employer/EP_PostInternshipPage';
@@ -71,11 +72,12 @@ const App = () => {
             <Route path="/jobseeker/find-internship" element={<JS_FindInternshipPage />} />
             <Route path="/jobseeker/find-adhoc" element={<JS_FindAdHocPage />} />
             <Route path="/jobseeker/internship/:id" element={<JS_InternshipDetailsPage />} />
-            <Route path="/jobseeker/application-details" element={<ApplicationDetailPage />} />
+            <Route path="/jobseeker/internship-application/:jobId" element={<JS_InternshipApplicationPage />} />
             <Route path="/jobseeker/adhoc/:id" element={<JS_AdHocDetailsPage />} />
+            <Route path="/jobseeker/adhoc-application/:jobId" element={<JS_AdHocApplicationPage />} />
             <Route path="/jobseeker/messages" element={<JS_MessagesPage />} />
             <Route path="/jobseeker/profile" element={<JS_ProfilePage />} />
-            <Route path="/jobseeker/applications" element={<JS_ViewApplicationPage />} />
+            <Route path="/jobseeker/applications/:id" element={<JS_ViewApplicationPage />} />
             <Route path="/jobseeker/js-privacy-settings" element={<JS_PrivacySettings />} />
           </Route>
         </Route>
@@ -96,6 +98,8 @@ const App = () => {
             <Route path="/employer/candidates" element={<EP_ViewCandidatesPage />} />
             <Route path="/employer/messages" element={<EP_MessagesPage />} />
             <Route path="/employer/profile" element={<EP_ProfilePage />} />
+            <Route path="/employer/adhoc-details/:id" element={<EP_AdHocDetailsPage />} />
+            <Route path="/employer/internship-details/:id" element={<EP_InternshipDetailsPage />} />
             <Route path="/employer/ep-privacy-settings" element={<EP_PrivacySettings />} />
             <Route path="/employer/applicant/:id" element={<EP_ViewApplicantProfilePage />} />
             
