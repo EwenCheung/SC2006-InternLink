@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styles from './JS_EmailLoginPage.module.css';
-import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaExchangeAlt } from 'react-icons/fa';
 
 const JS_EmailLoginPage = () => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const JS_EmailLoginPage = () => {
         // Get error message from server response
         const errorData = data || {};
         if (response.status === 401) {
-          setError(errorData.message || 'Invalid email or password');
+          setError('No account found with these credentials. Please sign up or try again.');
         } else if (response.status === 400) {
           setError(errorData.message || 'Please provide both email and password');
         } else {
@@ -86,9 +86,9 @@ const JS_EmailLoginPage = () => {
     <div className={styles.container}>
       <button 
         onClick={() => navigate('/employer/login')}
-        className={styles.backButton}
+        className={styles.switchRoleButton}
       >
-        <FaArrowLeft /> Switch Role
+        <FaExchangeAlt /> Switch to Employer
       </button>
 
       <div className={styles.formContainer}>

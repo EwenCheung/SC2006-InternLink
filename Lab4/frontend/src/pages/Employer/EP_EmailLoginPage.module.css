@@ -108,9 +108,20 @@
     color: #333;
 }
 
+.errorIcon {
+    @apply h-5 w-5 flex-shrink-0;
+}
+
 .error {
-    @apply mt-2 text-sm text-red-600 flex items-center gap-2 bg-red-50 p-3 rounded-md;
+    @apply mt-2 text-sm text-red-600 flex items-start gap-2 bg-red-50 p-3 rounded-md;
     animation: fadeIn 0.3s ease-out;
+    border: 1px solid rgba(252, 165, 165, 0.2);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.error span {
+    @apply flex-1;
+    line-height: 1.4;
 }
 
 .navigationLinks {
@@ -126,6 +137,19 @@
     @apply absolute top-8 left-8 text-[#7C3AED] hover:text-[#8B5CF6] flex items-center gap-2;
     transition: all 0.2s ease-in-out;
     z-index: 10;
+}
+
+.switchRoleButton {
+    @apply absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md text-[#7C3AED] font-medium;
+    transition: all 0.2s ease-in-out;
+    z-index: 10;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.switchRoleButton:hover {
+    @apply bg-[#7C3AED] text-white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
 }
 
 .loadingSpan {
