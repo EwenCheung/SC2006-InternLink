@@ -1,97 +1,8 @@
-import mongoose from 'mongoose';
 import JobSeeker from '../models/JobSeeker.model.js';
 import bcrypt from 'bcryptjs';
 import Employer from '../models/Employer.model.js';
 import { StatusCodes } from 'http-status-codes';
 import { BadRequestError, UnauthenticatedError } from '../errors/index.js';
-import { getFileInfo, deleteFile, getFileStream } from '../config/gridfs.js';
-
-
-// Reset Password
-export const resetPassword = async (req, res) => {
-  const { id, token } = req.params;
-  const { password, currentPassword } = req.body;
-
-  if (!currentPassword) {
-    return res.status(400).json({ message: "Current password is required!" });
-  }
-
-  try {
-    const user = await JobSeeker.findOne({ _id: id });
-    if (!user) {
-      return res.status(400).json({ message: "User not exists!" });
-    }
-
-    
-    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Current password is incorrect!" });
-    }
-
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    await JobSeeker.updateOne(
-      {
-        _id: id,
-      },
-      {
-        $set: {
-          password: encryptedPassword,
-        },
-      }
-    );
-
-    res.status(200).json({ message: 'Password has been reset' });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
-
-
-// Helper functions for file handling
-const cleanupUserFiles = async (user) => {
-  if (user?.profileImage?.fileId) {
-    await cleanupFile(user.profileImage.fileId, 'profileImages');
-  }
-  if (user?.resume?.fileId) {
-    await cleanupFile(user.resume.fileId, 'resumes');
-  }
-};
-
-const validateFileType = (mimetype, fileType) => {
-  const allowedTypes = {
-    resume: {
-      'application/pdf': true
-    },
-    profileImage: {
-      'image/jpeg': true,
-      'image/png': true
-    }
-  };
-
-  if (!allowedTypes[fileType]?.[mimetype]) {
-    if (fileType === 'resume') {
-      throw new BadRequestError('Invalid file type. Only PDF files are allowed for resumes.');
-    } else {
-      throw new BadRequestError('Invalid file type. Only PNG, JPG and JPEG files are allowed for profile photos.');
-    }
-  }
-  return true;
-};
-
-const cleanupFile = async (fileId, bucket) => {
-  if (fileId) {
-    try {
-      const result = await deleteFile(fileId, bucket);
-      if (!result) {
-        console.error(`Failed to delete file ${fileId} from ${bucket}`);
-      }
-    } catch (error) {
-      console.error(`Error cleaning up file ${fileId} from ${bucket}:`, error);
-    }
-  }
-};
-
 
 // Register User
 export const register = async (req, res) => {
@@ -100,101 +11,35 @@ export const register = async (req, res) => {
   if (!role || !['jobseeker', 'employer'].includes(role)) {
     throw new BadRequestError('Please provide a valid role');
   }
-  
-  let user;
-  let profileData = { ...req.body };
 
   try {
-    // Handle profile image upload if provided
+    let userData = { ...req.body };
+
+    // Handle profile image upload
     if (req.file) {
-      const fileInfo = await getFileInfo(req.file.filename, 'profileImages');
-      if (!fileInfo) {
-        throw new Error('Failed to process uploaded file');
-      }
-      
-      const imageUrl = `/api/auth/files/profileImage/${fileInfo._id}`;
-      profileData.profileImage = {
-        fileId: fileInfo._id,
-        url: imageUrl,
+      userData.profileImage = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
         uploadedAt: new Date(),
-        contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-        originalName: fileInfo.metadata?.originalName,
-        filename: fileInfo.filename,
-        size: fileInfo.length || 0
-      };
-    } else {
-      // Use default image URL if no image uploaded
-      profileData.profileImage = {
-        fileId: null,
-        url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-        uploadedAt: new Date(),
-        contentType: 'image/jpeg',
-        originalName: 'default-profile.jpg',
-        filename: 'default-profile.jpg',
-        size: 0
+        size: req.file.size
       };
     }
-    
-    if (role === 'jobseeker') {
-      const { email, password, userName } = profileData;
-      if (!email || !password || !userName) {
-        throw new BadRequestError('Please provide all required fields');
-      }
-      user = await JobSeeker.create(profileData);
-      // Populate the profile image data
-      user = await JobSeeker.findById(user._id);
-      
-      // Get profile image info if exists
-      if (user.profileImage?.fileId) {
-        const fileInfo = await getFileInfo(user.profileImage.fileId, 'profileImages');
-        if (fileInfo) {
-          user.profileImage = {
-            ...user.profileImage,
-            contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-            originalName: fileInfo.metadata?.originalName || fileInfo.filename,
-            filename: fileInfo.filename,
-            size: fileInfo.length || 0
-          };
-        }
-      }
-    } else {
-      const { email, password, companyName } = profileData;
-      if (!email || !password || !companyName) {
-        throw new BadRequestError('Please provide all required fields');
-      }
-      user = await Employer.create(profileData);
-      // Populate the profile image data
-      user = await Employer.findById(user._id);
-      
-      // Get profile image info if exists
-      if (user.profileImage?.fileId) {
-        const fileInfo = await getFileInfo(user.profileImage.fileId, 'profileImages');
-        if (fileInfo) {
-          user.profileImage = {
-            ...user.profileImage,
-            contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-            originalName: fileInfo.metadata?.originalName || fileInfo.filename,
-            filename: fileInfo.filename,
-            size: fileInfo.length || 0
-          };
-        }
-      }
-    }
-    
+
+    // Create user based on role
+    const Model = role === 'jobseeker' ? JobSeeker : Employer;
+    const user = await Model.create(userData);
+
     const token = user.createJWT();
-    
-    // Ensure profile image URL is set properly
     const userProfile = {
       id: user._id,
-      email: user.email,
-      role: user.role,
+      role: role,
       name: role === 'jobseeker' ? user.userName : user.companyName,
-      profileImage: user.profileImage
+      email: user.email,
+      // Only add URLs, don't include binary data in response
+      profileImageUrl: user.profileImage ? 
+        `/api/auth/files/profileImage/${user._id}` : null
     };
-
-    if (userProfile.profileImage?.fileId) {
-      userProfile.profileImage.url = `/api/auth/files/profileImage/${userProfile.profileImage.fileId}`;
-    }
 
     res.status(StatusCodes.CREATED).json({
       success: true,
@@ -203,11 +48,79 @@ export const register = async (req, res) => {
       message: 'Registration successful'
     });
   } catch (error) {
-    // Clean up uploaded file if user creation fails
-    if (req.file && fileInfo?._id) {
-      await cleanupFile(fileInfo._id, 'profileImages');
+    // Check for MongoDB duplicate key error (code 11000)
+    if (error.code === 11000) {
+      return res.status(StatusCodes.CONFLICT).json({
+        success: false,
+        message: 'An account with this email already exists'
+      });
     }
-    throw error;
+    
+    // Handle other registration errors
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message || 'Registration failed. Please try again.'
+    });
+  }
+};
+
+// Login User
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Please provide both email and password'
+      });
+    }
+
+    // Try JobSeeker first, then Employer
+    let user = await JobSeeker.findOne({ email });
+    let role = 'jobseeker';
+    
+    if (!user) {
+      user = await Employer.findOne({ email });
+      role = 'employer';
+    }
+    
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    const isPasswordCorrect = await user.comparePassword(password);
+    if (!isPasswordCorrect) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+    
+    const token = user.createJWT();
+    const userProfile = {
+      id: user._id,
+      role: role,
+      name: role === 'jobseeker' ? user.userName : user.companyName,
+      email: user.email,
+      profileImageUrl: user.profileImage?.data ? 
+        `/api/auth/files/profileImage/${user._id}` : null
+    };
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      user: userProfile,
+      token
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: 'An error occurred during login. Please try again.'
+    });
   }
 };
 
@@ -216,219 +129,184 @@ export const getProfile = async (req, res) => {
   const { userId, role } = req.user;
   
   try {
-    let user;
-    if (role === 'jobseeker') {
-      user = await JobSeeker.findById(userId);
-      
-      // Get profile image and resume info if they exist
-      if (user.profileImage?.fileId) {
-        const fileInfo = await getFileInfo(user.profileImage.fileId, 'profileImages');
-        if (fileInfo) {
-          user.profileImage = {
-            ...user.profileImage,
-            contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-            originalName: fileInfo.metadata?.originalName || fileInfo.filename,
-            filename: fileInfo.filename,
-            size: fileInfo.length || 0
-          };
-        }
-      }
-      
-      if (user.resume?.fileId) {
-        const resumeInfo = await getFileInfo(user.resume.fileId, 'resumes');
-        if (resumeInfo) {
-          user.resume = {
-            ...user.resume,
-            contentType: resumeInfo.metadata?.contentType || 'application/pdf',
-            originalName: resumeInfo.metadata?.originalName || resumeInfo.filename,
-            filename: resumeInfo.filename,
-            size: resumeInfo.length || 0
-          };
-        }
-      }
-      if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'No profile found',
-          data: {
-            userName: 'New User',
-            school: 'Select School',
-            course: 'Select Course',
-            yearOfStudy: 'Year 1',
-            email: '',
-            contact: '',
-            profileImage: {
-              fileId: null,
-              url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-              uploadedAt: new Date(),
-              contentType: 'image/jpeg',
-              originalName: 'default-profile.jpg',
-              filename: 'default-profile.jpg',
-              size: 0
-            }
-          }
-        });
-      }
-    } else {
-      user = await Employer.findById(userId);
-      
-      // Get profile image info if exists
-      if (user.profileImage?.fileId) {
-        const fileInfo = await getFileInfo(user.profileImage.fileId, 'profileImages');
-        if (fileInfo) {
-          user.profileImage = {
-            ...user.profileImage,
-            contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-            originalName: fileInfo.metadata?.originalName || fileInfo.filename,
-            filename: fileInfo.filename,
-            size: fileInfo.length || 0
-          };
-        }
-      }
-      if (!user) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          success: false,
-          message: 'No profile found',
-          data: {
-            companyName: 'New Company',
-            industry: 'Select Industry',
-            companySize: 'Select Size',
-            email: '',
-            contact: '',
-            profileImage: {
-              fileId: null,
-              url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-              uploadedAt: new Date(),
-              contentType: 'image/jpeg',
-              originalName: 'default-profile.jpg',
-              filename: 'default-profile.jpg',
-              size: 0
-            }
-          }
-        });
-      }
+    const Model = role === 'jobseeker' ? JobSeeker : Employer;
+    console.log('Looking for user:', { userId, role });
+    
+    console.log('Looking for user in database:', {
+      userId,
+      role,
+      model: Model.modelName,
+      database: Model.db.name
+    });
+    
+    const user = await Model.findById(userId);
+    console.log('Database response:', {
+      found: !!user,
+      id: user?._id,
+      role: user?.role,
+      model: Model.modelName
+    });
+
+    if (!user) {
+      console.log('User not found with ID:', userId);
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
     }
 
-    // Transform resume information
-    const userObj = user.toObject();
-    const { password, ...userProfile } = userObj;
+    // Transform user data
+    const userProfile = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+      name: role === 'jobseeker' ? user.userName : user.companyName,
+      ...user.toObject(),
+      // Don't include binary data in response
+      profileImage: user.profileImage ? {
+        contentType: user.profileImage.contentType,
+        originalName: user.profileImage.originalName,
+        uploadedAt: user.profileImage.uploadedAt,
+        size: user.profileImage.size,
+        url: `/api/auth/files/profileImage/${user._id}`
+      } : null,
+      resume: user.resume ? {
+        contentType: user.resume.contentType,
+        originalName: user.resume.originalName,
+        uploadedAt: user.resume.uploadedAt,
+        size: user.resume.size,
+        url: `/api/auth/files/resume/${user._id}`
+      } : null
+    };
 
-    // Add URLs for profile image and resume
-    if (userProfile.profileImage?.fileId) {
-      userProfile.profileImage.url = `/api/auth/files/profileImage/${userProfile.profileImage.fileId}`;
-    }
-
-    if (userProfile.resume?.fileId) {
-      const resumeInfo = await getFileInfo(userProfile.resume.fileId, 'resumes');
-      if (resumeInfo) {
-        userProfile.resume = {
-          ...userProfile.resume,
-          url: `/api/auth/files/resume/${userProfile.resume.fileId}`,
-          contentType: resumeInfo.metadata?.contentType || 'application/pdf',
-          originalName: resumeInfo.metadata?.originalName || resumeInfo.filename,
-          filename: resumeInfo.filename,
-          size: resumeInfo.length || 0
-        };
-      }
-    }
+    // Remove binary data and password from response
+    delete userProfile.profileImage?.data;
+    delete userProfile.resume?.data;
+    delete userProfile.password;
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: userProfile
     });
   } catch (error) {
+    console.error('Error in getProfile:', error);
     throw new BadRequestError(error.message);
   }
 };
 
-// Update single field
-export const updateField = async (req, res) => {
-  const { field, value } = req.body;
-  const { role, userId } = req.user;
-
-  if (!field || value === undefined) {
-    throw new BadRequestError('Field and value are required');
-  }
-
-  // Protected fields that can't be updated this way
-  const protectedFields = ['password', 'email', 'role', '_id'];
-  if (protectedFields.includes(field)) {
-    throw new BadRequestError('This field cannot be updated directly');
-  }
-
+// Update User
+export const updateUser = async (req, res) => {
   try {
+    const { userId, role } = req.user;
+    
     const Model = role === 'jobseeker' ? JobSeeker : Employer;
-    const update = { [field]: value };
+    
+    console.log('Updating user:', { userId, role });
+    console.log('Request body:', req.body);
+    console.log('Files received:', req.files);
+    
+    let updates = {};
+
+    // Handle regular fields
+    if (req.body) {
+      Object.keys(req.body).forEach(key => {
+        if (!['password', 'email', 'role', '_id'].includes(key)) {
+          updates[key] = req.body[key];
+        }
+      });
+    }
+
+    // Check if resume should be deleted (if resumeDeleted flag is present)
+    if (req.body && req.body.resumeDeleted === 'true') {
+      console.log('Resume deletion requested');
+      updates.$unset = { resume: "" };
+    }
+
+    // Handle file uploads
+    if (req.files) {
+      // Handle profile image
+      if (req.files.profileImage && req.files.profileImage[0]) {
+        const profileFile = req.files.profileImage[0];
+        console.log('Processing profile image:', profileFile);
+        
+        updates.profileImage = {
+          data: profileFile.buffer,
+          contentType: profileFile.mimetype,
+          originalName: profileFile.originalname,
+          uploadedAt: new Date(),
+          size: profileFile.size
+        };
+      }
+
+      // Handle resume upload (only if not deleting)
+      if (req.files.resume && req.files.resume[0] && !req.body.resumeDeleted) {
+        const resumeFile = req.files.resume[0];
+        console.log('Processing resume:', resumeFile);
+        
+        updates.resume = {
+          data: resumeFile.buffer,
+          contentType: resumeFile.mimetype,
+          originalName: resumeFile.originalname,
+          uploadedAt: new Date(),
+          size: resumeFile.size
+        };
+      }
+    } else if (req.file) {
+      // Handle single file upload
+      const fieldname = req.file.fieldname;
+      updates[fieldname] = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname,
+        uploadedAt: new Date(),
+        size: req.file.size
+      };
+    }
 
     const user = await Model.findByIdAndUpdate(
       userId,
-      { $set: update },
-      { new: true, runValidators: true }
+      updates,
+      { new: true }
     );
 
     if (!user) {
-      throw new BadRequestError('User not found');
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
     }
 
-    // Transform response to match consistent format
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: { [field]: user[field] },
-      message: `${field} updated successfully`
-    });
-  } catch (error) {
-    throw new BadRequestError(error.message);
-  }
-};
+    // Transform response data
+    const userProfile = {
+      id: user._id,
+      role: user.role,
+      email: user.email,
+      name: role === 'jobseeker' ? user.userName : user.companyName,
+      ...user.toObject()
+    };
 
-// Update multiple fields
-export const updateUser = async (req, res) => {
-  const { role, userId } = req.user;
-  
-  const updates = { ...req.body };
-  const protectedFields = ['password', 'email', 'role', '_id'];
-  protectedFields.forEach(field => delete updates[field]);
-  
-  try {
-    const Model = role === 'jobseeker' ? JobSeeker : Employer;
-    const user = await Model.findByIdAndUpdate(
-      userId,
-      { $set: updates },
-      { new: true, runValidators: true }
-    )
-    .populate({
-      path: 'profileImage.fileId',
-      select: 'filename metadata'
-    })
-    .populate({
-      path: 'resume.fileId',
-      select: 'filename metadata'
-    });
-
-    if (!user) {
-      throw new BadRequestError('User not found');
+    // Don't include binary data in the response
+    if (userProfile.profileImage?.data) {
+      userProfile.profileImage = {
+        contentType: user.profileImage.contentType,
+        originalName: user.profileImage.originalName,
+        uploadedAt: user.profileImage.uploadedAt,
+        size: user.profileImage.size,
+        url: `/api/auth/files/profileImage/${user._id}`
+      };
     }
     
-    const { password, ...userProfile } = user.toObject();
-
-    // Add URLs for profile image and resume
-    if (userProfile.profileImage?.fileId) {
-      userProfile.profileImage.url = `/api/auth/files/profileImage/${userProfile.profileImage.fileId}`;
+    if (userProfile.resume?.data) {
+      userProfile.resume = {
+        contentType: user.resume.contentType,
+        originalName: user.resume.originalName,
+        uploadedAt: user.resume.uploadedAt,
+        size: user.resume.size,
+        url: `/api/auth/files/resume/${user._id}`
+      };
     }
 
-    if (userProfile.resume?.fileId) {
-      const resumeInfo = await getFileInfo(userProfile.resume.fileId, 'resumes');
-      if (resumeInfo) {
-        userProfile.resume = {
-          ...userProfile.resume,
-          url: `/api/auth/files/resume/${userProfile.resume.fileId}`,
-          contentType: resumeInfo.metadata?.contentType || 'application/pdf',
-          originalName: resumeInfo.metadata?.originalName || resumeInfo.filename,
-          filename: resumeInfo.filename,
-          size: resumeInfo.length || 0
-        };
-      }
-    }
+    delete userProfile.password;
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -436,513 +314,265 @@ export const updateUser = async (req, res) => {
       message: 'Profile updated successfully'
     });
   } catch (error) {
-    throw new BadRequestError(error.message);
-  }
-};
-
-// Handle Resume Upload
-export const handleResumeUpload = async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({
-            success: false,
-            message: 'Please upload a file'
-        });
-    }
-
-    const { userId, role } = req.user;
-    const { filename, mimetype } = req.file;
-    let fileInfo;
-
-    try {
-        // Validate file type
-        validateFileType(mimetype, 'resume');
-        if (role !== 'jobseeker') {
-            throw new Error('Only job seekers can upload resumes');
-        }
-
-        // Get the GridFS file information
-        fileInfo = await getFileInfo(filename, 'resumes');
-        if (!fileInfo) {
-            throw new Error('Failed to process uploaded file');
-        }
-
-        // Delete old resume if it exists
-        const user = await JobSeeker.findById(userId);
-        if (user?.resume?.fileId) {
-            await cleanupFile(user.resume.fileId, 'resumes');
-        }
-    
-        const updatedUser = await JobSeeker.findByIdAndUpdate(
-            userId,
-            { 
-                resume: {
-                    fileId: fileInfo._id,
-                    uploadedAt: new Date(),
-                    contentType: fileInfo.metadata?.contentType || 'application/pdf',
-                    originalName: fileInfo.metadata?.originalName,
-                    filename: fileInfo.filename,
-                    size: fileInfo.length || 0
-                }
-            },
-            { new: true }
-        ).populate({
-            path: 'resume.fileId',
-            select: 'filename metadata'
-        });
-
-        if (!updatedUser) {
-            throw new Error('User not found');
-        }
-
-        const resumeUrl = `/api/auth/files/resume/${fileInfo._id}`;
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            resume: {
-                fileId: fileInfo._id,
-                uploadedAt: new Date(),
-                url: resumeUrl,
-                contentType: fileInfo.metadata?.contentType || 'application/pdf',
-                originalName: fileInfo.metadata?.originalName || fileInfo.filename,
-                filename: fileInfo.filename,
-                size: fileInfo.length || 0
-            },
-            message: 'Resume uploaded successfully'
-        });
-    } catch (error) {
-        // Clean up uploaded file if user update fails
-        if (fileInfo?._id) {
-            await cleanupFile(fileInfo._id, 'resumes');
-        }
-        return res.status(400).json({
-            success: false,
-            message: error.message || 'Failed to upload resume'
-        });
-    }
-};
-
-// Upload Profile Photo
-export const uploadProfilePhoto = async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({
-            success: false,
-            message: 'Please upload a file'
-        });
-    }
-
-    const { userId, role } = req.user;
-    const { filename, mimetype } = req.file;
-    let fileInfo;
-    
-    try {
-        // Validate file type
-        validateFileType(mimetype, 'profileImage');
-        const Model = role === 'jobseeker' ? JobSeeker : Employer;
-        
-        // Get the GridFS file information
-        fileInfo = await getFileInfo(filename, 'profileImages');
-        if (!fileInfo) {
-            throw new Error('Failed to process uploaded file');
-        }
-        
-        // Delete old profile image if it exists
-        const user = await Model.findById(userId);
-        if (user?.profileImage?.fileId) {
-            await cleanupFile(user.profileImage.fileId, 'profileImages');
-        }
-
-        const updatedUser = await Model.findByIdAndUpdate(
-            userId,
-            { 
-                profileImage: {
-                    fileId: fileInfo._id,
-                    uploadedAt: new Date(),
-                    contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-                    originalName: fileInfo.metadata?.originalName,
-                    filename: fileInfo.filename,
-                    size: fileInfo.length || 0
-                }
-            },
-            { new: true }
-        ).populate({
-            path: 'profileImage.fileId',
-            select: 'filename metadata'
-        });
-
-        if (!updatedUser) {
-            throw new Error('User not found');
-        }
-
-        // Add profile URL to response
-        const imageUrl = `/api/auth/files/profileImage/${fileInfo._id}`;
-        const profileImage = {
-            fileId: fileInfo._id,
-            uploadedAt: new Date(),
-            url: imageUrl,
-            contentType: fileInfo.metadata?.contentType || 'image/jpeg',
-            originalName: fileInfo.metadata?.originalName || 'profile.jpg',
-            filename: fileInfo.filename || 'profile.jpg',
-            size: fileInfo.length || 0
-        };
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            profileImage,
-            message: 'Profile photo updated successfully'
-        });
-    } catch (error) {
-        // Clean up uploaded file if user update fails
-        if (fileInfo?._id) {
-            await cleanupFile(fileInfo._id, 'profileImages');
-        }
-        return res.status(400).json({
-            success: false,
-            message: error.message || 'Failed to update profile photo'
-        });
-    }
-};
-
-// Stream File with proper headers
-export const streamFile = async (req, res) => {
-    try {
-        const { fileId, type } = req.params;
-        const bucketName = type === 'resume' ? 'resumes' : 'profileImages';
-        
-        // Get file info first
-        const fileInfo = await getFileInfo(fileId, bucketName);
-        if (!fileInfo) {
-            return res.status(404).json({
-                success: false,
-                message: 'File not found'
-            });
-        }
-
-        // Determine content type and validate file
-        const fileType = bucketName === 'resumes' ? 'resume' : 'profileImage';
-        const contentType = (() => {
-            // First try to use metadata content type
-            if (fileInfo.metadata?.contentType) {
-                validateFileType(fileInfo.metadata.contentType, fileType);
-                return fileInfo.metadata.contentType;
-            }
-
-            // Fallback to extension-based detection
-            const ext = fileInfo.filename.split('.').pop().toLowerCase();
-            const mimeType = ext === 'pdf' ? 'application/pdf' : 
-                           ext === 'png' ? 'image/png' : 
-                           'image/jpeg';
-            validateFileType(mimeType, fileType);
-            return mimeType;
-        })();
-
-        // Set cache control headers for better performance
-        res.set({
-            'Content-Type': contentType,
-            'Content-Disposition': `inline; filename="${fileInfo.metadata?.originalName || fileInfo.filename}"`,
-            'Cache-Control': 'public, max-age=3600',
-            'Last-Modified': fileInfo.uploadDate.toUTCString()
-        });
-        
-        // Stream file using helper function
-        const stream = getFileStream(fileId, bucketName);
-        stream.pipe(res);
-        
-        stream.on('error', (err) => {
-            console.error('Streaming error:', err);
-            // Only send error if headers haven't been sent
-            if (!res.headersSent) {
-                res.status(404).json({
-                    success: false,
-                    message: 'Error streaming file'
-                });
-            }
-        });
-    } catch (error) {
-        console.error('File streaming error:', error);
-        if (!res.headersSent) {
-            res.status(500).json({
-                success: false,
-                message: 'Error streaming file',
-                error: error.message
-            });
-        }
-    }
-};
-
-// Update sensitive information
-export const updateSensitiveInfo = async (req, res) => {
-  const { userId, role } = req.user;
-  const { newEmail, newPassword, currentPassword } = req.body;
-
-  if (!currentPassword) {
-    return res.status(400).json({ message: "Current password is required!" });
-  }
-
-  try {
-    const UserModel = role === 'jobseeker' ? JobSeeker : Employer;
-    user = await UserModel.findById(userId)
-      .populate({
-        path: 'profileImage.fileId',
-        select: 'filename metadata'
-      })
-      .populate({
-        path: 'resume.fileId',
-        select: 'filename metadata'
-      });
-
-    if (!user) {
-      return res.status(400).json({ message: "User not exists!" });
-    }
-
-    
-    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
-    if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Current password is incorrect!" });
-    }
-
-    if (newEmail) {
-      const jobSeekerExists = await JobSeeker.findOne({ email: newEmail, _id: { $ne: userId } });
-      const employerExists = await Employer.findOne({ email: newEmail, _id: { $ne: userId } });
-
-      if (jobSeekerExists || employerExists) {
-        throw new BadRequestError('Email already in use');
-      }
-      user.email = newEmail;
-    }
-
-    if (newPassword) {
-      if (newPassword.length < 6) {
-        throw new BadRequestError('Password must be at least 6 characters long');
-      }
-      user.password = newPassword;
-    }
-
-    await user.save();
-    
-    // Re-fetch user to get populated data
-    user = await UserModel.findById(userId)
-      .populate({
-        path: 'profileImage.fileId',
-        select: 'filename metadata'
-      })
-      .populate({
-        path: 'resume.fileId',
-        select: 'filename metadata'
-      });
-      
-    const token = user.createJWT();
-
-    // Add profile image data with consistent metadata
-    const userProfile = {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      name: role === 'jobseeker' ? user.userName : user.companyName,
-      profileImage: user.profileImage?.fileId ? {
-        fileId: user.profileImage.fileId,
-        url: `/api/auth/files/profileImage/${user.profileImage.fileId}`,
-        uploadedAt: user.profileImage.uploadedAt || new Date(),
-        contentType: user.profileImage.contentType || 'image/jpeg',
-        originalName: user.profileImage.originalName || 'profile.jpg',
-        filename: user.profileImage.filename || 'profile.jpg',
-        size: user.profileImage.size || 0
-      } : {
-        fileId: null,
-        url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-        uploadedAt: new Date(),
-        contentType: 'image/jpeg',
-        originalName: 'default-profile.jpg',
-        filename: 'default-profile.jpg',
-        size: 0
-      }
-    };
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      user: userProfile,
-      token,
-      message: 'Profile updated successfully'
+    console.error('Error in updateUser:', error);
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message || 'Failed to update profile'
     });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Something went wrong' });
-  }
-};
-
-// Login User
-export const login = async (req, res) => {
-  const { email, password } = req.body;
-  
-  if (!email || !password) {
-    throw new BadRequestError('Please provide email and password');
-  }
-  
-  try {
-    // Check both collections sequentially instead of using Promise.any
-    let user = await JobSeeker.findOne({ email }).populate({
-      path: 'profileImage.fileId',
-      select: 'filename metadata'
-    });
-    if (!user) {
-      user = await Employer.findOne({ email }).populate({
-        path: 'profileImage.fileId',
-        select: 'filename metadata'
-      });
-    }
-    
-    if (!user) {
-      return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: 'There is no account with this email. Please sign up one.'
-      });
-    }
-    
-    const isPasswordCorrect = await user.comparePassword(password);
-    if (!isPasswordCorrect) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
-        success: false,
-        message: 'Incorrect password. Please try again.'
-      });
-    }
-    
-    const token = user.createJWT();
-    
-    // Add profile image data
-    const userProfile = {
-      id: user._id,
-      email: user.email,
-      role: user.role,
-      name: user.role === 'jobseeker' ? user.userName : user.companyName,
-      profileImage: user.profileImage?.fileId ? {
-        fileId: user.profileImage.fileId,
-        url: `/api/auth/files/profileImage/${user.profileImage.fileId}`,
-        uploadedAt: user.profileImage.uploadedAt || new Date(),
-        contentType: user.profileImage.contentType || 'image/jpeg',
-        originalName: user.profileImage.originalName || 'profile.jpg',
-        filename: user.profileImage.filename || 'profile.jpg',
-        size: user.profileImage.size || 0
-      } : {
-        fileId: null,
-        url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-        uploadedAt: new Date(),
-        contentType: 'image/jpeg',
-        originalName: 'default-profile.jpg',
-        filename: 'default-profile.jpg',
-        size: 0
-      }
-    };
-
-    return res.status(StatusCodes.OK).json({
-      success: true,
-      user: userProfile,
-      token
-    });
-  } catch (error) {
-    throw new BadRequestError(error.message);
   }
 };
 
 // Update contact list
 export const updateContactList = async (req, res) => {
-  const { userId, role } = req.user;
+  const { userId } = req.user;
   const { contactList } = req.body;
 
   if (!Array.isArray(contactList)) {
     throw new BadRequestError('Contact list must be an array');
   }
 
-  // Validate each contact
-  contactList.forEach(contact => {
-    if (!contact.type || !contact.value) {
-      throw new BadRequestError('Each contact must have a type and value');
-    }
-    if (!['email', 'phone', 'github', 'linkedin', 'other'].includes(contact.type)) {
-      throw new BadRequestError('Invalid contact type');
-    }
-  });
-
   try {
     const user = await JobSeeker.findByIdAndUpdate(
       userId,
       { contactList },
-      { new: true, runValidators: true }
-    ).select('contactList');
+      { new: true }
+    );
 
     if (!user) {
-      throw new BadRequestError('User not found');
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
     }
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: {
-        contactList: user.contactList
-      }
+      data: { contactList: user.contactList }
     });
   } catch (error) {
     throw new BadRequestError(error.message);
   }
 };
 
-// Delete user by ID
-export const deleteUserById = async (req, res) => {
-  const { id } = req.params;
-
+// Serve File - Send profile image or resume file
+export const serveFile = async (req, res) => {
   try {
-    // First find the user to get file references
-    let user = await JobSeeker.findById(id);
-    if (user) {
-      // Delete associated files and user
-      await cleanupUserFiles(user);
-      await user.deleteOne();
+    const { userId, type } = req.params;
+    const isResume = type === 'resume';
+    
+    // Determine which model to query based on explicit role parameter or infer from URL
+    const role = req.query.role;
+    let Model;
+    
+    if (role && role === 'employer') {
+      Model = Employer;
     } else {
-      user = await Employer.findById(id);
-      if (!user) {
-        throw new BadRequestError('User not found');
+      // Try JobSeeker first, then Employer if not found
+      const jobseeker = await JobSeeker.findById(userId);
+      if (jobseeker) {
+        Model = JobSeeker;
+      } else {
+        Model = Employer;
       }
-      // Delete associated files and user
-      await cleanupUserFiles(user);
-      await user.deleteOne();
     }
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      message: 'User deleted successfully'
+    
+    const user = await Model.findById(userId);
+    
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    const fileField = isResume ? 'resume' : 'profileImage';
+    const file = user[fileField];
+    
+    // If profile image is requested but not found, redirect to default image
+    if (!isResume && (!file || !file.data)) {
+      return res.redirect('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png');
+    }
+    
+    // For resume, return 404 if not found
+    if (isResume && (!file || !file.data)) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'File not found'
+      });
+    }
+    
+    const contentType = file.contentType || 
+                        (isResume ? 'application/pdf' : 'image/jpeg');
+    
+    res.set({
+      'Content-Type': contentType,
+      'Content-Disposition': `${isResume ? 'attachment' : 'inline'}; filename="${file.originalName || 'file'}"`,
+      'Cache-Control': 'public, max-age=3600'
     });
+    
+    res.send(file.data);
+    
   } catch (error) {
-    throw new BadRequestError(error.message);
+    console.error('Error serving file:', error);
+    // For profile images, redirect to default on error
+    if (req.params.type === 'profileImage') {
+      return res.redirect('https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png');
+    }
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'Error serving file'
+    });
   }
 };
 
-// Delete user by email
-export const deleteUserByEmail = async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    throw new BadRequestError('Please provide an email');
-  }
-
+// Delete File (resume or profile image)
+export const deleteFile = async (req, res) => {
   try {
-    // First find the user to get file references
-    let user = await JobSeeker.findOne({ email });
-    if (user) {
-      // Delete associated files and user
-      await cleanupUserFiles(user);
-      await user.deleteOne();
-    } else {
-      user = await Employer.findOne({ email });
-      if (!user) {
-        throw new BadRequestError('User not found');
-      }
-      // Delete associated files and user
-      await cleanupUserFiles(user);
-      await user.deleteOne();
+    const { userId, role } = req.user;
+    const { type } = req.params;
+    
+    if (!type || !['profileImage', 'resume'].includes(type)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Invalid file type specified'
+      });
     }
+    
+    const Model = role === 'jobseeker' ? JobSeeker : Employer;
+    
+    // For profile images, set to null instead of removing field
+    // For resumes, completely remove the field
+    const update = type === 'profileImage' 
+      ? { $unset: { [`${type}.data`]: "", [`${type}.contentType`]: "", [`${type}.originalName`]: "", [`${type}.uploadedAt`]: "", [`${type}.size`]: "" } }
+      : { $unset: { [type]: "" } };
+    
+    const user = await Model.findByIdAndUpdate(
+      userId,
+      update,
+      { new: true }
+    );
+    
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+    
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: `${type === 'profileImage' ? 'Profile image' : 'Resume'} deleted successfully`
+    });
+    
+  } catch (error) {
+    console.error(`Error deleting file:`, error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message || 'Error deleting file'
+    });
+  }
+};
+
+// Update work experience
+export const updateWorkExperience = async (req, res) => {
+  try {
+    const { userId, role } = req.user;
+    const { workExperience } = req.body;
+
+    // Only JobSeekers can update work experience
+    if (role !== 'jobseeker') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: 'Only job seekers can update work experience'
+      });
+    }
+
+    if (!Array.isArray(workExperience)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Work experience must be an array'
+      });
+    }
+
+    const user = await JobSeeker.findByIdAndUpdate(
+      userId,
+      { workExperience },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+
+    console.log('Work experience updated successfully:', workExperience.length);
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: 'User deleted successfully'
+      data: { workExperience: user.workExperience }
     });
   } catch (error) {
-    throw new BadRequestError(error.message);
+    console.error('Error updating work experience:', error);
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message || 'Failed to update work experience'
+    });
+  }
+};
+
+// Update academic history
+export const updateAcademicHistory = async (req, res) => {
+  try {
+    const { userId, role } = req.user;
+    const { academicHistory } = req.body;
+
+    // Only JobSeekers can update academic history
+    if (role !== 'jobseeker') {
+      return res.status(StatusCodes.FORBIDDEN).json({
+        success: false,
+        message: 'Only job seekers can update academic history'
+      });
+    }
+
+    if (!Array.isArray(academicHistory)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: 'Academic history must be an array'
+      });
+    }
+
+    console.log('Updating academic history:', {
+      userId,
+      itemCount: academicHistory.length,
+      items: academicHistory
+    });
+
+    const user = await JobSeeker.findByIdAndUpdate(
+      userId,
+      { academicHistory },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: 'Profile not found'
+      });
+    }
+
+    console.log('Academic history updated successfully');
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: { academicHistory: user.academicHistory }
+    });
+  } catch (error) {
+    console.error('Error updating academic history:', error);
+    res.status(StatusCodes.BAD_REQUEST).json({
+      success: false,
+      message: error.message || 'Failed to update academic history'
+    });
   }
 };

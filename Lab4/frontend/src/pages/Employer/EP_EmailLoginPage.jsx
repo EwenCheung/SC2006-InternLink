@@ -40,11 +40,22 @@ const EP_EmailLoginPage = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed. Please try again.');
+        // Get error message from server response
+        const errorData = data || {};
+        if (response.status === 401) {
+          setError(errorData.message || 'Invalid email or password');
+        } else if (response.status === 400) {
+          setError(errorData.message || 'Please provide both email and password');
+        } else {
+          setError(errorData.message || 'Login failed. Please try again.');
+        }
+        return;
       }
 
+      // Verify correct role
       if (data.user.role !== 'employer') {
-        throw new Error('This account is not an employer account. Please use the correct login page.');
+        setError('This account is not an employer account. Please use the correct login page.');
+        return;
       }
 
       // Store token and transformed user data in localStorage

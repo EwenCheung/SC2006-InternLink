@@ -18,21 +18,38 @@ const ForbiddenError = class extends Error {
 };
 
 const authenticateUser = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new UnauthenticatedError('Authentication invalid');
-  }
-  
-  const token = authHeader.split(' ')[1];
-  
   try {
+    const authHeader = req.headers.authorization;
+    console.log('Auth Header:', authHeader);
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthenticatedError('No token provided');
+    }
+
+    const token = authHeader.split(' ')[1];
+    console.log('Processing token:', token.substring(0, 20) + '...');
+
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('JWT Payload:', {
+      userId: payload.userId,
+      role: payload.role
+    });
+
+    if (!payload.userId || !payload.role) {
+      throw new UnauthenticatedError('Invalid token payload');
+    }
+
     req.user = {
       userId: payload.userId,
-      email: payload.email,
       role: payload.role
     };
+
+    console.log('Authenticated user:', {
+      userId: req.user.userId,
+      role: req.user.role,
+      path: req.path
+    });
+    
     next();
   } catch (error) {
     throw new UnauthenticatedError('Authentication invalid');

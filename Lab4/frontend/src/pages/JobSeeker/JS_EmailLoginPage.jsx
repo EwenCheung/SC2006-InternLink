@@ -38,21 +38,17 @@ const JS_EmailLoginPage = () => {
 
       const data = await response.json();
 
-      // Account not found case
-      if (response.status === 404) {
-        setError('There is no account with this email. Please sign up one.');
-        return;
-      }
-
-      // Incorrect password case
-      if (response.status === 401) {
-        setError('Incorrect password. Please try again.');
-        return;
-      }
-
-      // Handle other API errors
       if (!response.ok) {
-        throw new Error('Login failed. Please try again.');
+        // Get error message from server response
+        const errorData = data || {};
+        if (response.status === 401) {
+          setError(errorData.message || 'Invalid email or password');
+        } else if (response.status === 400) {
+          setError(errorData.message || 'Please provide both email and password');
+        } else {
+          setError(errorData.message || 'Login failed. Please try again.');
+        }
+        return;
       }
 
       // If we got here, login was successful

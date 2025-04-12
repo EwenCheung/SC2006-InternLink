@@ -238,7 +238,7 @@ const EP_EmailSignupPage = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        if (data.message?.includes('duplicate key error')) {
+        if (response.status === 409) {
           throw new Error('This email is already registered. Please use a different email address.');
         }
         throw new Error(data.message || 'Registration failed. Please check your information and try again.');

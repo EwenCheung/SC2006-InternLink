@@ -304,14 +304,9 @@ const JS_EmailSignupPage = () => {
         throw new Error('Failed to parse server response. Please try again.');
       }
       if (!response.ok) {
-        if (data.message?.includes('duplicate key error')) {
+        if (response.status === 409) {
           throw new Error('This email is already registered. Please sign in instead.');
-        } else if (data.message?.includes('No account found')) {
-          throw new Error('No account found with this email. Please sign up first.');
-        } else if (data.message?.includes('Invalid password')) {
-          throw new Error('Incorrect password. Please try again.');
         }
-        // For any other error, use the server's message or a default message
         throw new Error(data.message || 'Registration failed. Please check your information and try again.');
       }
 

@@ -3,11 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const JobSeekerSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    default: 'jobseeker',
-    required: true
-  },
   userName: {
     type: String,
     required: [true, 'Please provide name'],
@@ -32,21 +27,21 @@ const JobSeekerSchema = new mongoose.Schema({
     type: String,
     enum: ['jobseeker'],
     default: 'jobseeker',
+    required: true
   },
   profileImage: {
-    fileId: {
-      type: mongoose.Schema.Types.ObjectId,
-      default: null
-    },
+    data: Buffer,
+    contentType: String,
+    originalName: String,
     uploadedAt: Date,
-    url: {
-      type: String,
-      default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-    },
-    contentType: {
-      type: String,
-      default: 'image/jpeg'
-    }
+    size: Number
+  },
+  resume: {
+    data: Buffer,
+    contentType: String,
+    originalName: String,
+    uploadedAt: Date,
+    size: Number
   },
   dateOfBirth: Date,
   contactList: [{
@@ -58,57 +53,78 @@ const JobSeekerSchema = new mongoose.Schema({
     value: {
       type: String,
       required: true,
-      trim: true,
-      validate: {
-        validator: function(value) {
-          switch (this.type) {
-            case 'email':
-              return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-            case 'phone':
-              return /^\+?[\d\s-]+$/.test(value);
-            case 'linkedin':
-              return value.includes('linkedin.com/');
-            case 'github':
-              return value.includes('github.com/');
-            default:
-              return true;
-          }
-        },
-        message: props => {
-          switch (props.value.type) {
-            case 'email': return 'Please enter a valid email address';
-            case 'phone': return 'Please enter a valid phone number';
-            case 'linkedin': return 'Please enter a valid LinkedIn URL';
-            case 'github': return 'Please enter a valid GitHub URL';
-            default: return 'Invalid value';
-          }
-        }
-      }
+      trim: true
     },
     label: {
       type: String,
       trim: true
     }
   }],
+  workExperience: [{
+    id: {
+      type: String,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    company: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    startDate: {
+      type: Date,
+      required: true
+    },
+    endDate: {
+      type: Date
+    },
+    description: {
+      type: String,
+      trim: true
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  academicHistory: [{
+    id: {
+      type: String,
+      required: true
+    },
+    degree: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    institution: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    field: {
+      type: String,
+      trim: true
+    },
+    startYear: {
+      type: String,
+      required: true
+    },
+    endYear: {
+      type: String
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   school: String,
   course: String,
   yearOfStudy: String,
-  resume: {
-    fileId: {
-      type: mongoose.Schema.Types.ObjectId,
-      default: null
-    },
-    uploadedAt: Date,
-    url: String,
-    contentType: {
-      type: String,
-      enum: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-      default: 'application/pdf'
-    },
-    filename: String,
-    originalName: String,
-    size: Number
-  },
   personalDescription: String,
   skills: [String],
   interests: [String],
@@ -126,7 +142,10 @@ JobSeekerSchema.pre('save', async function () {
 
 JobSeekerSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, role: this.role },
+    { 
+      userId: this._id,
+      role: 'jobseeker'  // Explicitly set role for JWT
+    },
     process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_LIFETIME || '30d',
@@ -139,9 +158,8 @@ JobSeekerSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-// Use Users database for JobSeeker model
+// Create JobSeeker model in Users database
 const usersDb = mongoose.connection.useDb('Users', { useCache: true });
-
-// Create JobSeeker model
 const JobSeeker = usersDb.model('JobSeeker', JobSeekerSchema);
+
 export default JobSeeker;

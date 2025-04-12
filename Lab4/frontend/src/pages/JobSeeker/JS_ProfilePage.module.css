@@ -1,6 +1,7 @@
 .profileContainer {
-    width: 90%;
+    width: 80%; /* Changed from 90% to 80% to make sections wider */
     margin: 2rem auto;
+    max-width: 1400px; /* Added to ensure it doesn't get too wide on large screens */
 }
 
 /* Common section styling */
@@ -329,13 +330,25 @@
     gap: 2rem;
 }
 
+.additionalTopContent {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.additionalBottomContent {
+    width: 100%;
+}
+
 .leftColumn {
-    flex: 0 0 70%;
-    padding-right: 2rem;
+    flex: 0 0 calc(65% - 1rem);
+    min-width: 300px; /* Ensure minimal width */
 }
 
 .rightColumn {
-    flex: 0 0 30%;
+    flex: 0 0 calc(35% - 1rem);
+    min-width: 250px; /* Ensure minimal width */
 }
 
 .textareaField {
@@ -403,11 +416,24 @@
     }
 }
 
+@media (max-width: 768px) {
+    .additionalTopContent {
+        flex-direction: column;
+    }
+    
+    .leftColumn,
+    .rightColumn {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
 /* Resume Section */
 .resumeSection {
-    background: #f8f7ff;
+    background: white; /* Changed from #f8f7ff to match the style */
     padding: 1rem;
     border-radius: 8px;
+    margin-bottom: 1.5rem;
 }
 
 .resumeSection h3 {
@@ -420,10 +446,13 @@
     display: none;
 }
 
+.resumeUpload {
+    margin-bottom: 1rem;
+}
+
 .uploadButton {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
     background: #6747e0;
     color: white;
     text-align: center;
@@ -432,7 +461,6 @@
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 500;
-    margin-bottom: 1rem;
     transition: all 0.2s ease;
 }
 
@@ -448,7 +476,9 @@
 }
 
 .resumePreview {
-    min-height: 400px;
+    width: 100%;
+    height: auto;
+    max-height: 300px;
     border: 1px solid rgba(103, 71, 224, 0.2);
     border-radius: 8px;
     overflow: hidden;
@@ -461,7 +491,6 @@
     justify-content: center;
     padding: 2rem;
     text-align: center;
-    height: 100%;
 }
 
 .downloadButton {
@@ -480,11 +509,429 @@
     background-color: #5735d9;
 }
 
-.resumePreview embed {
+.pdfEmbed {
     width: 100%;
-    height: 100%;
-    min-height: 500px;
+    height: 300px;
     border: none;
+}
+
+.noResume {
+    background: rgba(103, 71, 224, 0.03);
+    border: 2px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.noResume:hover {
+    background: rgba(103, 71, 224, 0.07);
+    border-color: #6747e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(103, 71, 224, 0.1);
+}
+
+.noResume:active {
+    transform: translateY(0);
+    box-shadow: none;
+    background: rgba(103, 71, 224, 0.12);
+}
+
+.uploadIcon {
+    font-size: 2rem;
+    color: #6747e0;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.noResume:hover .uploadIcon {
+    transform: scale(1.1);
+}
+
+.noResumeContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #4a5568;
+}
+
+.noResumeContent p {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.uploadNote {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.5rem;
+}
+
+/* Styling for pending resume state */
+.pendingResume {
+    background: rgba(103, 71, 224, 0.05);
+    border: 2px dashed #6747e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.pendingResumeContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Resume file display (when file is uploaded) */
+.resumeFileDisplay {
+    background: #f8f7ff;
+    border: 2px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 120px;
+    transition: all 0.3s ease;
+    word-break: break-word;
+    overflow: hidden;
+}
+
+.resumeFileDisplay:hover {
+    border-color: rgba(103, 71, 224, 0.5);
+    box-shadow: 0 2px 8px rgba(103, 71, 224, 0.1);
+}
+
+.fileNameContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.fileName {
+    color: #2d3748;
+    font-weight: 500;
+    font-size: 1.1rem;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Normal resume actions - horizontal layout for buttons */
+.resumeActions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Edit mode resume actions - vertical layout with wider buttons */
+.resumeActionsEdit {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+/* Buttons in normal mode */
+.resumeActions .downloadButton, 
+.resumeActions .deleteResumeBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 150px;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Buttons in edit mode */
+.resumeActionsEdit .downloadButton, 
+.resumeActionsEdit .deleteResumeBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 95%;
+    text-align: center;
+}
+
+.downloadButton {
+    background-color: #6747e0;
+    color: white;
+    border: none;
+    text-decoration: none;
+}
+
+.downloadButton:hover {
+    background-color: #5735d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(103, 71, 224, 0.2);
+}
+
+.downloadButton:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.deleteResumeBtn {
+    background-color: white;
+    border: 1px solid rgba(220, 53, 69, 0.7);
+    color: #dc3545;
+}
+
+.deleteResumeBtn:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.deleteResumeBtn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Resume Container */
+.resumeContainer {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Work Experience and Academic History Sections */
+.experienceSection {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(103, 71, 224, 0.08);
+}
+
+.addExperienceBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addExperienceBtn:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.experienceList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.experienceItem {
+    background: #f8f7ff;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #6747e0;
+}
+
+.experienceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.experienceHeader h4 {
+    color: #2d3748;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.experienceActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.editBtn, .deleteBtn {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editBtn {
+    background: #6747e0;
+    color: white;
+}
+
+.editBtn:hover {
+    background: #5735d9;
+}
+
+.deleteBtn {
+    background: #f56565;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background: #e53e3e;
+}
+
+.experienceCompany {
+    color: #6747e0;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.experienceField {
+    color: #4a5568;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+}
+
+.experiencePeriod {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.experienceDescription {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+    white-space: pre-line;
+}
+
+.emptyExperience {
+    padding: 1.5rem;
+    text-align: center;
+    color: #718096;
+    background: rgba(103, 71, 224, 0.05);
+    border: 1px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+/* Sub-section headers for Academic History and Work Experience */
+.subSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+.subSectionHeader h3 {
+    font-size: 1.2rem;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.experienceSectionInner {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.2);
+}
+
+/* Dialog Form Styles */
+.experienceDialog {
+    padding: 0.5rem;
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+}
+
+.formGroup label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.formGroup input, 
+.formGroup select, 
+.formGroup textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #f8f7ff;
+}
+
+.formGroup input:focus, 
+.formGroup select:focus, 
+.formGroup textarea:focus {
+    outline: none;
+    border-color: #6747e0;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.formGroup small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.formRow {
+    display: flex;
+    gap: 1rem;
+}
+
+.formRow .formGroup {
+    flex: 1;
+}
+
+.inputError {
+    border-color: #f56565 !important;
+}
+
+.errorText {
+    color: #f56565;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
 }
 
 /* Applications Section */
@@ -554,6 +1001,54 @@
     border-radius: 6px;
     font-size: 0.85rem;
     cursor: pointer;
+}
+
+/* Job Applications Section */
+.viewApplicationsBtn {
+    background-color: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.viewApplicationsBtn:hover {
+    background-color: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.noApplications {
+    background: rgba(103, 71, 224, 0.05);
+    border: 2px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.noApplications:hover {
+    background: rgba(103, 71, 224, 0.1);
+    border-color: #6747e0;
+}
+
+.noApplicationsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.noApplicationsIcon {
+    font-size: 2rem;
+    color: #6747e0;
+    margin-bottom: 1rem;
 }
 
 /* Contact Dialog */
@@ -681,5 +1176,24 @@
 
     .contactItem {
         width: 100%;
+    }
+
+    .profileContainer {
+        width: 95%; /* Wider on mobile for better use of space */
+    }
+
+    .additionalTopContent {
+        flex-direction: column;
+    }
+
+    .leftColumn,
+    .rightColumn {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .resumeSection {
+        order: -1; /* Move resume section above skills on mobile */
     }
 }

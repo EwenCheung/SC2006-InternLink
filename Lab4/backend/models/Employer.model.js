@@ -3,11 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const EmployerSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    default: 'employer',
-    required: true
-  },
   companyName: {
     type: String,
     required: [true, 'Please provide company name'],
@@ -32,22 +27,13 @@ const EmployerSchema = new mongoose.Schema({
     type: String,
     enum: ['employer'],
     default: 'employer',
+    required: true
   },
-    profileImage: {
-    fileId: {
-      type: mongoose.Schema.Types.ObjectId,
-      default: null
-    },
-    uploadedAt: Date,
-    url: {
-      type: String,
-      default: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-    },
-    contentType: {
-      type: String,
-      default: 'image/jpeg'
-    },
+  profileImage: {
+    data: Buffer,
+    contentType: String,
     originalName: String,
+    uploadedAt: Date,
     size: Number
   },
   industry: String,
@@ -77,7 +63,10 @@ EmployerSchema.pre('save', async function () {
 
 EmployerSchema.methods.createJWT = function () {
   return jwt.sign(
-    { userId: this._id, role: this.role },
+    { 
+      userId: this._id,
+      role: 'employer'  // Explicitly set role for JWT
+    },
     process.env.JWT_SECRET,
     {
       expiresIn: process.env.JWT_LIFETIME || '30d',
@@ -90,9 +79,8 @@ EmployerSchema.methods.comparePassword = async function (candidatePassword) {
   return isMatch;
 };
 
-// Use Users database for Employer model
+// Create Employer model in Users database
 const usersDb = mongoose.connection.useDb('Users', { useCache: true });
-
-// Create Employer model
 const Employer = usersDb.model('Employer', EmployerSchema);
+
 export default Employer;

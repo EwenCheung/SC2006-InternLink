@@ -1,91 +1,65 @@
 import express from 'express';
-import { 
-    register, 
-    login, 
+import {
+    register,
+    login,
     updateUser,
-    updateField, 
-    updateSensitiveInfo, 
-    resetPassword,
-    deleteUserById, 
-    deleteUserByEmail,
     getProfile,
-    uploadProfilePhoto,
-    handleResumeUpload,
-    streamFile,
-    updateContactList
+    serveFile,
+    updateContactList,
+    deleteFile,
+    updateWorkExperience,
+    updateAcademicHistory
 } from '../controllers/authUser.controller.js';
+
 import authenticateUser from '../middleware/authentication.js';
-import { uploadProfileImage, uploadResume, handleUploadError } from '../middleware/fileUpload.js';
+import {
+    uploadProfileImage,
+    uploadResume,
+    uploadMultipleFiles,
+    handleUploadError
+} from '../middleware/fileUpload.js';
 
 const router = express.Router();
+
+// Helper to wrap callback-style file upload into a Promise
+const handleSingleFileUpload = (middleware) => {
+    return (req, res) =>
+        new Promise((resolve, reject) => {
+            middleware(req, res, (err) => {
+                if (err) return reject(err);
+                resolve();
+            });
+        });
+};
 
 // Register with optional profile image upload
 router.route('/register')
     .post(async (req, res, next) => {
         try {
-            await uploadProfileImage.single('profileImage')(req, res, async (err) => {
-                if (err) {
-                    handleUploadError(err, req, res, next);
-                } else {
-                    await register(req, res, next);
-                }
-            });
+            await handleSingleFileUpload(uploadProfileImage)(req, res);
+            await register(req, res, next);
         } catch (error) {
             handleUploadError(error, req, res, next);
         }
     });
+
 router.post('/login', login);
 router.get('/profile', authenticateUser, getProfile);
-router.patch('/update', authenticateUser, updateUser);
-router.patch('/update-field', authenticateUser, updateField);
-router.patch('/update-sensitive', authenticateUser, updateSensitiveInfo);
+router.patch('/update', 
+    authenticateUser,
+    uploadMultipleFiles,
+    updateUser
+);
 router.patch('/update-contacts', authenticateUser, updateContactList);
-router.post('/resetPassword/:id', resetPassword);
 
-// File upload routes
-router.route('/upload-photo')
-    .post(authenticateUser, async (req, res, next) => {
-        console.log('Starting profile photo upload...');
-        try {
-            await uploadProfileImage.single('profileImage')(req, res, async (err) => {
-                if (err) {
-                    console.error('Profile photo upload error:', err);
-                    handleUploadError(err, req, res, next);
-                } else {
-                    console.log('File received, processing...');
-                    await uploadProfilePhoto(req, res, next);
-                }
-            });
-        } catch (error) {
-            console.error('Profile photo upload failed:', error);
-            handleUploadError(error, req, res, next);
-        }
-    });
+// Work experience and academic history routes
+router.patch('/update-work-experience', authenticateUser, updateWorkExperience);
+router.patch('/update-academic-history', authenticateUser, updateAcademicHistory);
 
-router.route('/upload-resume')
-    .post(authenticateUser, async (req, res, next) => {
-        console.log('Starting resume upload...');
-        try {
-            await uploadResume.single('resume')(req, res, async (err) => {
-                if (err) {
-                    console.error('Resume upload error:', err);
-                    handleUploadError(err, req, res, next);
-                } else {
-                    console.log('Resume file received, processing...');
-                    await handleResumeUpload(req, res, next);
-                }
-            });
-        } catch (error) {
-            console.error('Resume upload failed:', error);
-            handleUploadError(error, req, res, next);
-        }
-    });
+// Serve files (profile images and resumes)
+router.get('/files/:type/:userId', serveFile);
 
-// File streaming route with authentication
-router.get('/files/:type/:fileId', authenticateUser, streamFile);
-
-// Delete user routes
-router.delete('/deleteUser/:id', authenticateUser, deleteUserById);
-router.delete('/deleteUser', authenticateUser, deleteUserByEmail);
+// Delete files (requires authentication)
+router.delete('/files/:type', authenticateUser, deleteFile);
 
 export default router;
