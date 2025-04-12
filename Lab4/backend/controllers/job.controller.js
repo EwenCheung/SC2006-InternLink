@@ -481,6 +481,12 @@ export const getEmployerInternshipJobs = async (req, res) => {
 
 export const getInternshipJobById = async (req, res) => {
   try {
+    // Special case: If ID is "all", return all internship jobs
+    if (req.params.id === 'all') {
+      const jobs = await InternshipJob.find({ status: 'posted' });
+      return res.status(200).json({ success: true, data: jobs });
+    }
+    
     // Check if this is a job seeker viewing the job
     const isJobSeeker = req.user && req.user.role === 'jobseeker';
     
@@ -600,6 +606,12 @@ export const getEmployerAdHocJobs = async (req, res) => {
 
 export const getAdHocJobById = async (req, res) => {
   try {
+    // Special case: If ID is "all", return all ad hoc jobs
+    if (req.params.id === 'all') {
+      const jobs = await AdHocJob.find({ status: 'posted' });
+      return res.status(200).json({ success: true, data: jobs });
+    }
+
     // Check if this is a job seeker viewing the job
     const isJobSeeker = req.user && req.user.role === 'jobseeker';
     

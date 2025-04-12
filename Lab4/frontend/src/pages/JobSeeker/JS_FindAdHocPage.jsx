@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaBuilding, FaMapMarkerAlt, FaCalendarAlt, FaClock } from 'react-icons/fa';
+import { FaBuilding, FaMapMarkerAlt, FaCalendarAlt, FaClock, FaSearch, FaSpinner } from 'react-icons/fa';
 import styles from './JS_FindAdHocPage.module.css';
 import SearchAndFilter from '../../components/Common/SearchAndFilter';
 import { adhocFilterOptions, defaultAdhocFilters } from '../../components/Common/FilterConfig';
@@ -10,6 +10,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001
 
 const JS_FindAdHocPage = () => {
   const navigate = useNavigate();
+  const [isFetchingData, setIsFetchingData] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true); // Add a separate loading state for initial load
+  const fetchTimeoutRef = useRef(null);
 
   const fetchJobs = async (queryParams) => {
     try {
@@ -45,36 +48,62 @@ const JS_FindAdHocPage = () => {
     setData: setJobs
   } = useSearchAndFilter(fetchJobs, defaultAdhocFilters);
 
-  useEffect(() => {
-    const fetchInitialJobs = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/all`);
-        const data = await response.json();
-        
-        if (response.ok) {
-          console.log('Fetched ad-hoc jobs:', data);
-          if (data.success && Array.isArray(data.data)) {
-            // Filter out any jobs with status that isn't 'posted'
-            const activeJobs = data.data.filter(job => job.status === 'posted');
-            setJobs(activeJobs);
-          } else {
-            console.error('Unexpected data format:', data);
-            setJobs([]);
-          }
+  // Function to fetch jobs data
+  const fetchInitialJobs = async () => {
+    if (isFetchingData) return;
+
+    try {
+      setIsFetchingData(true);
+      setLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/all`);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Fetched ad-hoc jobs:', data);
+        if (data.success && Array.isArray(data.data)) {
+          // Filter out any jobs with status that isn't 'posted'
+          const activeJobs = data.data.filter(job => job.status === 'posted');
+          setJobs(activeJobs);
         } else {
-          console.error('Error response from server:', data);
+          console.error('Unexpected data format:', data);
           setJobs([]);
         }
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
+      } else {
+        console.error('Error response from server:', data);
         setJobs([]);
-      } finally {
-        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+      setIsFetchingData(false);
+      setInitialLoading(false); // Mark initial loading as complete
+    }
+  };
+
+  useEffect(() => {
+    // Clear any existing timeout
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+
+    // Set initialLoading to true when the component mounts
+    setInitialLoading(true);
+
+    // Set a new timeout
+    fetchTimeoutRef.current = setTimeout(() => {
+      fetchInitialJobs();
+    }, 500);
+
+    // Cleanup function
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
       }
     };
-    fetchInitialJobs();
-  }, [setLoading, setJobs]);
+  }, []); // Empty dependency array means this effect runs once on mount
 
   const handleViewDetails = (jobId) => {
     navigate(`/jobseeker/adhoc/${jobId}`);
@@ -123,20 +152,27 @@ const JS_FindAdHocPage = () => {
 
       <div className={styles.container}>
         <div className={styles.jobListings}>
-          {loading ? (
-            <div>Loading...</div>
+          {loading || initialLoading ? (
+            <div className={styles.loadingState}>
+              <FaSpinner className={styles.loadingIcon} />
+              <div className={styles.loadingMessage}>Loading ad-hoc jobs...</div>
+            </div>
           ) : jobs.length === 0 ? (
-            <div>No ad-hoc jobs found</div>
+            <div className={styles.emptyState}>
+              <FaSearch className={styles.emptyStateIcon} />
+              <div className={styles.emptyStateMessage}>No ad-hoc jobs found</div>
+              <div className={styles.emptyStateSubtext}>Check back later for new opportunities</div>
+            </div>
           ) : (
             jobs.map((job) => (
               <div key={job._id} className={styles.jobBox}>
                 <h3 className={styles.jobTitle}>{job.title}</h3>
-                
+
                 <div className={styles.companyInfo}>
                   <FaBuilding />
                   <span>{job.company}</span>
                 </div>
-                
+
                 <div className={styles.locationInfo}>
                   <FaMapMarkerAlt />
                   <span>{job.location}</span>
@@ -170,7 +206,7 @@ const JS_FindAdHocPage = () => {
                 </div>
 
                 <div className={styles.buttonContainer}>
-                  <button 
+                  <button
                     className={styles.seeDetailsBtn}
                     onClick={() => handleViewDetails(job._id)}
                   >
@@ -181,8 +217,8 @@ const JS_FindAdHocPage = () => {
             ))
           )}
         </div>
-        
-        <button 
+
+        <button
           className={styles.viewApplicationBtn}
           onClick={() => {
             try {

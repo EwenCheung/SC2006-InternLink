@@ -1,1 +1,95 @@
 @import url('../All/EmailSignUpPage.module.css');
+
+/* Phone number input styling */
+.phoneInputContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.3) inset;
+  transition: all 0.2s ease-in-out;
+}
+
+.phoneInputContainer:focus-within {
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.5) inset;
+}
+
+.countryCode {
+  padding: 0.5rem 0.75rem;
+  background-color: #f3f4f6;
+  border-right: 1px solid #d1d5db;
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.phoneInput {
+  flex: 1;
+  border: none !important;
+  box-shadow: none !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  padding-left: 0.75rem !important; /* Add more padding to push text to the right */
+}
+
+.phoneHint {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* File input and preview styling - matching JobSeeker page */
+.fileInput {
+  width: 100%;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  color: #374151;
+}
+
+.previewContainer {
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewImage {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #7C3AED;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove the fileUploadContainer styles that were causing the issue */
+.fileUploadContainer {
+  display: none;
+}
+
+.fileUploadButton, 
+.fileUploadHint {
+  display: none;
+}
+
+/* File name display instead of preview text box */
+.fileNameDisplay {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fileNameDisplay span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

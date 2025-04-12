@@ -336,7 +336,9 @@ const JS_EmailSignupPage = () => {
       case 'confirmPassword':
         return value === requiredData.password ? '' : 'Passwords do not match';
       case 'phoneNumber':
-        return /^\+\d{1,3}\d{7,14}$/.test(value) ? '' : 'Valid phone number with country code is required';
+        // Allow any number of digits but validate for 8 digits
+        const phoneNum = value.replace(/\D/g, '');
+        return phoneNum.length === 8 ? '' : 'You should follow the format, please follow the correct format +65 XXXX-YYYY';
       default:
         return '';
     }
@@ -939,8 +941,16 @@ const JS_EmailSignupPage = () => {
                     type="tel"
                     value={optionalData.phoneNumber.replace(/^\+65/, '')}
                     onChange={(e) => {
-                      // Only allow digits
-                      const numericValue = e.target.value.replace(/\D/g, '');
+                      // Only allow digits for Singapore phone number (8 digits)
+                      let numericValue = e.target.value.replace(/\D/g, '');
+                      // Limit to 8 digits
+                      numericValue = numericValue.substring(0, 8);
+                      
+                      // Format as XXXX-YYYY if we have enough digits
+                      if (numericValue.length > 4) {
+                        numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+                      }
+                      
                       setOptionalData(prev => ({
                         ...prev,
                         phoneNumber: `+65${numericValue}`
@@ -948,13 +958,17 @@ const JS_EmailSignupPage = () => {
                     }}
                     onBlur={handleBlur}
                     className={`${styles.phoneInput} ${fieldErrors.phoneNumber && touchedFields.phoneNumber ? styles.inputError : ''}`}
-                    placeholder="Enter your phone number"
+                    placeholder="XXXX-YYYY"
                   />
                 </div>
                 {fieldErrors.phoneNumber && touchedFields.phoneNumber && (
                   <div className={styles.error}>{fieldErrors.phoneNumber}</div>
                 )}
+                <div className={styles.phoneHint}>
+                  Enter 8 digits in XXXX-YYYY format
+                </div>
               </div>
+
 
               <div className={styles.inputGroup}>
                 <label htmlFor="dateOfBirth" className={styles.label}>

@@ -12,6 +12,7 @@ const EP_EmailSignupPage = () => {
   const [showProfileChoice, setShowProfileChoice] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImagePreview, setProfileImagePreview] = useState(null); // Add this line to store image preview
 
   // Form states
   const [requiredData, setRequiredData] = useState({ // Step 1 - Required fields
@@ -24,7 +25,7 @@ const EP_EmailSignupPage = () => {
 
   const [optionalData, setOptionalData] = useState({ // Step 2 - Optional fields
     profileImage: null, // Company logo
-    phoneNumber: '',
+    phoneNumber: '+65',  // Initialize with Singapore country code, just like JS_EmailSignupPage
     industry: '',
     companySize: '',
     companyWebsite: '',
@@ -70,9 +71,18 @@ const EP_EmailSignupPage = () => {
         return validatePassword(value) ? '' : 'Password does not meet requirements';
       case 'confirmPassword':
         return value === requiredData.password ? '' : 'Passwords do not match';
+      case 'phoneNumber':
+        // Allow any number of digits but validate for 8 digits
+        const phoneNum = value.replace(/\D/g, '');
+        return phoneNum.length === 8 ? '' : 'You should follow the format, please follow the correct format +65 XXXX-YYYY';
       default:
         return '';
     }
+  };
+
+  // Update file input to trigger only on button click
+  const handleFileUploadClick = (inputId) => {
+    document.getElementById(inputId).click();
   };
 
   // Handle field blur
@@ -191,6 +201,13 @@ const EP_EmailSignupPage = () => {
         ...prev,
         [name]: file
       }));
+
+      // Set image preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setProfileImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     } else {
       setOptionalData(prev => ({
         ...prev,
@@ -591,23 +608,57 @@ const EP_EmailSignupPage = () => {
                   onChange={handleOptionalChange}
                   className={styles.fileInput}
                 />
+                {profileImagePreview && (
+                  <div className={styles.previewContainer}>
+                    <img
+                      src={profileImagePreview}
+                      alt="Company Logo Preview"
+                      className={styles.previewImage}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="phoneNumber" className={styles.label}>
                   Company Phone Number <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  type="tel"
-                  value={optionalData.phoneNumber}
-                  onChange={handleOptionalChange}
-                  className={styles.input}
-                  placeholder="Enter company phone number"
-                />
+<div className={styles.phoneInputContainer}>
+                  <span className={styles.countryCode}>+65</span>
+                  <input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    type="tel"
+                    value={optionalData.phoneNumber.replace(/^\+65/, '')}
+                    onChange={(e) => {
+                      // Only allow digits for Singapore phone number (8 digits)
+                      let numericValue = e.target.value.replace(/\D/g, '');
+                      // Limit to 8 digits
+                      numericValue = numericValue.substring(0, 8);
+                      
+                      // Format as XXXX-YYYY if we have enough digits
+                      if (numericValue.length > 4) {
+                        numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+                      }
+                      
+                      setOptionalData(prev => ({
+                        ...prev,
+                        phoneNumber: `+65${numericValue}`
+                      }));
+                    }}
+                    onBlur={handleBlur}
+                    className={`${styles.phoneInput} ${fieldErrors.phoneNumber && touchedFields.phoneNumber ? styles.inputError : ''}`}
+                    placeholder="XXXX-YYYY"
+                  />
+                </div>
+                {fieldErrors.phoneNumber && touchedFields.phoneNumber && (
+                  <div className={styles.error}>{fieldErrors.phoneNumber}</div>
+                )}
+                <div className={styles.phoneHint}>
+                  Enter 8 digits in XXXX-YYYY format
+                </div>
               </div>
-
+              
               <div className={styles.inputGroup}>
                 <label htmlFor="industry" className={styles.label}>
                   Industry <span className={styles.optional}>(optional)</span>

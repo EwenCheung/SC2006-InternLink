@@ -17,6 +17,78 @@
   margin-bottom: 30px;
 }
 
+/* Empty state styling for when no jobs are found */
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  color: #6c5ce7;
+  font-size: 1.5rem;
+  font-weight: 500;
+  background-color: rgba(108, 92, 231, 0.05);
+  border-radius: 12px;
+  padding: 40px;
+  margin: 20px 0;
+  border: 2px dashed rgba(108, 92, 231, 0.3);
+}
+
+.emptyStateIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  color: #6c5ce7;
+}
+
+.emptyStateMessage {
+  margin: 10px 0;
+  font-size: 1.8rem;
+}
+
+.emptyStateSubtext {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin-top: 8px;
+}
+
+/* Loading state styling */
+.loadingState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+  color: #6c5ce7;
+  font-size: 1.5rem;
+  font-weight: 500;
+  background-color: rgba(108, 92, 231, 0.05);
+  border-radius: 12px;
+  padding: 40px;
+  margin: 20px 0;
+  border: 2px dashed rgba(108, 92, 231, 0.3);
+}
+
+.loadingIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  color: #6c5ce7;
+  animation: spin 2s linear infinite;
+}
+
+.loadingMessage {
+  margin: 10px 0;
+  font-size: 1.8rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .jobBox {
   background-color: white;
   border-radius: 10px;
