@@ -499,6 +499,7 @@ const JS_EmailSignupPage = () => {
           phoneNumber: `+65 ${numericValue}`
         }));
         
+        
         // Add validation for the phone field if it's not empty but incomplete
         if (numericValue && numericValue.replace(/\D/g, '').length < 8) {
           setFieldErrors(prev => ({ 
