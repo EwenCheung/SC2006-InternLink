@@ -291,7 +291,12 @@ const JS_InternshipApplicationPage = () => {
                 className={styles.fileInput}
               />
               {!resume && (
-                <div className={styles.uploadInstructions}>
+                <div className={styles.uploadInstructions} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  justifyContent: "left"
+                }}>
                   <FaFilePdf className={styles.pdfIcon} />
                   <span>Click to upload your resume (PDF)</span>
                 </div>
@@ -300,7 +305,12 @@ const JS_InternshipApplicationPage = () => {
 
             {resume && (
               <div className={styles.previewContainer}>
-                <div className={styles.fileInfo}>
+                <div className={styles.fileInfo} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  justifyContent: "left"
+                }}>
                   <FaFilePdf className={styles.pdfIcon} />
                   <span className={styles.fileName}>{resume.name}</span>
                   <span className={styles.fileSize}>({(resume.size / 1024 / 1024).toFixed(2)} MB)</span>

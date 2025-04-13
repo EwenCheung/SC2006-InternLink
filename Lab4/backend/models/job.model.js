@@ -266,6 +266,10 @@ const adHocJobSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.status !== 'draft'; }
   },
+  area: {
+    type: String,
+    default: '',
+  },
   tags: {
     type: [String],
     default: [],
