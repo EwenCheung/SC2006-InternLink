@@ -265,6 +265,7 @@ const EP_AddInternshipPage = () => {
     if (!formData.company) missing.push('Company Name');
     if (!formData.location) missing.push('Location');
     if (!formData.description) missing.push('Job Description');
+    if (!formData.jobScope) missing.push('Job Scope'); // This is already checking for jobScope
     if (!formData.stipend) missing.push('Monthly Stipend');
     if (formData.duration === 'Select Duration') missing.push('Duration');
     if (formData.courseStudy === 'Select Course') missing.push('Course of Study');
