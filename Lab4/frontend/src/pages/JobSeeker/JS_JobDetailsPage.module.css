@@ -7,6 +7,21 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     margin-bottom: 20px;
 }
+
+.mapIframe {
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.mapPlaceholder {
+    padding: 30px;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 8px;
+    color: #666;
+}
+
 .container {
     max-width: 1200px;
     margin: 10px auto 30px;
@@ -17,6 +32,40 @@ body {
     background-color: #d7dbe0;
 }
 
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 20px;
+}
+
+.loadingSpinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #6a0dad;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.errorContainer {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 50px auto;
+}
+
 .backButton {
     padding: 8px 16px;
     background: none;
@@ -24,15 +73,16 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
+    gap: 8px;
     font-size: 16px;
-    color: #840fab; /* Changed back to purple */
+    color: #840fab; /* Purple */
     margin-bottom: 20px;
     transition: all 0.3s ease;
 }
 
 .backButton:hover {
     transform: translateX(-5px);
-    color: #c538fd; /* Changed back to lighter purple on hover */
+    color: #c538fd; /* Lighter purple on hover */
 }
 
 /* Job Header Section */
@@ -78,6 +128,22 @@ body {
     margin-bottom: 15px;
 }
 
+.badgeContainer {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.badge {
+    background-color: #f0e6ff;
+    color: #6a0dad;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
 .quickInfo {
     display: flex;
     gap: 15px;
@@ -118,7 +184,49 @@ body {
 
 .timeRemaining {
     font-size: 14px;
-    color: #840fab; /* Changed back to purple */
+    color: #840fab; /* Purple */
+}
+
+/* Quick Info Panel */
+.quickInfoPanel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.infoCard {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.infoIcon {
+    font-size: 24px;
+    color: #6a0dad;
+    padding: 10px;
+    background-color: #f0e6ff;
+    border-radius: 50%;
+}
+
+.infoText {
+    display: flex;
+    flex-direction: column;
+}
+
+.infoLabel {
+    font-size: 14px;
+    color: #666;
+}
+
+.infoValue {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
 }
 
 /* Content Layout */
@@ -147,8 +255,16 @@ body {
 
 h3 {
     font-size: 22px;
-    color: #9300a9; /* Changed back to purple */
+    color: #333;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sectionIcon {
+    color: #6a0dad;
+    font-size: 20px;
 }
 
 h4 {
@@ -161,15 +277,15 @@ h4 {
 .jobDetailsSection h3,
 .applicationCard h3,
 .minimapCard h3 {
-    color: #333; /* Changed from #000 to match the h3 style */
-    background-color: transparent; /* Removed background color */
-    padding: 0; /* Removed padding */
-    border-radius: 0; /* Removed border radius */
+    color: #333;
+    padding: 0;
     margin-bottom: 16px;
     font-weight: 600;
-    display: block; /* Changed from inline-block to block */
-    border-bottom: 1px solid #e0e0e0; /* Added subtle border instead of card effect */
-    padding-bottom: 8px; /* Added padding at bottom for the border */
+    display: flex; /* Changed to flex to accommodate icons */
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
 }
 
 .companyDescription {
@@ -182,6 +298,10 @@ h4 {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
+    margin-top: 20px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .detailItem {
@@ -193,6 +313,7 @@ h4 {
 .detailItem .label {
     font-size: 14px;
     color: #666;
+    font-weight: 600;
 }
 
 .detailItem .value {
@@ -200,7 +321,7 @@ h4 {
 }
 
 .detailItem a {
-    color: #840fab; /* Ensure links are purple */
+    color: #840fab; /* Purple links */
     text-decoration: none;
 }
 
@@ -215,9 +336,38 @@ h4 {
     font-weight: 600;
 }
 
+/* Course and Field Lists */
+.courseList, .fieldList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.courseBadge, .fieldBadge {
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.courseBadge {
+    background-color: #e6f7ff;
+    border-color: #91d5ff;
+    color: #0050b3;
+}
+
+.fieldBadge {
+    background-color: #f6ffed;
+    border-color: #b7eb8f;
+    color: #52c41a;
+}
+
 /* Job Details Styling */
 .description {
-    color: #000000; /* Changed from #555 to black */
+    color: #000000;
     line-height: 1.6;
     margin-bottom: 20px;
     font-size: 1rem;
@@ -268,6 +418,13 @@ h4 {
     color: #000;
     margin-bottom: 15px;
     font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.deadlineIcon {
+    color: #6a0dad;
 }
 
 .applicationInfo .applicants,
@@ -291,10 +448,14 @@ h4 {
     cursor: pointer;
     font-size: 16px;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .applyButton {
-    background-color: #6a0dad; /* Changed back to purple */
+    background-color: #6a0dad; /* Purple */
     color: white;
     position: relative;
     overflow: hidden;
@@ -305,7 +466,7 @@ h4 {
 }
 
 .applyButton:hover {
-    background-color: #8e24aa; /* Changed back to lighter purple on hover */
+    background-color: #8e24aa; /* Lighter purple on hover */
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 4px 15px rgba(106, 13, 173, 0.4); /* Purple shadow */
 }
@@ -337,8 +498,8 @@ h4 {
 
 .messageButton {
     background-color: white;
-    color: #840fab; /* Changed back to purple */
-    border: 2px solid #840fab !important; /* Changed border back to purple */
+    color: #840fab; /* Purple */
+    border: 2px solid #840fab !important; /* Purple border */
 }
 
 .messageButton:hover {
@@ -353,6 +514,17 @@ h4 {
 
 .shareButton:hover {
     background-color: #e8e8e8;
+}
+
+.withdrawButton {
+    background-color: white;
+    color: #d32f2f;
+    border: 2px solid #d32f2f !important; /* Red border */
+}
+
+.withdrawButton:hover {
+    background-color: #ffebee; /* Light red background on hover */
+    transform: translateY(-2px);
 }
 
 /* Feature Message Popup */
@@ -370,7 +542,7 @@ h4 {
   animation: fadeIn 0.3s ease;
 }
 
-.featureMessageDialog {
+.featureMessage {
   background-color: white;
   padding: 20px 30px;
   border-radius: 8px;
@@ -379,12 +551,8 @@ h4 {
   width: 90%;
   text-align: center;
   animation: slideUp 0.4s ease;
-}
-
-.featureMessageDialog p {
-  font-size: 18px;
+  font-size: 16px;
   color: #333;
-  margin: 0;
 }
 
 @keyframes fadeIn {
@@ -397,7 +565,7 @@ h4 {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Existing Confirmation Dialog Styles */
+/* Confirmation Dialog */
 .confirmationOverlay {
   position: fixed;
   top: 0;
@@ -409,26 +577,31 @@ h4 {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
 
 .confirmationDialog {
   background-color: white;
-  padding: 20px;
+  padding: 25px;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   max-width: 400px;
   width: 90%;
+  animation: slideUp 0.4s ease;
 }
 
 .confirmationDialog h3 {
   margin-top: 0;
+  color: #d32f2f;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .confirmationButtons {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 15px;
+  margin-top: 25px;
 }
 
 .confirmButton,
@@ -438,16 +611,25 @@ h4 {
   font-size: 14px;
   cursor: pointer;
   border: none;
+  transition: all 0.2s ease;
 }
 
 .confirmButton {
-  background-color: #e53935;
+  background-color: #d32f2f;
   color: white;
+}
+
+.confirmButton:hover {
+  background-color: #b71c1c;
 }
 
 .cancelButton {
   background-color: #e0e0e0;
   color: #333;
+}
+
+.cancelButton:hover {
+  background-color: #d0d0d0;
 }
 
 /* Responsive Design */
@@ -475,6 +657,10 @@ h4 {
         text-align: center;
     }
 
+    .badgeContainer {
+        justify-content: center;
+    }
+
     .quickInfo {
         justify-content: center;
     }
@@ -484,6 +670,10 @@ h4 {
     }
 
     .companyDetails {
+        grid-template-columns: 1fr;
+    }
+    
+    .quickInfoPanel {
         grid-template-columns: 1fr;
     }
 }
@@ -513,23 +703,26 @@ h4 {
     .quickInfo {
         flex-direction: column;
         align-items: center;
-    gap: 8px;
-}
+        gap: 8px;
+    }
 }
 
 /* Style skill tags consistently */
 .skillsList {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     margin-top: 12px;
+    padding-left: 0;
+    list-style-type: none;
 }
 
 .skillTag {
     color: #000;
-    background-color: #e9ecef;
-    padding: 5px 10px;
-    border-radius: 4px;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 5px;
     display: inline-block;
     font-size: 0.9rem;
+    border: 1px solid #e0e0e0;
 }

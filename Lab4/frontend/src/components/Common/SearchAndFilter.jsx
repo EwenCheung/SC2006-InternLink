@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './SearchAndFilter.module.css';
 import RangeSlider from './RangeSlider';
 import FieldCourseSelector from './FieldCourseSelector';
+import { FIELDS_AND_COURSES } from './FilterConfig';
 
 const SearchAndFilter = ({ 
   searchTerm, 
@@ -69,6 +70,7 @@ const SearchAndFilter = ({
                     <FieldCourseSelector
                       selectedCourses={filters[key]}
                       onChange={(selectedCourses) => handleFilterChange(key, selectedCourses)}
+                      fieldsAndCourses={FIELDS_AND_COURSES}
                     />
                   ) : (
                     <select 
