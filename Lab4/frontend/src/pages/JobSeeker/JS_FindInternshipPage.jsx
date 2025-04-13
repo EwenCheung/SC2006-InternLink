@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBuilding, FaMapMarkerAlt, FaGraduationCap, FaClock, FaUsers, FaSearch, FaSpinner } from 'react-icons/fa';
 import styles from './JS_FindInternshipPage.module.css';
@@ -10,26 +10,37 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001
 
 const JS_FindInternshipPage = () => {
   const navigate = useNavigate();
-  const [isFetchingData, setIsFetchingData] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true); // Add a separate loading state for initial load
-  const fetchTimeoutRef = useRef(null);
+  const [initialLoading, setInitialLoading] = useState(false); 
 
   const fetchJobs = async (queryParams) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/jobs/internship?${queryParams}`);
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const data = await response.json();
-        if (data.success && Array.isArray(data.data)) {
-          return data.data;
-        }
-        throw new Error('Failed to fetch jobs');
+      console.log(`Fetching internship jobs with params: ${queryParams}`);
+      
+      // If empty queryParams, load all jobs
+      const endpoint = queryParams ? 
+        `${API_BASE_URL}/api/jobs/internship?${queryParams}` : 
+        `${API_BASE_URL}/api/jobs/internship/all`;
+      
+      const response = await fetch(endpoint);
+      
+      if (!response.ok) {
+        throw new Error(`API response error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.data)) {
+        console.log(`Fetched ${data.data.length} internships`);
+        // Filter out any jobs with status that isn't 'posted'
+        const activeJobs = data.data.filter(job => job.status === 'posted');
+        return activeJobs;
       } else {
-        throw new Error('Received non-JSON response');
+        console.error('Unexpected data format:', data);
+        return [];
       }
     } catch (error) {
       console.error('Error in fetchJobs:', error);
-      throw error;
+      return [];
     }
   };
 
@@ -44,85 +55,11 @@ const JS_FindInternshipPage = () => {
     handleFilterChange,
     handleSearch,
     resetFilters,
-    setLoading,
-    setData: setJobs
+    setLoading
   } = useSearchAndFilter(fetchJobs, defaultInternshipFilters);
 
-  // Function to fetch jobs data
-  const fetchInitialJobs = async () => {
-    if (isFetchingData) return;
-    
-    try {
-      setIsFetchingData(true);
-      setLoading(true);
-      
-      const response = await fetch(`${API_BASE_URL}/api/jobs/internship/all`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        console.log('Fetched internship jobs:', data);
-        if (data.success && Array.isArray(data.data)) {
-          // Filter out any jobs with status that isn't 'posted'
-          const activeJobs = data.data.filter(job => job.status === 'posted');
-          setJobs(activeJobs);
-        } else {
-          console.error('Unexpected data format:', data);
-          setJobs([]);
-        }
-      } else {
-        console.error('Error response from server:', data);
-        setJobs([]);
-      }
-    } catch (error) {
-      console.error('Error fetching jobs:', error);
-      setJobs([]);
-    } finally {
-      setLoading(false);
-      setIsFetchingData(false);
-      setInitialLoading(false); // Mark initial loading as complete
-    }
-  };
-
-  useEffect(() => {
-    // Clear any existing timeout
-    if (fetchTimeoutRef.current) {
-      clearTimeout(fetchTimeoutRef.current);
-    }
-    
-    // Set initialLoading to true when the component mounts
-    setInitialLoading(true);
-    
-    // Set a new timeout
-    fetchTimeoutRef.current = setTimeout(() => {
-      fetchInitialJobs();
-    }, 500);
-    
-    // Cleanup function
-    return () => {
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
-    };
-  }, []); // Empty dependency array means this effect runs once on mount
-
   const handleViewDetails = (jobId) => {
-    try {
-      // Get jobseeker ID from localStorage
-      const user = localStorage.getItem('user');
-      if (user) {
-        const userData = JSON.parse(user);
-        const jobseekerId = userData._id;
-        // Navigate to job details with jobId
-        navigate(`/jobseeker/internship/${jobId}`);
-      } else {
-        // If no user found, just navigate to job details without ID
-        navigate(`/jobseeker/internship/${jobId}`);
-      }
-    } catch (error) {
-      console.error('Error parsing user data:', error);
-      // Fallback to simple navigation
-      navigate(`/jobseeker/internship/${jobId}`);
-    }
+    navigate(`/jobseeker/internship/${jobId}`);
   };
 
   const renderTags = (job) => {
@@ -168,7 +105,7 @@ const JS_FindInternshipPage = () => {
 
       <div className={styles.container}>
         <div className={styles.jobListings}>
-          {loading || initialLoading ? (
+          {loading ? (
             <div className={styles.loadingState}>
               <FaSpinner className={styles.loadingIcon} />
               <div className={styles.loadingMessage}>Loading internships...</div>
@@ -177,7 +114,7 @@ const JS_FindInternshipPage = () => {
             <div className={styles.emptyState}>
               <FaSearch className={styles.emptyStateIcon} />
               <div className={styles.emptyStateMessage}>No internships found</div>
-              <div className={styles.emptyStateSubtext}>Check back later for new opportunities</div>
+              <div className={styles.emptyStateSubtext}>Try different search terms or filters</div>
             </div>
           ) : (
             jobs.map((job) => (

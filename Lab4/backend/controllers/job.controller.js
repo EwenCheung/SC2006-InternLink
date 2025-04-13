@@ -12,7 +12,7 @@ const buildFilterQuery = (filters, jobType) => {
     query.employerID = filters.employerId;
   }
   
-  if (filters.location) {
+  if (filters.location && filters.location.trim() !== '') {
     query.location = { $regex: filters.location, $options: 'i' };
   }
   
@@ -23,13 +23,40 @@ const buildFilterQuery = (filters, jobType) => {
         if (filters.course.length > 0) {
           query.courseStudy = { $in: filters.course.map(course => new RegExp(course, 'i')) };
         }
-      } else {
+      } else if (filters.course.trim() !== '') {
         query.courseStudy = { $regex: filters.course, $options: 'i' };
       }
     }
     
-    if (filters.year) {
-      query.yearOfStudy = { $regex: filters.year, $options: 'i' };
+    if (filters.year && filters.year.trim() !== '') {
+      // Extract the numeric value from the year string (e.g., "Year 2" -> 2)
+      const selectedYear = parseInt(filters.year.match(/\d+/)[0], 10);
+      
+      // Create a regex to match all years up to and including the selected year
+      // For example, if Year 2 is selected, match Year 1, Year 2, or Year 1-2
+      const yearRegexParts = [];
+      
+      // Match a specific year (e.g., "Year 1", "Year 2", etc.)
+      for (let i = 1; i <= selectedYear; i++) {
+        yearRegexParts.push(`Year\\s*${i}`);
+      }
+      
+      // Match year ranges (e.g., "Year 1-2", "Year 1-3", etc.)
+      for (let i = 1; i < selectedYear; i++) {
+        for (let j = i + 1; j <= selectedYear; j++) {
+          yearRegexParts.push(`Year\\s*${i}\\s*[-–]\\s*${j}`);
+        }
+      }
+      
+      // Match "All Years" or similar phrases
+      yearRegexParts.push('All Years');
+      yearRegexParts.push('Any Year');
+      
+      // Combine all patterns
+      const yearRegex = new RegExp(yearRegexParts.join('|'), 'i');
+      query.yearOfStudy = { $regex: yearRegex };
+      
+      console.log(`Year filter: ${filters.year} -> Using regex: ${yearRegex}`);
     }
     
     if (filters.minStipend || filters.maxStipend) {
@@ -44,24 +71,33 @@ const buildFilterQuery = (filters, jobType) => {
     
     // Handle duration range filtering
     if (filters.minDuration || filters.maxDuration) {
-      // Extract numeric duration value from the duration string (e.g., "3 months" -> 3)
-      query.duration = {};
+      // Don't set query.duration = {} directly as it causes casting issues
       
-      if (filters.minDuration) {
+      if (filters.minDuration && filters.maxDuration) {
+        // When both min and max are provided, use a single regex to match the range
+        const minDuration = Number(filters.minDuration);
+        const maxDuration = Number(filters.maxDuration);
+        
+        // Create a pattern that matches a number between minDuration and maxDuration followed by "month(s)"
+        const durationPattern = Array.from({ length: maxDuration - minDuration + 1 }, (_, i) => minDuration + i)
+          .map(num => `^${num}\\s*months?$`)
+          .join('|');
+        
+        query.duration = { $regex: new RegExp(durationPattern, 'i') };
+        console.log(`Duration filter: ${minDuration}-${maxDuration} months -> Using regex: ${durationPattern}`);
+      } else if (filters.minDuration) {
         const minDuration = Number(filters.minDuration);
         // Use regex to match durations that are greater than or equal to minDuration
         query.$or = query.$or || [];
         query.$or.push({
-          duration: { $regex: new RegExp(`^(${minDuration}|[${minDuration+1}-9][0-9]*)\\s*(month|months)`, 'i') }
+          duration: { $regex: new RegExp(`^(${minDuration}|[${minDuration+1}-9][0-9]*)\\s*months?`, 'i') }
         });
-      }
-      
-      if (filters.maxDuration) {
+      } else if (filters.maxDuration) {
         const maxDuration = Number(filters.maxDuration);
         // Use regex to match durations that are less than or equal to maxDuration
         query.$and = query.$and || [];
         query.$and.push({
-          duration: { $regex: new RegExp(`^([1-9]|[1-${maxDuration}][0-9]*)\\s*(month|months)`, 'i') }
+          duration: { $regex: new RegExp(`^([1-9]|[1-${maxDuration}][0-9]*)\\s*months?`, 'i') }
         });
       }
     }
@@ -77,15 +113,14 @@ const buildFilterQuery = (filters, jobType) => {
     }
   }
 
-  if (filters.search) {
-    query.$or = query.$or || [];
-    query.$or.push(
-      { title: { $regex: filters.search, $options: 'i' } },
-      { company: { $regex: filters.search, $options: 'i' } },
-      { description: { $regex: filters.search, $options: 'i' } }
-    );
+  // Modified to only search in job title
+  if (filters.search && filters.search.trim() !== '') {
+    const searchTerm = filters.search.trim();
+    // Only search in title field
+    query.title = { $regex: searchTerm, $options: 'i' };
   }
 
+  console.log('Built query:', JSON.stringify(query, null, 2));
   return query;
 };
 

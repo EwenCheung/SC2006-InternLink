@@ -63,7 +63,7 @@ const SearchAndFilter = ({
                       min={options.min}
                       max={options.max}
                       type={key === 'duration' ? 'months' : 'money'}
-                      step={key === 'duration' ? 1 : 100}
+                      step={options.step || (key === 'duration' ? 1 : (key === 'payPerHour' ? 1 : 100))}
                     />
                   ) : options.type === 'fieldCourse' ? (
                     <FieldCourseSelector

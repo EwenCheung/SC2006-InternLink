@@ -17,6 +17,7 @@ export const useSearchAndFilter = (fetchData, defaultFilters) => {
 
   const handleFilterChange = (event) => {
     const { name, value } = event.target;
+    console.log(`Filter changed: ${name} = ${JSON.stringify(value)}`);
     setFilters(prevFilters => ({
       ...prevFilters,
       [name]: value
@@ -26,12 +27,12 @@ export const useSearchAndFilter = (fetchData, defaultFilters) => {
   const buildQueryString = () => {
     const queryParams = new URLSearchParams();
 
-    if (searchTerm) {
+    if (searchTerm && searchTerm.trim() !== '') {
       queryParams.append('search', searchTerm);
     }
 
     Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
+      if (value !== null && value !== undefined) {
         if (key === 'stipend' && Array.isArray(value)) {
           queryParams.append('minStipend', value[0]);
           queryParams.append('maxStipend', value[1]);
@@ -43,24 +44,32 @@ export const useSearchAndFilter = (fetchData, defaultFilters) => {
           value.forEach(course => {
             queryParams.append('course', course);
           });
+        } else if (key === 'payPerHour' && Array.isArray(value)) {
+          queryParams.append('minPayPerHour', value[0]);
+          queryParams.append('maxPayPerHour', value[1]);
         } else if (Array.isArray(value) && value.length > 0) {
           // Handle other arrays
           queryParams.append(key, value.join(','));
-        } else if (!Array.isArray(value) || (Array.isArray(value) && value.length > 0)) {
+        } else if (value !== '' && (!Array.isArray(value) || (Array.isArray(value) && value.length > 0))) {
           // Handle non-empty values
           queryParams.append(key, value);
         }
       }
     });
 
-    return queryParams.toString();
+    const queryString = queryParams.toString();
+    console.log('Built query string:', queryString);
+    return queryString;
   };
 
   const handleSearch = async () => {
     try {
       setLoading(true);
+      console.log('Executing search with filters:', filters);
       const queryString = buildQueryString();
+      console.log('Searching with query string:', queryString);
       const newData = await fetchData(queryString);
+      console.log('Search results:', newData);
       setData(newData);
     } catch (error) {
       console.error('Search error:', error);
@@ -70,14 +79,27 @@ export const useSearchAndFilter = (fetchData, defaultFilters) => {
   };
 
   const resetFilters = () => {
+    console.log('Resetting filters to defaults:', defaultFilters);
     setFilters(defaultFilters);
     setSearchTerm('');
+    // Trigger search after resetting filters
+    setTimeout(handleSearch, 0);
   };
 
-  // Initial fetch when component mounts or filters change
+  // Initial fetch when component mounts
   useEffect(() => {
     handleSearch();
-  }, [filters]);
+  }, []);
+  
+  // Search when filters change
+  useEffect(() => {
+    // Avoid searching on initial render, already handled above
+    const timer = setTimeout(() => {
+      handleSearch();
+    }, 500); // Add debounce of 500ms
+    
+    return () => clearTimeout(timer);
+  }, [filters, searchTerm]);
 
   return {
     searchTerm,
