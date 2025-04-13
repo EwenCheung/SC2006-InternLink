@@ -13,7 +13,12 @@ const buildFilterQuery = (filters, jobType) => {
   }
   
   if (filters.location && filters.location.trim() !== '') {
-    query.location = { $regex: filters.location, $options: 'i' };
+    // Use $or to match either location or area field
+    // This will perform a case-insensitive search on both fields
+    query.$or = [
+      { location: { $regex: filters.location, $options: 'i' } },
+      { area: { $regex: filters.location, $options: 'i' } }
+    ];
   }
   
   if (jobType === 'internship') {

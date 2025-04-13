@@ -226,7 +226,7 @@ const locationFilter = {
 const updateLocationFilter = (locations) => {
   if (locations) {
     locationFilter.choices = locations.map(area => ({
-      value: area.pln_area_n.toLowerCase(),
+      value: area.pln_area_n, // Don't lowercase value - keep original case to match job location
       label: area.pln_area_n
         .toLowerCase()
         .split(' ')
