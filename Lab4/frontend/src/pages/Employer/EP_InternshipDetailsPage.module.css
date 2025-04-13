@@ -992,3 +992,81 @@
     flex-direction: column;
   }
 }
+
+/* Course study section styling */
+.courseStudy {
+  margin-bottom: 24px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.coursesContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.visibleCourses {
+  display: flex;
+  flex-wrap: wrap; /* Changed from nowrap to wrap to allow natural wrapping */
+  gap: 8px;
+  margin-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Remove scrollbar styles since we don't need them anymore */
+.visibleCourses::-webkit-scrollbar {
+  display: none;
+}
+
+.courseTag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #c6d8f9;
+  margin-left: 8px;
+  margin-bottom: 8px; /* Add some bottom margin for better spacing between rows */
+}
+
+/* Inline display of more courses toggle */
+.moreCoursesDetails {
+  display: inline-flex;
+  margin: 0;
+  vertical-align: top;
+}
+
+/* Style the more courses toggle to match the course tags */
+.moreCoursesToggle {
+  display: inline-flex;
+  align-items: center;
+  color: #1a73e8;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background-color: #f1f6ff;
+  border: 1px dashed #c6d8f9;
+  transition: all 0.2s ease;
+  user-select: none;
+  list-style: none;
+  margin-bottom: 4px;
+}
+
+/* Keep hidden courses in the flow */
+.hiddenCourses {
+  display: inline;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

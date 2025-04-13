@@ -369,6 +369,45 @@ const EP_InternshipDetailsPage = () => {
               </div>
             </div>
           )}
+          
+          {/* Add Required Course of Study section with dropdown */}
+          {jobDetails.courseStudy && (
+            <div className={styles.courseStudy}>
+              <h2>Required Course of Study</h2>
+              <div className={styles.coursesContainer}>
+                {Array.isArray(jobDetails.courseStudy) ? (
+                  <>
+                    <div className={styles.visibleCourses}>
+                      {jobDetails.courseStudy.slice(0, 5).map((course, index) => (
+                        <span key={index} className={styles.courseTag}>
+                          <FaGraduationCap className={styles.courseIcon} /> {course}
+                        </span>
+                      ))}
+                      
+                      {jobDetails.courseStudy.length > 5 && (
+                        <details className={styles.moreCoursesDetails}>
+                          <summary className={styles.moreCoursesToggle}>
+                            +{jobDetails.courseStudy.length - 5} more
+                          </summary>
+                          <div className={styles.hiddenCourses}>
+                            {jobDetails.courseStudy.slice(5).map((course, index) => (
+                              <span key={index} className={styles.courseTag}>
+                                <FaGraduationCap className={styles.courseIcon} /> {course}
+                              </span>
+                            ))}
+                          </div>
+                        </details>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <span className={styles.courseTag}>
+                    <FaGraduationCap className={styles.courseIcon} /> {jobDetails.courseStudy}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
