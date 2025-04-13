@@ -59,7 +59,6 @@ const FIELDS_AND_COURSES = {
     "Human Resource Management",
     "International Business",
     "Entrepreneurship",
-    "Economics",
     "E-commerce",
     "Organizational Behavior",
     "Strategic Management",
@@ -361,18 +360,28 @@ const internshipJobSchema = new mongoose.Schema({
     required: true,
   },
   fieldOfStudy: {
-    type: String,
-    enum: {
-      values: VALID_FIELDS,
-      message: 'Invalid field selected'
+    type: [String],
+    validate: {
+      validator: function(value) {
+        // Allow empty array for drafts
+        if (this.status === 'draft' && (!Array.isArray(value) || value.length === 0)) return true;
+        // Validate each item in the array is a valid field
+        return Array.isArray(value) && value.every(field => VALID_FIELDS.includes(field));
+      },
+      message: 'All fields must be valid field options'
     }
   },
   courseStudy: {
-    type: String,
+    type: [String],
     required: function() { return this.status !== 'draft'; },
-    enum: {
-      values: VALID_COURSES,
-      message: 'Invalid course selected'
+    validate: {
+      validator: function(value) {
+        // If draft, allow empty array
+        if (this.status === 'draft' && (!Array.isArray(value) || value.length === 0)) return true;
+        // If not draft, require at least one course and validate all are valid
+        return Array.isArray(value) && value.length > 0 && value.every(course => VALID_COURSES.includes(course));
+      },
+      message: 'At least one course must be selected and all must be valid courses'
     }
   },
   yearOfStudy: {

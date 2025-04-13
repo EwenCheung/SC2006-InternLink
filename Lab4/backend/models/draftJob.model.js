@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { INTERNSHIP_OPTIONS } from './job.model.js';
 
 // Valid options for dropdown fields
 const VALID_DURATIONS = [
@@ -22,16 +23,9 @@ const VALID_YEARS = [
   'Any Year'
 ];
 
-const VALID_COURSES = [
-  'Select Course',
-  'Computer Science',
-  'Information Technology',
-  'Software Engineering',
-  'Business Analytics',
-  'Information Systems',
-  'Computer Engineering',
-  'Any Related Field'
-];
+// Get valid courses and fields from job model export
+const VALID_COURSES = INTERNSHIP_OPTIONS.COURSES;
+const VALID_FIELDS = INTERNSHIP_OPTIONS.FIELDS;
 
 // Draft Job Schema for both internship and ad hoc jobs
 const draftJobSchema = new mongoose.Schema({
@@ -58,11 +52,12 @@ const draftJobSchema = new mongoose.Schema({
     }
   },
   courseStudy: {
-    type: String,
-    enum: {
-      values: VALID_COURSES,
-      message: 'Invalid course value'
-    }
+    type: [String],
+    default: []
+  },
+  fieldOfStudy: {
+    type: [String],
+    default: []
   },
   yearOfStudy: {
     type: String,

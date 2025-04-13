@@ -3,6 +3,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css';
 import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
+import FieldCourseSelector from '../../components/Common/FieldCourseSelector';
+import { FIELDS_AND_COURSES } from '../../components/Common/FilterConfig';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -25,17 +27,6 @@ const YEAR_OF_STUDY_OPTIONS = [
   'Year 3',
   'Year 4',
   'Any Year'
-];
-
-const COURSE_OPTIONS = [
-  'Select Course',
-  'Computer Science',
-  'Information Technology',
-  'Software Engineering',
-  'Business Analytics',
-  'Information Systems',
-  'Computer Engineering',
-  'Any Related Field'
 ];
 
 const EP_AddInternshipPage = () => {
@@ -64,7 +55,7 @@ const EP_AddInternshipPage = () => {
     jobScope: '',
     stipend: '',
     duration: 'Select Duration',
-    courseStudy: 'Select Course',
+    courseStudy: [], // Changed from string to array
     yearOfStudy: 'Select Year',
     tags: [],
     area: '',
@@ -105,7 +96,7 @@ const EP_AddInternshipPage = () => {
           description: draftData.description || '',
           stipend: draftData.stipend || '',
           duration: draftData.duration || 'Select Duration',
-          courseStudy: draftData.courseStudy || 'Select Course',
+          courseStudy: draftData.courseStudy || [], // Changed from string to array
           yearOfStudy: draftData.yearOfStudy || 'Select Year',
           tags: draftData.tags || [],
           area: draftData.area || '',
@@ -268,7 +259,7 @@ const EP_AddInternshipPage = () => {
     if (!formData.jobScope) missing.push('Job Scope'); // This is already checking for jobScope
     if (!formData.stipend) missing.push('Monthly Stipend');
     if (formData.duration === 'Select Duration') missing.push('Duration');
-    if (formData.courseStudy === 'Select Course') missing.push('Course of Study');
+    if (formData.courseStudy.length === 0) missing.push('Course of Study'); // Changed validation for courseStudy
     if (formData.yearOfStudy === 'Select Year') missing.push('Year of Study');
     if (!formData.area) missing.push('Area');
     if (!formData.applicationDeadline) missing.push('Application Deadline');
@@ -295,7 +286,7 @@ const EP_AddInternshipPage = () => {
       formData.description ||
       formData.stipend ||
       formData.duration !== 'Select Duration' ||
-      formData.courseStudy !== 'Select Course' ||
+      formData.courseStudy.length > 0 || // Changed validation for courseStudy
       formData.yearOfStudy !== 'Select Year' ||
       formData.tags.length > 0 ||
       formData.area
@@ -583,18 +574,13 @@ const EP_AddInternshipPage = () => {
 
         <div className={styles.formGroup}>
           <label htmlFor="courseStudy">Required Course of Study*</label>
-          <select
-            id="courseStudy"
-            name="courseStudy"
-            value={formData.courseStudy}
-            onChange={handleChange}
-          >
-            {COURSE_OPTIONS.map(option => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <FieldCourseSelector
+            selectedCourses={formData.courseStudy}
+            onChange={(selectedCourses) =>
+              setFormData((prev) => ({ ...prev, courseStudy: selectedCourses }))
+            }
+            fieldsAndCourses={FIELDS_AND_COURSES}
+          />
         </div>
 
         <div className={styles.formGroup}>

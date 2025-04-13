@@ -50,7 +50,6 @@ const FIELDS_AND_COURSES = {
     "Human Resource Management",
     "International Business",
     "Entrepreneurship",
-    "Economics",
     "E-commerce",
     "Organizational Behavior",
     "Strategic Management",

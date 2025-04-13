@@ -149,6 +149,25 @@ export const createDraftJob = async (req, res) => {
     draftData.status = 'draft';
     draftData.lastModified = new Date();
     draftData.applicationDeadline = new Date(req.body.applicationDeadline);
+
+    // Handle courseStudy as a string for backward compatibility
+    // This is a temporary fix until the database schema is updated
+    if (req.body.courseStudy) {
+      if (Array.isArray(req.body.courseStudy)) {
+        if (req.body.courseStudy.length > 0) {
+          // Join the array into a comma-separated string
+          draftData.courseStudy = req.body.courseStudy[0]; // Just use the first selected course for now
+        } else {
+          draftData.courseStudy = '';
+        }
+      } else if (req.body.courseStudy !== 'Select Course' && req.body.courseStudy !== '') {
+        draftData.courseStudy = req.body.courseStudy;
+      } else {
+        draftData.courseStudy = '';
+      }
+    } else {
+      draftData.courseStudy = '';
+    }
     
     console.log('Setting application deadline in draft to:', draftData.applicationDeadline);
     console.log('Processed draft data:', draftData);
