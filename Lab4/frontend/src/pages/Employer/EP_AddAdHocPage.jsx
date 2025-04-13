@@ -160,6 +160,23 @@ const EP_AddAdHocPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for applicationDeadline to prevent past dates
+    if (name === 'applicationDeadline') {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+      
+      if (selectedDate < today) {
+        // If selected date is in the past, set to today instead
+        setFormData({
+          ...formData,
+          [name]: new Date().toISOString().split('T')[0]
+        });
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
       [name]: value,
@@ -597,6 +614,19 @@ const EP_AddAdHocPage = () => {
             onChange={handleChange}
             min={new Date().toISOString().split('T')[0]} // Can't select dates in the past
             className={styles.inputBox}
+            onBlur={(e) => {
+              // Additional check when field loses focus
+              const selectedDate = new Date(e.target.value);
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              
+              if (selectedDate < today) {
+                setFormData({
+                  ...formData,
+                  applicationDeadline: new Date().toISOString().split('T')[0]
+                });
+              }
+            }}
           />
         </div>
 
