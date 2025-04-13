@@ -221,6 +221,24 @@ const EP_AddInternshipPage = () => {
     setCurrentTag(e.target.value);
   };
 
+  // New function to determine fields based on selected courses
+  const getFieldsFromCourses = (selectedCourses) => {
+    // Create a Set to avoid duplicates
+    const fieldsSet = new Set();
+    
+    // For each course, find which field(s) it belongs to
+    selectedCourses.forEach(course => {
+      Object.entries(FIELDS_AND_COURSES).forEach(([field, courses]) => {
+        if (courses.includes(course)) {
+          fieldsSet.add(field);
+        }
+      });
+    });
+    
+    // Convert Set back to array
+    return Array.from(fieldsSet);
+  };
+
   const addTag = () => {
     const trimmedTag = currentTag.trim();
     if (trimmedTag && !formData.tags.includes(trimmedTag)) {
@@ -318,6 +336,9 @@ const EP_AddInternshipPage = () => {
         return;
       }
 
+      // Automatically populate fieldOfStudy based on selected courses
+      const fieldOfStudy = getFieldsFromCourses(formData.courseStudy);
+
       // Make sure area, description, and jobScope are explicitly included
       const postData = {
         ...formData,
@@ -327,7 +348,8 @@ const EP_AddInternshipPage = () => {
         employerID,
         type: 'internship_job',
         jobType: 'internship',
-        status: isDraftSave ? 'draft' : 'posted'
+        status: isDraftSave ? 'draft' : 'posted',
+        fieldOfStudy, // Include fieldOfStudy in the post data
       };
 
       // Convert stipend to number if it exists

@@ -325,6 +325,10 @@ const internshipJobSchema = new mongoose.Schema({
     type: String,
     required: function() { return this.status !== 'draft'; }
   },
+  jobScope: {
+    type: String,
+    required: function() { return this.status !== 'draft'; }
+  },
   company: {
     type: String,
     required: function() { return this.status !== 'draft'; }
