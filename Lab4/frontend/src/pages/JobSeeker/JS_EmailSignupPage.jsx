@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchUniversities } from '../../../../backend/controllers/universitiesdata.controller.js';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
-import { FaGoogle, FaGithub, FaArrowLeft, FaTimes, FaPlus } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaArrowLeft, FaTimes, FaPlus, FaExchangeAlt } from 'react-icons/fa';
 import {fetchSkillsData} from '../../../../backend/controllers/skillsdata.controller.js';
 
 // Get course fields and course list from VALID_COURSES in job.model.js plus additional options
@@ -286,19 +286,18 @@ const JS_EmailSignupPage = () => {
   });
 
   const [optionalData, setOptionalData] = useState({ // Step 2 - Optional fields
-    profileImage: null,
     phoneNumber: '+65',  // Initialize with Singapore country code
     dateOfBirth: '',
     school: '',
+    fieldOfStudy: '',
     course: '',
     yearOfStudy: '',
-    resume: null,
     skills: [],
+    personalDescription: '',
   });
   
   // Image and file preview states
   const [profileImagePreview, setProfileImagePreview] = useState(null);
-  const [resumeFileName, setResumeFileName] = useState('');
 
   // Validation states
   const [touchedFields, setTouchedFields] = useState({}); // Track field interactions
@@ -443,14 +442,7 @@ const JS_EmailSignupPage = () => {
 
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        setError(`${name === 'resume' ? 'Resume' : 'Profile image'} must be less than 5MB`);
-        e.target.value = '';
-        return;
-      }
-
-      // Validate file type for resume
-      if (name === 'resume' && !file.type.includes('pdf')) {
-        setError('Resume must be a PDF file');
+        setError(`${name === 'profileImage' ? 'Profile image' : 'File'} must be less than 5MB`);
         e.target.value = '';
         return;
       }
@@ -471,9 +463,6 @@ const JS_EmailSignupPage = () => {
       if (name === 'profileImage') {
         setProfileImagePreview(URL.createObjectURL(file));
       }
-      if (name === 'resume') {
-        setResumeFileName(file.name);
-      }
     } else {
       if (name === 'course' && value) {
         // Auto-assign field of study based on the selected course
@@ -493,6 +482,33 @@ const JS_EmailSignupPage = () => {
           [name]: value,
           fieldOfStudy: fieldOfCourse
         }));
+      } else if (name === 'phoneNumber') {
+        // Only allow digits for Singapore phone number
+        let numericValue = value.replace(/^\+65/, '').replace(/\D/g, '');
+        
+        // Limit to exactly 8 digits
+        numericValue = numericValue.substring(0, 8);
+        
+        // Format as XXXX-YYYY if we have enough digits
+        if (numericValue.length > 4) {
+          numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+        }
+        
+        setOptionalData(prev => ({
+          ...prev,
+          phoneNumber: `+65 ${numericValue}`
+        }));
+        
+        // Add validation for the phone field if it's not empty but incomplete
+        if (numericValue && numericValue.replace(/\D/g, '').length < 8) {
+          setFieldErrors(prev => ({ 
+            ...prev, 
+            phoneNumber: 'Phone number must be exactly 8 digits'
+          }));
+          setTouchedFields(prev => ({ ...prev, phoneNumber: true }));
+        } else if (numericValue) {
+          setFieldErrors(prev => ({ ...prev, phoneNumber: '' }));
+        }
       } else {
         setOptionalData(prev => ({
           ...prev,
@@ -542,7 +558,18 @@ const JS_EmailSignupPage = () => {
 
       // Add optional fields if they exist and are requested
       if (withOptionalData) {
-        if (optionalData.phoneNumber) registrationData.phoneNumber = optionalData.phoneNumber;
+        if (optionalData.phoneNumber) {
+          registrationData.phoneNumber = optionalData.phoneNumber;
+          
+          // Also add phone to contactList
+          registrationData.contactList = [
+            {
+              type: 'phone',
+              value: optionalData.phoneNumber,
+              title: 'Phone Number'
+            }
+          ];
+        }
         if (optionalData.dateOfBirth) registrationData.dateOfBirth = optionalData.dateOfBirth;
         if (optionalData.school) registrationData.school = optionalData.school;
         if (optionalData.course) registrationData.course = optionalData.course;
@@ -596,23 +623,6 @@ const JS_EmailSignupPage = () => {
               console.error('Profile image upload failed:', error);
             }
           }
-
-          if (optionalData.resume) {
-            try {
-              const resumeFormData = new FormData();
-              resumeFormData.append('resume', optionalData.resume);
-
-              await fetch('/api/auth/upload-resume', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${data.token}`
-                },
-                body: resumeFormData
-              });
-            } catch (error) {
-              console.error('Resume upload failed:', error);
-            }
-          }
         }
 
         navigate('/jobseeker/find-internship');
@@ -630,7 +640,46 @@ const JS_EmailSignupPage = () => {
   const handleProfileChoice = async (completeNow) => {
     setShowProfileChoice(false);
     if (completeNow) {
-      setCurrentStep(2);
+      // Register the account first and then navigate to profile page
+      try {
+        setIsLoading(true);
+        // Prepare registration data
+        const registrationData = {
+          role: "jobseeker",
+          email: requiredData.email,
+          password: requiredData.password,
+          userName: requiredData.userName,
+          profileImage: {
+            url: 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
+            uploadedAt: new Date()
+          }
+        };
+
+        // Send registration request
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registrationData),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed.');
+        }
+
+        // Store auth data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Navigate to profile page directly (instead of going to step 2)
+        navigate('/jobseeker/profile');
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
     } else {
       await createAccount(false);
     }
@@ -657,6 +706,17 @@ const JS_EmailSignupPage = () => {
       return;
     }
 
+    // Validate phone number if provided (not empty)
+    if (optionalData.phoneNumber && optionalData.phoneNumber !== '+65') {
+      const phoneDigits = optionalData.phoneNumber.replace(/\D/g, '').replace(/^65/, '');
+      if (phoneDigits.length !== 8) {
+        setError('Please provide a valid Singapore phone number with exactly 8 digits.');
+        setFieldErrors(prev => ({ ...prev, phoneNumber: 'Phone number must be exactly 8 digits' }));
+        setTouchedFields(prev => ({ ...prev, phoneNumber: true }));
+        return;
+      }
+    }
+
     await createAccount(true);
   };
 
@@ -680,6 +740,13 @@ const JS_EmailSignupPage = () => {
         className={styles.backButton}
       >
         <FaArrowLeft /> {currentStep === 2 ? 'Back to Sign Up' : 'Back'}
+      </button>
+
+      <button 
+        onClick={() => navigate('/employer/signup')}
+        className={styles.switchRoleButton}
+      >
+        <FaExchangeAlt /> Switch to Employer
       </button>
 
       <div className={`${styles.formContainer} ${currentStep === 1 ? styles.formContainerStep1 : styles.formContainerStep2}`}>
@@ -907,29 +974,6 @@ const JS_EmailSignupPage = () => {
           <form onSubmit={handleOptionalSubmit} className={styles.form}>
             <div className={styles.formGrid}>
               <div className={styles.inputGroup}>
-                <label htmlFor="profileImage" className={styles.label}>
-                  Profile Image <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="profileImage"
-                  name="profileImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleOptionalChange}
-                  className={styles.fileInput}
-                />
-                {profileImagePreview && (
-                  <div className={styles.previewContainer}>
-                    <img
-                      src={profileImagePreview}
-                      alt="Profile Preview"
-                      className={styles.previewImage}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className={styles.inputGroup}>
                 <label htmlFor="phoneNumber" className={styles.label}>
                   Phone Number <span className={styles.optional}>(optional)</span>
                 </label>
@@ -1048,23 +1092,6 @@ const JS_EmailSignupPage = () => {
                 </select>
               </div>
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="resume" className={styles.label}>
-                  Resume <span className={styles.optional}>(optional, PDF only)</span>
-                </label>
-                <input
-                  id="resume"
-                  name="resume"
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleOptionalChange}
-                  className={styles.fileInput}
-                />
-                {resumeFileName && (
-                  <div className={styles.fileNameDisplay}>
-                  </div>
-                )}
-              </div>
               <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
   
               <label htmlFor="skills" className={styles.label}>

@@ -1,81 +1,386 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './JS_ProfilePage.module.css';
-import { FaPen, FaPlus, FaEnvelope, FaPhone, FaLinkedin, FaGithub, FaLink, FaTrashAlt, FaDownload, FaUpload, FaFile } from 'react-icons/fa';
+import { FaPen, FaPlus, FaEnvelope, FaPhone, FaLinkedin, FaGithub, FaLink, FaTrashAlt, FaTimes } from 'react-icons/fa';
 import useNotification from '../../hooks/useNotification';
 import { LoadingSpinner } from '../../components/Common/LoadingSpinner';
 import NotificationStack from '../../components/Common/NotificationStack';
 import A11yAnnouncer from '../../components/Common/A11yAnnouncer';
 import Dialog from '../../components/Common/Dialog';
 import ErrorBoundary from '../../components/Common/ErrorBoundary';
-// Import Document from react-pdf for PDF rendering
-import { Document, Page, pdfjs } from 'react-pdf';
-// Set up the PDF worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+import { fetchUniversities } from '../../../../backend/controllers/universitiesdata.controller.js';
+import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 
-// Helper function to check resume status
-const getResumeStatus = (resumeData) => {
-    // If no resume data at all, it's a "no resume" state
-    if (!resumeData) {
-        return 'empty';
-    }
-    
-    // If there's a pending upload
-    if (resumeData.isPending) {
-        return 'pending';
-    }
-    
-    // If there's a URL and it's valid
-    if (resumeData.url && !resumeData.url.includes('File not found') && 
-        !resumeData.url.includes('"success":false') &&
-        !resumeData.url.includes('404') &&
-        resumeData.url.indexOf('{') !== 0) {
-        return 'valid';
-    }
-    
-    // Otherwise, consider it empty/error state
-    return 'empty';
+// Course fields and course list - same as in JS_EmailSignupPage
+const FIELDS_AND_COURSES = {
+  "Computer Science & IT": [
+    "Computer Science",
+    "Information Technology",
+    "Software Engineering",
+    "Information Systems",
+    "Cybersecurity",
+    "Artificial Intelligence",
+    "Data Science",
+    "Computer Graphics",
+    "Computer Networking",
+    "Human-Computer Interaction",
+    "Machine Learning",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Robotics",
+    "Quantum Computing",
+    "Cloud Computing",
+    "Internet of Things (IoT)",
+    "Blockchain Technology",
+    "Augmented Reality",
+    "Virtual Reality"
+  ],
+  "Business & Analytics": [
+    "Business Administration",
+    "Business Analytics",
+    "Marketing Analytics",
+    "Financial Analytics",
+    "Business Intelligence",
+    "Operations Management",
+    "Management Information Systems",
+    "Supply Chain Analytics",
+    "Accounting",
+    "Finance",
+    "Marketing",
+    "Human Resource Management",
+    "International Business",
+    "Entrepreneurship",
+    "Economics",
+    "E-commerce",
+    "Organizational Behavior",
+    "Strategic Management",
+    "Project Management"
+  ],
+  "Engineering": [
+    "Computer Engineering",
+    "Electrical Engineering",
+    "Mechanical Engineering",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Biomedical Engineering",
+    "Environmental Engineering",
+    "Aerospace Engineering",
+    "Materials Engineering",
+    "Industrial Engineering",
+    "Nuclear Engineering",
+    "Petroleum Engineering",
+    "Automotive Engineering",
+    "Marine Engineering",
+    "Mechatronics Engineering",
+    "Structural Engineering",
+    "Telecommunications Engineering",
+    "Systems Engineering",
+    "Geotechnical Engineering"
+  ],
+  "Natural Sciences": [
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Mathematics",
+    "Statistics",
+    "Environmental Science",
+    "Biotechnology",
+    "Neuroscience",
+    "Geology",
+    "Astronomy",
+    "Oceanography",
+    "Meteorology",
+    "Ecology",
+    "Zoology",
+    "Botany",
+    "Genetics",
+    "Microbiology",
+    "Paleontology",
+    "Astrophysics"
+  ],
+  "Social Sciences & Humanities": [
+    "Psychology",
+    "Economics",
+    "Sociology",
+    "Political Science",
+    "Communication Studies",
+    "Linguistics",
+    "History",
+    "Philosophy",
+    "International Relations",
+    "Anthropology",
+    "Archaeology",
+    "Religious Studies",
+    "Cultural Studies",
+    "Gender Studies",
+    "Human Geography",
+    "Education",
+    "Law",
+    "Social Work",
+    "Criminology"
+  ],
+  "Design & Media": [
+    "Digital Media",
+    "Graphic Design",
+    "User Experience Design",
+    "Animation",
+    "Game Design",
+    "Music Technology",
+    "Film Studies",
+    "Fashion Design",
+    "Interior Design",
+    "Industrial Design",
+    "Photography",
+    "Visual Arts",
+    "Performing Arts",
+    "Theatre Studies",
+    "Sound Design",
+    "Media Production",
+    "Advertising",
+    "Public Relations",
+    "Journalism"
+  ],
+  "Health & Medical Sciences": [
+    "Medicine",
+    "Nursing",
+    "Pharmacy",
+    "Dentistry",
+    "Public Health",
+    "Physiotherapy",
+    "Occupational Therapy",
+    "Nutrition and Dietetics",
+    "Biomedical Science",
+    "Veterinary Medicine",
+    "Radiography",
+    "Speech and Language Therapy",
+    "Optometry",
+    "Midwifery",
+    "Medical Laboratory Science",
+    "Health Informatics",
+    "Clinical Psychology",
+    "Epidemiology",
+    "Genetic Counseling"
+  ],
+  "Education": [
+    "Early Childhood Education",
+    "Primary Education",
+    "Secondary Education",
+    "Special Education",
+    "Educational Leadership",
+    "Curriculum and Instruction",
+    "Educational Technology",
+    "Adult Education",
+    "Higher Education",
+    "Educational Psychology",
+    "Counselor Education",
+    "Language Education",
+    "Mathematics Education",
+    "Science Education",
+    "Physical Education",
+    "Art Education",
+    "Music Education",
+    "Vocational Education",
+    "Instructional Design"
+  ],
+  "Agriculture & Environmental Studies": [
+    "Agricultural Science",
+    "Horticulture",
+    "Animal Science",
+    "Soil Science",
+    "Agribusiness",
+    "Forestry",
+    "Fisheries Science",
+    "Wildlife Management",
+    "Environmental Management",
+    "Sustainable Agriculture",
+    "Food Science and Technology",
+    "Plant Pathology",
+    "Entomology",
+    "Agricultural Engineering",
+    "Agroecology",
+    "Climate Science",
+    "Natural Resource Management",
+    "Water Resources Management",
+    "Rural Development"
+  ],
+  "Architecture & Built Environment": [
+    "Architecture",
+    "Urban Planning",
+    "Landscape Architecture",
+    "Interior Architecture",
+    "Construction Management",
+    "Quantity Surveying",
+    "Building Services Engineering",
+    "Real Estate",
+    "Sustainable Design",
+    "Historic Preservation",
+    "Urban Design",
+    "Environmental Design",
+    "Structural Engineering",
+    "Building Information Modeling (BIM)",
+    "Housing Studies",
+    "Transportation Planning",
+    "Regional Planning",
+    "Urban Studies",
+    "Facility Management"
+  ]
 };
 
-const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoading, hasChanged }) => (
-    <div className={styles.fieldRow}>
-        <label>{label}</label>
-        <div className={`${styles.fieldContent} ${isLoading ? styles.loading : ''} ${hasChanged ? styles.fieldChanged : ''}`}>
-            {isEditing ? (
-                <>
-                    {type === 'select' ? (
-                        <select
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                            className={styles.editInput}
-                            disabled={isLoading}
-                        >
-                            <option value="">Select Year</option>
-                            {['Year 1', 'Year 2', 'Year 3', 'Year 4'].map(year => (
-                                <option key={year} value={year}>{year}</option>
-                            ))}
-                        </select>
-                    ) : (
-                        <input
-                            type={type}
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                            className={styles.editInput}
-                            disabled={isLoading}
-                        />
-                    )}
-                    {isLoading && <div className={styles.fieldLoader} />}
-                </>
-            ) : (
-                <span>{value || 'Not specified'}</span>
-            )}
+const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoading, hasChanged }) => {
+    const [universities, setUniversities] = useState([]);
+
+    useEffect(() => {
+        if (label === "School" && isEditing) {
+            const loadUniversities = async () => {
+                const data = await fetchUniversities();
+                setUniversities(data);
+            };
+            loadUniversities();
+        }
+    }, [label, isEditing]);
+
+    // Format phone number with +65 and XXXX-YYYY pattern
+    const formatPhoneNumber = (phoneValue) => {
+        if (!phoneValue) return '';
+        
+        // Remove all non-digit characters
+        let numericValue = phoneValue.replace(/\D/g, '');
+        
+        // Remove country code if present
+        if (numericValue.startsWith('65')) {
+            numericValue = numericValue.substring(2);
+        }
+        
+        // Limit to 8 digits for Singapore phone
+        numericValue = numericValue.substring(0, 8);
+        
+        // Format as XXXX-YYYY if we have enough digits
+        if (numericValue.length > 4) {
+            numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+        }
+        
+        return `+65 ${numericValue}`;
+    };
+    
+    // Handle phone number input specifically
+    const handlePhoneChange = (e) => {
+        // Only allow digits for Singapore phone number (8 digits)
+        let numericValue = e.target.value.replace(/\D/g, '');
+        // Remove country code if present
+        if (numericValue.startsWith('65')) {
+            numericValue = numericValue.substring(2);
+        }
+        // Limit to 8 digits
+        numericValue = numericValue.substring(0, 8);
+        
+        // Format as XXXX-YYYY if we have enough digits
+        if (numericValue.length > 4) {
+            numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+        }
+        
+        // Always prefix with +65
+        onChange(`+65 ${numericValue}`);
+    };
+
+    return (
+        <div className={styles.fieldRow}>
+            <label>{label}</label>
+            <div className={`${styles.fieldContent} ${isLoading ? styles.loading : ''} ${hasChanged ? styles.fieldChanged : ''}`}>
+                {isEditing ? (
+                    <>
+                        {/* Year of Study dropdown */}
+                        {type === 'select' && (
+                            <select
+                                value={value || ''}
+                                onChange={(e) => onChange(e.target.value)}
+                                className={styles.editInput}
+                                disabled={isLoading}
+                            >
+                                <option value="">Select Year</option>
+                                {['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'].map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        )}
+                        
+                        {/* School dropdown with universities from API */}
+                        {label === "School" && (
+                            <select
+                                value={value || ''}
+                                onChange={(e) => onChange(e.target.value)}
+                                className={styles.editInput}
+                                disabled={isLoading}
+                            >
+                                <option value="">Select a university</option>
+                                {universities.map((university, index) => (
+                                    <option key={index} value={university}>
+                                        {university}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                        
+                        {/* Course dropdown with categories from FIELDS_AND_COURSES */}
+                        {label === "Course" && (
+                            <select
+                                value={value || ''}
+                                onChange={(e) => onChange(e.target.value)}
+                                className={styles.editInput}
+                                disabled={isLoading}
+                            >
+                                <option value="">Select a course</option>
+                                {Object.entries(FIELDS_AND_COURSES).map(([field, courses], index) => (
+                                    <optgroup key={index} label={field}>
+                                        {courses.map((course, courseIndex) => (
+                                            <option key={courseIndex} value={course}>
+                                                {course}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                ))}
+                            </select>
+                        )}
+
+                        {/* Phone number input with +65 prefix */}
+                        {label === "Phone Number" && (
+                            <div className={styles.phoneInputContainer}>
+                                <span className={styles.countryCode}>+65</span>
+                                <input
+                                    type="tel"
+                                    value={value ? value.replace(/^\+65\s?/, '') : ''}
+                                    onChange={handlePhoneChange}
+                                    className={styles.phoneInput}
+                                    placeholder="XXXX-YYYY"
+                                    disabled={isLoading}
+                                />
+                            </div>
+                        )}
+                        
+                        {/* Default input for other fields */}
+                        {type !== 'select' && label !== "School" && label !== "Course" && label !== "Phone Number" && (
+                            <input
+                                type={type}
+                                value={value || ''}
+                                onChange={(e) => onChange(e.target.value)}
+                                className={styles.editInput}
+                                disabled={isLoading}
+                            />
+                        )}
+                        
+                        {isLoading && <div className={styles.fieldLoader} />}
+                    </>
+                ) : (
+                    <span>{value || 'Not specified'}</span>
+                )}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 const ContactDialog = ({ isOpen, onClose, onAdd }) => {
     const [contactType, setContactType] = useState('email');
     const [contactValue, setContactValue] = useState('');
+    const [contactTitle, setContactTitle] = useState('');
     const [error, setError] = useState('');
 
     const contactTypes = [
@@ -83,8 +388,12 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
           validate: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
           errorMsg: 'Please enter a valid email address' },
         { id: 'phone', label: 'Phone Number', type: 'tel', 
-          validate: value => /^\+?[\d\s-]+$/.test(value),
-          errorMsg: 'Please enter a valid phone number' },
+          validate: value => {
+              // For phone numbers with +65 prefix, check for 8 digits
+              const phoneNum = value.replace(/\D/g, '');
+              return phoneNum.length >= 8; // Needs at least 8 digits (after removing +65)
+          },
+          errorMsg: 'Please enter a valid Singapore phone number (+65 XXXX-YYYY)' },
         { id: 'linkedin', label: 'LinkedIn', type: 'url', 
           validate: value => value.includes('linkedin.com/'),
           errorMsg: 'Please enter a valid LinkedIn URL' },
@@ -96,6 +405,12 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
           errorMsg: 'Please enter a value' }
     ];
 
+    useEffect(() => {
+        // Set default title when contact type changes
+        const currentType = contactTypes.find(t => t.id === contactType);
+        setContactTitle(currentType.label);
+    }, [contactType]);
+
     const validateInput = () => {
         const currentType = contactTypes.find(t => t.id === contactType);
         if (!contactValue.trim()) {
@@ -106,14 +421,23 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
             setError(currentType.errorMsg);
             return false;
         }
+        if (!contactTitle.trim()) {
+            setError(`Please enter a title for this contact`);
+            return false;
+        }
         setError('');
         return true;
     };
 
     const handleSubmit = () => {
         if (!validateInput()) return;
-        onAdd({ type: contactType, value: contactValue });
+        onAdd({ 
+            type: contactType, 
+            value: contactValue,
+            title: contactTitle
+        });
         setContactValue('');
+        setContactTitle('');
         setError('');
         onClose();
     };
@@ -122,6 +446,44 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
         setContactType(type);
         setContactValue('');
         setError('');
+        // Set default title based on the new contact type
+        const currentType = contactTypes.find(t => t.id === type);
+        setContactTitle(currentType.label);
+    };
+    
+    // Format phone number with Singapore format (+65 XXXX-YYYY)
+    const formatPhoneNumber = (input) => {
+        // If already has +65, don't add it again
+        let value = input;
+        if (contactType === 'phone') {
+            // Remove all non-digit characters
+            let numericValue = value.replace(/\D/g, '');
+            
+            // Remove country code if present at the beginning
+            if (numericValue.startsWith('65')) {
+                numericValue = numericValue.substring(2);
+            }
+            
+            // Limit to 8 digits (Singapore phone)
+            numericValue = numericValue.substring(0, 8);
+            
+            // Format as XXXX-YYYY if we have enough digits
+            if (numericValue.length > 4) {
+                numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+            }
+            
+            // Add +65 prefix
+            return `+65 ${numericValue}`;
+        }
+        return value;
+    };
+    
+    const handleInputChange = (e) => {
+        if (contactType === 'phone') {
+            setContactValue(formatPhoneNumber(e.target.value));
+        } else {
+            setContactValue(e.target.value);
+        }
     };
 
     return (
@@ -144,21 +506,59 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
                         <button
                             key={type.id}
                             className={`${styles.contactTypeBtn} ${contactType === type.id ? styles.selected : ''}`}
-                            onClick={() => setContactType(type.id)}
+                            onClick={() => handleTypeChange(type.id)}
                         >
                             {type.label}
                         </button>
                     ))}
                 </div>
+                
                 <div className={styles.inputWrapper}>
+                    <label htmlFor="contactTitle" className={styles.contactLabel}>Title</label>
                     <input
-                        type={contactTypes.find(t => t.id === contactType).type}
-                        value={contactValue}
-                        onChange={(e) => setContactValue(e.target.value)}
-                        placeholder={`Enter your ${contactTypes.find(t => t.id === contactType).label.toLowerCase()}`}
-                        className={`${styles.contactInput} ${error ? styles.inputError : ''}`}
+                        id="contactTitle"
+                        type="text"
+                        value={contactTitle}
+                        onChange={(e) => setContactTitle(e.target.value)}
+                        placeholder="Enter a title for this contact"
+                        className={styles.contactInput}
                     />
+                </div>
+                
+                <div className={styles.inputWrapper}>
+                    <label htmlFor="contactValue" className={styles.contactLabel}>
+                        {contactTypes.find(t => t.id === contactType).label}
+                    </label>
+                    
+                    {contactType === 'phone' ? (
+                        <div className={styles.phoneInputContainer}>
+                            <span className={styles.countryCode}>+65</span>
+                            <input
+                                id="contactValue"
+                                type="tel"
+                                value={contactValue.replace(/^\+65\s?/, '')}
+                                onChange={handleInputChange}
+                                placeholder="XXXX-YYYY"
+                                className={`${styles.phoneInput} ${error ? styles.inputError : ''}`}
+                            />
+                        </div>
+                    ) : (
+                        <input
+                            id="contactValue"
+                            type={contactTypes.find(t => t.id === contactType).type}
+                            value={contactValue}
+                            onChange={handleInputChange}
+                            placeholder={`Enter your ${contactTypes.find(t => t.id === contactType).label.toLowerCase()}`}
+                            className={`${styles.contactInput} ${error ? styles.inputError : ''}`}
+                        />
+                    )}
+                    
                     {error && <div className={styles.errorMessage}>{error}</div>}
+                    {contactType === 'phone' && (
+                        <div className={styles.phoneHint}>
+                            Enter 8 digits in XXXX-YYYY format
+                        </div>
+                    )}
                 </div>
             </div>
         </Dialog>
@@ -451,95 +851,35 @@ const AcademicExperienceItem = ({ education, onEdit, onDelete, isEditing }) => (
     </div>
 );
 
-const ResumeDisplay = ({ resume, isEditing, onDelete }) => {
-    const resumeStatus = getResumeStatus(resume);
-    
-    // Upload interface component
-    const UploadInterface = ({ message = 'Drag or click here to upload your resume' }) => (
-        <div 
-            className={styles.noResume}
-            onClick={() => document.getElementById('resume-upload').click()}
-            style={{ cursor: 'pointer' }}
+const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, title, message }) => {
+    return (
+        <Dialog
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title || "Confirm Deletion"}
+            primaryAction={{
+                label: 'Delete',
+                onClick: onConfirm,
+                className: styles.dangerButton
+            }}
+            secondaryAction={{
+                label: 'Cancel',
+                onClick: onClose
+            }}
         >
-            <div className={styles.noResumeContent}>
-                <FaPlus className={styles.uploadIcon} />
-                <p>{message}</p>
-                <p className={styles.uploadNote}>Accepted format: PDF (Max 10MB)</p>
+            <div className={styles.confirmationDialog}>
+                <div className={styles.iconContainer}>
+                    <FaTrashAlt className={styles.deleteIcon} />
+                </div>
+                <p className={styles.confirmationMessage}>
+                    {message || "Are you sure you want to delete this item?"}
+                </p>
+                <p className={styles.confirmationWarning}>
+                    This action cannot be undone.
+                </p>
             </div>
-        </div>
+        </Dialog>
     );
-
-    // Handle different resume states
-    switch (resumeStatus) {
-        case 'empty':
-            return <UploadInterface message="Please upload a file" />;
-
-        case 'pending':
-            return (
-                <div className={styles.pendingResume}>
-                    <div className={styles.pendingResumeContent}>
-                        <div className={styles.fileNameContainer}>
-                            <span className={styles.fileName}>{resume.filename}</span>
-                        </div>
-                        <p className={styles.uploadNote}>Click "Save Changes" to complete upload</p>
-                    </div>
-                </div>
-            );
-
-        case 'valid':
-            // More strict validation to ensure we have a real PDF file
-            const hasValidUrl = resume && 
-                resume.url && 
-                typeof resume.url === 'string' &&
-                resume.url.trim() !== '' &&
-                !resume.url.includes('File not found') && 
-                !resume.url.includes('"success":false') &&
-                !resume.url.includes('404') &&
-                resume.url.indexOf('{') !== 0;
-            
-            // Get the file name from the resume object
-            const fileName = resume && resume.filename 
-                ? resume.filename 
-                : "Unknown file";
-
-            return (
-                <div className={styles.resumeFileDisplay}>
-                    <div className={styles.fileNameContainer}>
-                        <span className={styles.fileName}>
-                            You have uploaded a file
-                        </span>
-                    </div>
-                    {hasValidUrl && (
-                        <div className={isEditing ? styles.resumeActionsEdit : styles.resumeActions}>
-                            <a 
-                                href={resume.url}
-                                className={styles.downloadButton}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                download={fileName}
-                            >
-                                <FaDownload /> Download
-                            </a>
-                            {isEditing && (
-                                <button 
-                                    className={styles.deleteResumeBtn} 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDelete();
-                                    }}
-                                    type="button"
-                                >
-                                    <FaTrashAlt /> Delete
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-            );
-
-        default:
-            return <UploadInterface message="Please upload a file" />;
-    }
 };
 
 export default function JS_ProfilePage() {
@@ -559,8 +899,6 @@ export default function JS_ProfilePage() {
     
     const [tempFile, setTempFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
-    const [tempResume, setTempResume] = useState(null);
-    const [resumePreview, setResumePreview] = useState(null);
 
     const [workExperiences, setWorkExperiences] = useState([]);
     const [academicHistory, setAcademicHistory] = useState([]);
@@ -569,40 +907,68 @@ export default function JS_ProfilePage() {
     const [editingExperience, setEditingExperience] = useState(null);
     const [editingEducation, setEditingEducation] = useState(null);
 
-    const handleDeleteResume = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/auth/files/resume', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState(null);
+    
+    // New state for skills management
+    const [availableSkills, setAvailableSkills] = useState([]);
+    const [newSkill, setNewSkill] = useState('');
+    const [userSkills, setUserSkills] = useState([]);
+
+    // Fetch skills data when in edit mode
+    useEffect(() => {
+        if (isEditingAdditional) {
+            const loadSkills = async () => {
+                try {
+                    const skillNames = await fetchSkillsData();
+                    setAvailableSkills(skillNames || []);
+                } catch (error) {
+                    console.error('Error fetching skills:', error);
+                    showNotification('Unable to load skills suggestions', 'error');
                 }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to delete resume');
-            }
-
-            // Update local state
-            setProfileData(prev => ({
-                ...prev,
-                resume: null
-            }));
-            setTempResume(null);
-            setResumePreview(null);
+            };
+            loadSkills();
             
-            // Update original data to prevent "File not found" on cancel
-            setOriginalData(prev => ({
-                ...prev,
-                resume: null
-            }));
-
-            showNotification('Resume deleted successfully', 'success');
-        } catch (error) {
-            console.error('Error deleting resume:', error);
-            showNotification('Failed to delete resume', 'error');
+            // Initialize userSkills array from profile data
+            if (profileData?.skills) {
+                const skills = typeof profileData.skills === 'string' 
+                    ? profileData.skills.split(',').map(skill => skill.trim()).filter(Boolean)
+                    : Array.isArray(profileData.skills) ? profileData.skills : [];
+                setUserSkills(skills);
+            }
+        }
+    }, [isEditingAdditional]); // removed profileData?.skills dependency to prevent flashing
+    
+    // Handle adding a skill
+    const handleAddSkill = (e, selectedSkill = null) => {
+        if (e) e.preventDefault();
+        const skillToAdd = selectedSkill || newSkill.trim();
+        
+        if (skillToAdd && !userSkills.includes(skillToAdd)) {
+            setUserSkills(prev => [...prev, skillToAdd]);
+            setNewSkill('');
         }
     };
+    
+    // Handle removing a skill
+    const handleRemoveSkill = (skillToRemove) => {
+        setUserSkills(prev => prev.filter(skill => skill !== skillToRemove));
+    };
+    
+    // Update profile data with skills before saving
+    useEffect(() => {
+        if (isEditingAdditional) {
+            // Use a timeout to avoid constant re-renders and flashing
+            const timeoutId = setTimeout(() => {
+                setProfileData(prev => ({
+                    ...prev,
+                    skills: userSkills
+                }));
+            }, 300);
+            
+            return () => clearTimeout(timeoutId);
+        }
+    }, [userSkills, isEditingAdditional]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -629,14 +995,13 @@ export default function JS_ProfilePage() {
                 }
                 const data = response.data;
 
-                // Process resume data
-                let resumeData = null;
-                if (data.resume) {
-                    const resumeUrl = data.resume.url;
-                    if (resumeUrl && !resumeUrl.includes('File not found') && 
-                        !resumeUrl.includes('"success":false') &&
-                        !resumeUrl.includes('404')) {
-                        resumeData = data.resume;
+                // Process skills data properly - ensure it's always an array
+                let skillsArray = [];
+                if (data.skills) {
+                    if (Array.isArray(data.skills)) {
+                        skillsArray = data.skills;
+                    } else if (typeof data.skills === 'string') {
+                        skillsArray = data.skills.split(',').map(skill => skill.trim()).filter(Boolean);
                     }
                 }
 
@@ -647,14 +1012,16 @@ export default function JS_ProfilePage() {
                     course: data.course,
                     yearOfStudy: data.yearOfStudy,
                     contactList: data.contactList || [],
-                    skills: Array.isArray(data.skills) ? data.skills.join(', ') : data.skills || '',
+                    skills: skillsArray,
                     interests: Array.isArray(data.interests) ? data.interests.join(', ') : data.interests || '',
-                    personalStatement: data.personalDescription || '',
-                    resume: resumeData
+                    personalStatement: data.personalDescription || ''
                 };
 
                 setProfileData(profileData);
                 setOriginalData(profileData);
+                
+                // Initialize userSkills from profile data
+                setUserSkills(skillsArray);
 
                 // Load academicHistory and workExperience from response data
                 if (Array.isArray(data.academicHistory)) {
@@ -732,142 +1099,125 @@ export default function JS_ProfilePage() {
         setTempFile(file);
     };
 
-    const handleResumeUpload = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // Validate file size (10MB limit)
-        if (file.size > 10 * 1024 * 1024) {
-            showNotification('File size is too large. Maximum size is 10MB', 'error');
-            return;
-        }
-
-        // Validate file type
-        if (file.type !== 'application/pdf') {
-            showNotification('Please upload a PDF document', 'error');
-            return;
-        }
-
-        // Store the file for later upload
-        setTempResume(file);
-        
-        const pendingResume = {
-            filename: file.name,
-            contentType: file.type,
-            size: Math.round(file.size / 1024) + 'KB',
-            isPending: true
-        };
-        
-        // Set preview data
-        setResumePreview(pendingResume);
-        
-        // Update profileData
-        setProfileData(prev => ({
-            ...prev,
-            resume: pendingResume
-        }));
-        
-        // Also update originalData to prevent "File not found" on cancel
-        setOriginalData(prev => ({
-            ...prev,
-            resume: prev.resume || null // Keep original resume if it exists, otherwise null
-        }));
-        
-        showNotification('Resume ready to upload. Click "Save Changes" to complete the upload.', 'info');
-    };
-
     const handleSave = async (section) => {
         try {
             setIsSaving(true);
             const token = localStorage.getItem('token');
-            const formData = new FormData();
-    
-            // Append changed fields based on which section we're saving
-            Object.entries(profileData).forEach(([key, value]) => {
-                // Skip irrelevant fields based on section being saved
-                if (section === 'profile') {
+            
+            // For the additional section, use JSON format to ensure proper array handling
+            if (section === 'additional') {
+                // Use JSON format for skills to ensure they are sent as a proper array
+                const additionalData = {
+                    skills: userSkills, // This will be sent as a proper JSON array
+                    interests: profileData.interests,
+                    personalDescription: profileData.personalStatement
+                };
+                
+                console.log("Sending skills data in JSON format:", additionalData);
+                
+                const response = await fetch('/api/auth/update', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(additionalData)
+                });
+                
+                if (!response.ok) {
+                    let errorMessage = 'Failed to save profile';
+                    try {
+                        const errorText = await response.text();
+                        if (errorText) {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing response:', parseError);
+                        errorMessage = 'Server returned invalid response';
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Update failed');
+                }
+                
+                // Update originalData with the new skills to prevent duplication on next save
+                setOriginalData(prev => ({
+                    ...prev,
+                    skills: userSkills,
+                    interests: profileData.interests,
+                    personalStatement: profileData.personalStatement
+                }));
+                
+                showNotification('Additional Information updated successfully', 'success');
+                setIsEditingAdditional(false);
+                window.location.reload();
+                
+            } else {
+                // For profile section, continue using FormData
+                const formData = new FormData();
+                
+                // Append changed fields based on the profile section
+                Object.entries(profileData).forEach(([key, value]) => {
+                    // Skip irrelevant fields for profile section
                     if (['skills', 'interests', 'personalStatement'].includes(key)) return;
-                } else if (section === 'additional') {
-                    if (['userName', 'school', 'course', 'yearOfStudy'].includes(key)) return;
-                }
+                    
+                    // Skip file fields
+                    if (key === 'profileImage') return;
+                    
+                    // Only include changed fields
+                    if (value !== originalData[key]) {
+                        formData.append(key, value);
+                    }
+                });
                 
-                // Skip file fields
-                if (key === 'resume' || key === 'profileImage') return;
-                
-                // Only include changed fields
-                if (value !== originalData[key]) {
-                    formData.append(key, value);
-                }
-            });
-    
-            // Add files only if editing profile section
-            if (section === 'profile') {
-                // Add new profile image
+                // Add files only if editing profile section
                 if (tempFile) {
                     formData.append('profileImage', tempFile);
                 }
-            }
-            
-            // Add resume only if editing additional section
-            if (section === 'additional') {
-                // Explicitly indicate if the resume was deleted
-                if (profileData.resume === null) {
-                    formData.append('resumeDeleted', 'true');
-                } 
-                // Otherwise, if we have a new resume, add it
-                else if (tempResume) {
-                    formData.append('resume', tempResume);
-                }
-            }
-    
-            console.log(`Saving ${section} with:`, {
-                hasProfileImage: section === 'profile' && tempFile !== null,
-                hasResume: section === 'additional' && tempResume !== null,
-                resumeDeleted: section === 'additional' && profileData.resume === null,
-                formDataKeys: Array.from(formData.keys())
-            });
+                
+                console.log(`Saving ${section} with:`, {
+                    hasProfileImage: tempFile !== null,
+                    formDataKeys: Array.from(formData.keys())
+                });
 
-            const response = await fetch('/api/auth/update', {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-            
-            if (!response.ok) {
-                let errorMessage = 'Failed to save profile';
-                try {
-                    const errorText = await response.text();
-                    if (errorText) {
-                        const errorData = JSON.parse(errorText);
-                        errorMessage = errorData.message || errorMessage;
+                const response = await fetch('/api/auth/update', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    let errorMessage = 'Failed to save profile';
+                    try {
+                        const errorText = await response.text();
+                        if (errorText) {
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorMessage;
+                        }
+                    } catch (parseError) {
+                        console.error('Error parsing response:', parseError);
+                        errorMessage = 'Server returned invalid response';
                     }
-                } catch (parseError) {
-                    console.error('Error parsing response:', parseError);
-                    errorMessage = 'Server returned invalid response';
+                    throw new Error(errorMessage);
                 }
-                throw new Error(errorMessage);
-            }
-            
-            const result = await response.json();
-            
-            if (!result.success) {
-                throw new Error(result.message || 'Update failed');
-            }
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Update failed');
+                }
 
-            // Show success notification
-            showNotification(`${section === 'profile' ? 'Personal Information' : 'Additional Information'} updated successfully`, 'success');
-            
-            // Reset appropriate edit mode
-            if (section === 'profile') {
+                showNotification('Personal Information updated successfully', 'success');
                 setIsEditingProfile(false);
-            } else {
-                setIsEditingAdditional(false);
+                window.location.reload();
             }
-            
-            // Refresh the page to show updated profile image and resume
-            window.location.reload();
             
         } catch (err) {
             console.error('Error saving profile:', err);
@@ -878,33 +1228,42 @@ export default function JS_ProfilePage() {
 
     const handleCancel = (section) => {
         if (section === 'profile') {
-            setTempFile(null);
+            // Reset the profile image preview if there was one
             setPreviewUrl(null);
-            setIsEditingProfile(false);
-            setProfileData(originalData);
-        } else {
-            setTempResume(null);
-            setResumePreview(null);
-            setIsEditingAdditional(false);
+            setTempFile(null);
             
-            // Check if resume is in a deleted state (explicitly set to null)
-            const isResumeDeleted = profileData.resume === null;
-            
-            // Update profile data while preserving resume state
-            setProfileData(prev => {
-                const newData = { ...originalData };
-                if (isResumeDeleted) {
-                    newData.resume = null;
-                }
-                return newData;
+            // Reset the profile data to original
+            setProfileData({
+                ...originalData
             });
+            
+            // Exit editing mode
+            setIsEditingProfile(false);
+            
+        } else if (section === 'additional') {
+            // Reset skills to original skills
+            setUserSkills(
+                Array.isArray(originalData.skills) ? [...originalData.skills] : 
+                typeof originalData.skills === 'string' ? originalData.skills.split(',').map(skill => skill.trim()).filter(Boolean) : 
+                []
+            );
+            
+            // Reset other additional fields
+            setProfileData({
+                ...profileData,
+                skills: originalData.skills,
+                interests: originalData.interests,
+                personalStatement: originalData.personalStatement
+            });
+            
+            // Exit editing mode
+            setIsEditingAdditional(false);
         }
     };
 
-    const handleAddContact = async (contact) => {
+    const handleUpdateContact = async (newContacts) => {
         try {
-            // Optimistically update UI
-            const newContacts = [...(profileData.contactList || []), contact];
+            // Update UI optimistically
             setProfileData(prev => ({
                 ...prev,
                 contactList: newContacts
@@ -926,17 +1285,46 @@ export default function JS_ProfilePage() {
                 // Revert the local change if the server update fails
                 setProfileData(prev => ({
                     ...prev,
-                    contactList: prev.contactList.slice(0, -1)
+                    contactList: profileData.contactList  // Restore original contacts
                 }));
-                throw new Error(await response.text() || 'Failed to add contact');
+                throw new Error(await response.text() || 'Failed to update contacts');
             }
 
             const result = await response.json();
-            setProfileData(prev => ({
-                ...prev,
-                contactList: result.data.contactList || []
-            }));
-            showNotification('Contact added successfully', 'success');
+            if (result.success && result.data && result.data.contactList) {
+                // Update with the data from server to ensure consistency
+                setProfileData(prev => ({
+                    ...prev,
+                    contactList: result.data.contactList
+                }));
+                
+                // Also update the original data to prevent reversion on cancel
+                setOriginalData(prev => ({
+                    ...prev,
+                    contactList: result.data.contactList
+                }));
+            }
+            showNotification('Contact list updated successfully', 'success');
+        } catch (error) {
+            showNotification('Error updating contacts: ' + error.message, 'error');
+        }
+    };
+
+    const handleAddContact = async (contact) => {
+        try {
+            // Ensure contactList is always an array
+            const currentContacts = Array.isArray(profileData.contactList) ? [...profileData.contactList] : [];
+            // Create a properly structured contact object to avoid type errors
+            const newContact = {
+                type: contact.type,
+                value: contact.value,
+                title: contact.title
+            };
+            // Create updated contacts list
+            const newContacts = [...currentContacts, newContact];
+            
+            // Use the common update function
+            await handleUpdateContact(newContacts);
         } catch (error) {
             showNotification('Error adding contact: ' + error.message, 'error');
         }
@@ -1062,6 +1450,84 @@ export default function JS_ProfilePage() {
         setAcademicHistory(prev => prev.filter(edu => edu.id !== id));
     };
 
+    const renderContacts = () => {
+        return (
+            <div className={styles.contacts}>
+                <div className={styles.contactsHeader}>
+                    <h3>Contact Links</h3>
+                    <button 
+                        className={styles.addContactBtn}
+                        onClick={() => setShowContactDialog(true)}
+                    >
+                        <FaPlus /> Add Contact
+                    </button>
+                </div>
+                <div className={styles.contactsList}>
+                    {profileData.contactList?.map((contact, index) => (
+                        <div key={index} className={styles.contactItem}>
+                            <div className={styles.contactItemHeader}>
+                                <span className={styles.contactTitle}>
+                                    {contact.title || (contact.type === 'email' ? 'Email' : 
+                                                     contact.type === 'phone' ? 'Phone Number' : 
+                                                     contact.type === 'linkedin' ? 'LinkedIn' : 
+                                                     contact.type === 'github' ? 'GitHub' : 'Other')}
+                                </span>
+                                <button 
+                                    className={styles.deleteContactBtn} 
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setContactToDelete(index);
+                                        setShowDeleteDialog(true);
+                                    }}
+                                    aria-label="Delete contact"
+                                >
+                                    <FaTrashAlt />
+                                </button>
+                            </div>
+                            
+                            {contact.type === 'email' && (
+                                <a href={`mailto:${contact.value}`} className={styles.contactLink}>
+                                    <FaEnvelope className={styles.contactIcon} />
+                                    <span>{contact.value}</span>
+                                </a>
+                            )}
+                            {contact.type === 'phone' && (
+                                <a href={`tel:${contact.value}`} className={styles.contactLink}>
+                                    <FaPhone className={styles.contactIcon} />
+                                    <span>{contact.value}</span>
+                                </a>
+                            )}
+                            {contact.type === 'linkedin' && (
+                                <a href={contact.value} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
+                                    <FaLinkedin className={styles.contactIcon} />
+                                    <span>LinkedIn Profile</span>
+                                </a>
+                            )}
+                            {contact.type === 'github' && (
+                                <a href={contact.value} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
+                                    <FaGithub className={styles.contactIcon} />
+                                    <span>GitHub Profile</span>
+                                </a>
+                            )}
+                            {contact.type === 'other' && (
+                                <div className={styles.contactText}>
+                                    <FaLink className={styles.contactIcon} />
+                                    <span>{contact.value}</span>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                    {(!profileData.contactList || profileData.contactList.length === 0) && (
+                        <div className={styles.emptyContacts}>
+                            No contacts added yet
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     if (isLoading || !profileData) {
         return (
             <div className={styles.loadingContainer}>
@@ -1176,58 +1642,7 @@ export default function JS_ProfilePage() {
                         </div>
                     </div>
 
-                    <div className={styles.contacts}>
-                        <div className={styles.contactsHeader}>
-                            <h3>Contact Links</h3>
-                            <button 
-                                className={styles.addContactBtn}
-                                onClick={() => setShowContactDialog(true)}
-                            >
-                                <FaPlus /> Add Contact
-                            </button>
-                        </div>
-                        <div className={styles.contactsList}>
-                            {profileData.contactList?.map((contact, index) => (
-                                <div key={index} className={styles.contactItem}>
-                                    {contact.type === 'email' && (
-                                        <a href={`mailto:${contact.value}`} className={styles.contactLink}>
-                                            <FaEnvelope className={styles.contactIcon} />
-                                            <span>{contact.value}</span>
-                                        </a>
-                                    )}
-                                    {contact.type === 'phone' && (
-                                        <a href={`tel:${contact.value}`} className={styles.contactLink}>
-                                            <FaPhone className={styles.contactIcon} />
-                                            <span>{contact.value}</span>
-                                        </a>
-                                    )}
-                                    {contact.type === 'linkedin' && (
-                                        <a href={contact.value} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
-                                            <FaLinkedin className={styles.contactIcon} />
-                                            <span>LinkedIn Profile</span>
-                                        </a>
-                                    )}
-                                    {contact.type === 'github' && (
-                                        <a href={contact.value} target="_blank" rel="noopener noreferrer" className={styles.contactLink}>
-                                            <FaGithub className={styles.contactIcon} />
-                                            <span>GitHub Profile</span>
-                                        </a>
-                                    )}
-                                    {contact.type === 'other' && (
-                                        <div className={styles.contactText}>
-                                            <FaLink className={styles.contactIcon} />
-                                            <span>{contact.value}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                            {(!profileData.contactList || profileData.contactList.length === 0) && (
-                                <div className={styles.emptyContacts}>
-                                    No contacts added yet
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    {renderContacts()}
                 </section>
 
                 {/* Additional Information Section */}
@@ -1263,19 +1678,95 @@ export default function JS_ProfilePage() {
                         </div>
                     </div>
                     
-                    {/* Top part - Skills/Interests/Statement and Resume */}
+                    {/* Top part - Skills/Interests/Statement */}
                     <div className={styles.additionalTopContent}>
                         {/* Left column - Text fields */}
                         <div className={styles.leftColumn}>
                             <div className={styles.textareaField}>
                                 <label>Skills</label>
                                 <div className={styles.fieldContent}>
-                                    <textarea
-                                        value={profileData.skills}
-                                        onChange={(e) => handleFieldChange('skills', e.target.value)}
-                                        placeholder="List your skills..."
-                                        readOnly={!isEditingAdditional}
-                                    />
+                                    {isEditingAdditional ? (
+                                        <div className={styles.skillsEditContainer}>
+                                            <div className={styles.skillsContainer}>
+                                                {userSkills.map((skill, index) => (
+                                                    <div key={index} className={styles.skillTag}>
+                                                        {skill}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveSkill(skill)}
+                                                            className={styles.removeSkill}
+                                                        >
+                                                            <FaTimes />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                {userSkills.length === 0 && (
+                                                    <div className={styles.emptySkillsMessage}>
+                                                        Type a skill and press Add to start building your skills list
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className={styles.skillInputContainer}>
+                                                <div className={styles.skillInputWrapper}>
+                                                    <input
+                                                        type="text"
+                                                        value={newSkill}
+                                                        onChange={(e) => setNewSkill(e.target.value)}
+                                                        className={styles.input}
+                                                        placeholder="Add a skill"
+                                                        onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(e)}
+                                                    />
+
+                                                    {newSkill.trim() !== '' && (
+                                                        <ul className={styles.skillSuggestions}>
+                                                            {Array.isArray(availableSkills) && availableSkills.length > 0 ? availableSkills
+                                                                .filter(
+                                                                    (skill) =>
+                                                                        skill.toLowerCase().includes(newSkill.toLowerCase()) &&
+                                                                        !userSkills.includes(skill)
+                                                                )
+                                                                .slice(0, 50)
+                                                                .map((skill, index) => (
+                                                                    <li
+                                                                        key={index}
+                                                                        className={styles.skillSuggestionItem}
+                                                                        onClick={() => handleAddSkill(null, skill)}
+                                                                    >
+                                                                        {skill}
+                                                                    </li>
+                                                                )) : <li className={styles.skillSuggestionItem}>Loading skills...</li>}
+                                                        </ul>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddSkill}
+                                                    className={`${styles.button} ${styles.secondaryButton}`}
+                                                >
+                                                    Add
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className={styles.skillsViewContainer}>
+                                            {userSkills.length > 0 ? (
+                                                <ol className={styles.skillsList}>
+                                                    {userSkills.map((skill, index) => (
+                                                        <li key={index} data-number={index + 1}>
+                                                            {skill}
+                                                        </li>
+                                                    ))}
+                                                </ol>
+                                            ) : (
+                                                <div className={styles.emptyField}>
+                                                    <span>No skills added yet</span>
+                                                    <p className={styles.emptyFieldHint}>Click the edit button to add your professional skills</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className={styles.textareaField}>
@@ -1297,60 +1788,6 @@ export default function JS_ProfilePage() {
                                         onChange={(e) => handleFieldChange('personalStatement', e.target.value)}
                                         placeholder="Write your personal statement..."
                                         readOnly={!isEditingAdditional}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        
-                        {/* Right column - Resume */}
-                        <div className={styles.rightColumn}>
-                            <div className={styles.resumeSection}>
-                                <h3>Resume</h3>
-                                <input
-                                    id="resume-upload"
-                                    type="file"
-                                    name="resume"
-                                    accept=".pdf"
-                                    onChange={(e) => {
-                                        // Auto-switch to edit mode when a file is selected
-                                        if (!isEditingAdditional) {
-                                            setIsEditingAdditional(true);
-                                        }
-                                        handleResumeUpload(e);
-                                    }}
-                                    className={styles.fileInput}
-                                    style={{ display: 'none' }}
-                                />
-                                <div 
-                                    className={styles.resumeContainer}
-                                    onDragOver={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                    }}
-                                    onDrop={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        
-                                        // Auto-switch to edit mode when a file is dropped
-                                        if (!isEditingAdditional) {
-                                            setIsEditingAdditional(true);
-                                        }
-                                        
-                                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                            const file = e.dataTransfer.files[0];
-                                            // Creating a synthetic event object
-                                            handleResumeUpload({
-                                                target: { 
-                                                    files: [file]
-                                                }
-                                            });
-                                        }
-                                    }}
-                                >
-                                    <ResumeDisplay 
-                                        resume={profileData.resume} 
-                                        isEditing={isEditingAdditional} 
-                                        onDelete={handleDeleteResume} 
                                     />
                                 </div>
                             </div>
@@ -1487,6 +1924,23 @@ export default function JS_ProfilePage() {
                     }}
                     onAdd={handleAddAcademicExperience}
                     education={editingEducation}
+                />
+                <DeleteConfirmationDialog 
+                    isOpen={showDeleteDialog}
+                    onClose={() => {
+                        setShowDeleteDialog(false);
+                        setContactToDelete(null);
+                    }}
+                    onConfirm={() => {
+                        if (contactToDelete !== null) {
+                            const newContacts = profileData.contactList.filter((_, i) => i !== contactToDelete);
+                            handleUpdateContact(newContacts);
+                        }
+                        setShowDeleteDialog(false);
+                        setContactToDelete(null);
+                    }}
+                    title="Delete Contact"
+                    message="Are you sure you want to delete this contact information?"
                 />
             </main>
         </ErrorBoundary>

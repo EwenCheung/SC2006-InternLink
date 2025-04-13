@@ -75,20 +75,23 @@ export const login = async (req, res) => {
         message: 'Please provide both email and password'
       });
     }
+    
+    // Convert email to lowercase for case-insensitive lookup
+    const normalizedEmail = email.toLowerCase();
 
     // Try JobSeeker first, then Employer
-    let user = await JobSeeker.findOne({ email });
+    let user = await JobSeeker.findOne({ email: normalizedEmail });
     let role = 'jobseeker';
     
     if (!user) {
-      user = await Employer.findOne({ email });
+      user = await Employer.findOne({ email: normalizedEmail });
       role = 'employer';
     }
     
     if (!user) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({
+      return res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'No account found with this email'
       });
     }
     
@@ -96,7 +99,7 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Incorrect password'
       });
     }
     
@@ -399,7 +402,7 @@ export const updateUser = async (req, res) => {
 
 // Update contact list
 export const updateContactList = async (req, res) => {
-  const { userId } = req.user;
+  const { userId, role } = req.user;
   const { contactList } = req.body;
 
   if (!Array.isArray(contactList)) {
@@ -407,7 +410,10 @@ export const updateContactList = async (req, res) => {
   }
 
   try {
-    const user = await JobSeeker.findByIdAndUpdate(
+    // Choose the correct model based on user role
+    const Model = role === 'jobseeker' ? JobSeeker : Employer;
+    
+    const user = await Model.findByIdAndUpdate(
       userId,
       { contactList },
       { new: true }

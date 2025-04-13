@@ -1,5 +1,220 @@
 import React from 'react';
 
+// Export the FIELDS_AND_COURSES for use in other components
+export const FIELDS_AND_COURSES = {
+  "Computer Science & IT": [
+    "Computer Science",
+    "Information Technology",
+    "Software Engineering",
+    "Information Systems",
+    "Cybersecurity",
+    "Artificial Intelligence",
+    "Data Science",
+    "Computer Graphics",
+    "Computer Networking",
+    "Human-Computer Interaction",
+    "Machine Learning",
+    "Computer Vision",
+    "Natural Language Processing",
+    "Robotics",
+    "Quantum Computing",
+    "Cloud Computing",
+    "Internet of Things (IoT)",
+    "Blockchain Technology",
+    "Augmented Reality",
+    "Virtual Reality"
+  ],
+  "Business & Analytics": [
+    "Business Administration",
+    "Business Analytics",
+    "Marketing Analytics",
+    "Financial Analytics",
+    "Business Intelligence",
+    "Operations Management",
+    "Management Information Systems",
+    "Supply Chain Analytics",
+    "Accounting",
+    "Finance",
+    "Marketing",
+    "Human Resource Management",
+    "International Business",
+    "Entrepreneurship",
+    "Economics",
+    "E-commerce",
+    "Organizational Behavior",
+    "Strategic Management",
+    "Project Management"
+  ],
+  "Engineering": [
+    "Computer Engineering",
+    "Electrical Engineering",
+    "Mechanical Engineering",
+    "Chemical Engineering",
+    "Civil Engineering",
+    "Biomedical Engineering",
+    "Environmental Engineering",
+    "Aerospace Engineering",
+    "Materials Engineering",
+    "Industrial Engineering",
+    "Nuclear Engineering",
+    "Petroleum Engineering",
+    "Automotive Engineering",
+    "Marine Engineering",
+    "Mechatronics Engineering",
+    "Structural Engineering",
+    "Telecommunications Engineering",
+    "Systems Engineering",
+    "Geotechnical Engineering"
+  ],
+  "Natural Sciences": [
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Mathematics",
+    "Statistics",
+    "Environmental Science",
+    "Biotechnology",
+    "Neuroscience",
+    "Geology",
+    "Astronomy",
+    "Oceanography",
+    "Meteorology",
+    "Ecology",
+    "Zoology",
+    "Botany",
+    "Genetics",
+    "Microbiology",
+    "Paleontology",
+    "Astrophysics"
+  ],
+  "Social Sciences & Humanities": [
+    "Psychology",
+    "Economics",
+    "Sociology",
+    "Political Science",
+    "Communication Studies",
+    "Linguistics",
+    "History",
+    "Philosophy",
+    "International Relations",
+    "Anthropology",
+    "Archaeology",
+    "Religious Studies",
+    "Cultural Studies",
+    "Gender Studies",
+    "Human Geography",
+    "Education",
+    "Law",
+    "Social Work",
+    "Criminology"
+  ],
+  "Design & Media": [
+    "Digital Media",
+    "Graphic Design",
+    "User Experience Design",
+    "Animation",
+    "Game Design",
+    "Music Technology",
+    "Film Studies",
+    "Fashion Design",
+    "Interior Design",
+    "Industrial Design",
+    "Photography",
+    "Visual Arts",
+    "Performing Arts",
+    "Theatre Studies",
+    "Sound Design",
+    "Media Production",
+    "Advertising",
+    "Public Relations",
+    "Journalism"
+  ],
+  "Health & Medical Sciences": [
+    "Medicine",
+    "Nursing",
+    "Pharmacy",
+    "Dentistry",
+    "Public Health",
+    "Physiotherapy",
+    "Occupational Therapy",
+    "Nutrition and Dietetics",
+    "Biomedical Science",
+    "Veterinary Medicine",
+    "Radiography",
+    "Speech and Language Therapy",
+    "Optometry",
+    "Midwifery",
+    "Medical Laboratory Science",
+    "Health Informatics",
+    "Clinical Psychology",
+    "Epidemiology",
+    "Genetic Counseling"
+  ],
+  "Education": [
+    "Early Childhood Education",
+    "Primary Education",
+    "Secondary Education",
+    "Special Education",
+    "Educational Leadership",
+    "Curriculum and Instruction",
+    "Educational Technology",
+    "Adult Education",
+    "Higher Education",
+    "Educational Psychology",
+    "Counselor Education",
+    "Language Education",
+    "Mathematics Education",
+    "Science Education",
+    "Physical Education",
+    "Art Education",
+    "Music Education",
+    "Vocational Education",
+    "Instructional Design"
+  ],
+  "Agriculture & Environmental Studies": [
+    "Agricultural Science",
+    "Horticulture",
+    "Animal Science",
+    "Soil Science",
+    "Agribusiness",
+    "Forestry",
+    "Fisheries Science",
+    "Wildlife Management",
+    "Environmental Management",
+    "Sustainable Agriculture",
+    "Food Science and Technology",
+    "Plant Pathology",
+    "Entomology",
+    "Agricultural Engineering",
+    "Agroecology",
+    "Climate Science",
+    "Natural Resource Management",
+    "Water Resources Management",
+    "Rural Development"
+  ],
+  "Architecture & Built Environment": [
+    "Architecture",
+    "Urban Planning",
+    "Landscape Architecture",
+    "Interior Architecture",
+    "Construction Management",
+    "Quantity Surveying",
+    "Building Services Engineering",
+    "Real Estate",
+    "Sustainable Design",
+    "Historic Preservation",
+    "Urban Design",
+    "Environmental Design",
+    "Structural Engineering",
+    "Building Information Modeling (BIM)",
+    "Housing Studies",
+    "Transportation Planning",
+    "Regional Planning",
+    "Urban Studies",
+    "Facility Management"
+  ]
+};
+
 // Initial filter configuration with loading state
 const locationFilter = {
   label: "Location",
@@ -78,12 +293,7 @@ export const internshipFilterOptions = {
   course: {
     label: "Course",
     defaultOption: "All Courses",
-    choices: [
-      { value: "Computer Science", label: "Computer Science" },
-      { value: "Electrical Engineering", label: "Electrical Engineering" },
-      { value: "Mechanical Engineering", label: "Mechanical Engineering" },
-      { value: "Business", label: "Business" }
-    ]
+    type: "fieldCourse" // Special type for our custom field-course selector
   },
   year: {
     label: "Year of Study",
@@ -103,13 +313,11 @@ export const internshipFilterOptions = {
     defaultValue: [0, 5000]
   },
   duration: {
-    label: "Duration",
-    defaultOption: "All Durations",
-    choices: [
-      { value: "short", label: "Less than 3 months" },
-      { value: "medium", label: "3-6 months" },
-      { value: "long", label: "More than 6 months" }
-    ]
+    label: "Duration (Months)",
+    type: "range",
+    min: 1,
+    max: 12,
+    defaultValue: [1, 12]
   }
 };
 
@@ -126,10 +334,10 @@ export const adhocFilterOptions = {
 
 export const defaultInternshipFilters = {
   location: '',
-  course: '',
+  course: [],
   year: '',
   stipend: [0, 5000],
-  duration: ''
+  duration: [1, 12]
 };
 
 export const defaultAdhocFilters = {

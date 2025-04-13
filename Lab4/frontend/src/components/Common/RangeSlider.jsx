@@ -2,14 +2,22 @@ import React from 'react';
 import { Slider, Box, Typography } from '@mui/material';
 import styles from './RangeSlider.module.css';
 
-const RangeSlider = ({ value, onChange, min, max }) => {
+const RangeSlider = ({ value, onChange, min, max, type = 'money', step = null }) => {
   const formatValue = (value) => {
-    return `$${value}`;
+    if (type === 'money') {
+      return `$${value}`;
+    } else if (type === 'months') {
+      return `${value} ${value === 1 ? 'month' : 'months'}`;
+    }
+    return value;
   };
 
   const handleChange = (event, newValue) => {
     onChange(newValue);
   };
+
+  // Set default step based on range type
+  const sliderStep = step || (type === 'money' ? 100 : 1);
 
   return (
     <Box className={styles.sliderContainer}>
@@ -22,7 +30,7 @@ const RangeSlider = ({ value, onChange, min, max }) => {
         valueLabelDisplay="auto"
         min={min}
         max={max}
-        step={100}
+        step={sliderStep}
         valueLabelFormat={formatValue}
         className={styles.rangeSlider}
       />

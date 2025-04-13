@@ -35,7 +35,19 @@ export const useSearchAndFilter = (fetchData, defaultFilters) => {
         if (key === 'stipend' && Array.isArray(value)) {
           queryParams.append('minStipend', value[0]);
           queryParams.append('maxStipend', value[1]);
-        } else {
+        } else if (key === 'duration' && Array.isArray(value)) {
+          queryParams.append('minDuration', value[0]);
+          queryParams.append('maxDuration', value[1]);
+        } else if (key === 'course' && Array.isArray(value) && value.length > 0) {
+          // Handle multiple course values
+          value.forEach(course => {
+            queryParams.append('course', course);
+          });
+        } else if (Array.isArray(value) && value.length > 0) {
+          // Handle other arrays
+          queryParams.append(key, value.join(','));
+        } else if (!Array.isArray(value) || (Array.isArray(value) && value.length > 0)) {
+          // Handle non-empty values
           queryParams.append(key, value);
         }
       }

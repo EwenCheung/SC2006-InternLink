@@ -9,13 +9,13 @@ import A11yAnnouncer from '../../components/Common/A11yAnnouncer';
 import Dialog from '../../components/Common/Dialog';
 import ErrorBoundary from '../../components/Common/ErrorBoundary';
 
-const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoading, hasChanged }) => (
+const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoading, hasChanged, options }) => (
     <div className={styles.fieldRow}>
         <label>{label}</label>
         <div className={`${styles.fieldContent} ${isLoading ? styles.loading : ''} ${hasChanged ? styles.fieldChanged : ''}`}>
             {isEditing ? (
                 <>
-                    {type === 'select' ? (
+                    {type === 'select' && label === "Company Size" && (
                         <select
                             value={value || ''}
                             onChange={(e) => onChange(e.target.value)}
@@ -27,7 +27,21 @@ const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoad
                                 <option key={size} value={size}>{size}</option>
                             ))}
                         </select>
-                    ) : (
+                    )}
+                    {type === 'select' && label === "Industry" && (
+                        <select
+                            value={value || ''}
+                            onChange={(e) => onChange(e.target.value)}
+                            className={styles.editInput}
+                            disabled={isLoading}
+                        >
+                            <option value="">Select Industry</option>
+                            {INDUSTRY.map(industry => (
+                                <option key={industry} value={industry}>{industry}</option>
+                            ))}
+                        </select>
+                    )}
+                    {type !== 'select' && (
                         <input
                             type={type}
                             value={value || ''}
@@ -48,6 +62,7 @@ const ProfileField = ({ label, value, onChange, isEditing, type = 'text', isLoad
 const ContactDialog = ({ isOpen, onClose, onAdd }) => {
     const [contactType, setContactType] = useState('email');
     const [contactValue, setContactValue] = useState('');
+    const [contactTitle, setContactTitle] = useState('');
     const [error, setError] = useState('');
 
     const contactTypes = [
@@ -55,8 +70,12 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
           validate: value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
           errorMsg: 'Please enter a valid email address' },
         { id: 'phone', label: 'Phone Number', type: 'tel', 
-          validate: value => /^\+?[\d\s-]+$/.test(value),
-          errorMsg: 'Please enter a valid phone number' },
+          validate: value => {
+              // For phone numbers with +65 prefix, check for 8 digits
+              const phoneNum = value.replace(/\D/g, '');
+              return phoneNum.length >= 8; // Needs at least 8 digits (after removing +65)
+          },
+          errorMsg: 'Please enter a valid Singapore phone number (+65 XXXX-YYYY)' },
         { id: 'linkedin', label: 'LinkedIn', type: 'url', 
           validate: value => value.includes('linkedin.com/'),
           errorMsg: 'Please enter a valid LinkedIn URL' },
@@ -68,6 +87,12 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
           errorMsg: 'Please enter a value' }
     ];
 
+    useEffect(() => {
+        // Set default title when contact type changes
+        const currentType = contactTypes.find(t => t.id === contactType);
+        setContactTitle(currentType.label);
+    }, [contactType]);
+
     const validateInput = () => {
         const currentType = contactTypes.find(t => t.id === contactType);
         if (!contactValue.trim()) {
@@ -78,14 +103,23 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
             setError(currentType.errorMsg);
             return false;
         }
+        if (!contactTitle.trim()) {
+            setError(`Please enter a title for this contact`);
+            return false;
+        }
         setError('');
         return true;
     };
 
     const handleSubmit = () => {
         if (!validateInput()) return;
-        onAdd({ type: contactType, value: contactValue });
+        onAdd({ 
+            type: contactType, 
+            value: contactValue,
+            title: contactTitle
+        });
         setContactValue('');
+        setContactTitle('');
         setError('');
         onClose();
     };
@@ -94,6 +128,44 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
         setContactType(type);
         setContactValue('');
         setError('');
+        // Set default title based on the new contact type
+        const currentType = contactTypes.find(t => t.id === type);
+        setContactTitle(currentType.label);
+    };
+    
+    // Format phone number with Singapore format (+65 XXXX-YYYY)
+    const formatPhoneNumber = (input) => {
+        // If already has +65, don't add it again
+        let value = input;
+        if (contactType === 'phone') {
+            // Remove all non-digit characters
+            let numericValue = value.replace(/\D/g, '');
+            
+            // Remove country code if present at the beginning
+            if (numericValue.startsWith('65')) {
+                numericValue = numericValue.substring(2);
+            }
+            
+            // Limit to 8 digits (Singapore phone)
+            numericValue = numericValue.substring(0, 8);
+            
+            // Format as XXXX-YYYY if we have enough digits
+            if (numericValue.length > 4) {
+                numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
+            }
+            
+            // Add +65 prefix
+            return `+65 ${numericValue}`;
+        }
+        return value;
+    };
+    
+    const handleInputChange = (e) => {
+        if (contactType === 'phone') {
+            setContactValue(formatPhoneNumber(e.target.value));
+        } else {
+            setContactValue(e.target.value);
+        }
     };
 
     return (
@@ -116,26 +188,159 @@ const ContactDialog = ({ isOpen, onClose, onAdd }) => {
                         <button
                             key={type.id}
                             className={`${styles.contactTypeBtn} ${contactType === type.id ? styles.selected : ''}`}
-                            onClick={() => setContactType(type.id)}
+                            onClick={() => handleTypeChange(type.id)}
                         >
                             {type.label}
                         </button>
                     ))}
                 </div>
+                
                 <div className={styles.inputWrapper}>
+                    <label htmlFor="contactTitle" className={styles.contactLabel}>Title</label>
                     <input
-                        type={contactTypes.find(t => t.id === contactType).type}
-                        value={contactValue}
-                        onChange={(e) => setContactValue(e.target.value)}
-                        placeholder={`Enter your ${contactTypes.find(t => t.id === contactType).label.toLowerCase()}`}
-                        className={`${styles.contactInput} ${error ? styles.inputError : ''}`}
+                        id="contactTitle"
+                        type="text"
+                        value={contactTitle}
+                        onChange={(e) => setContactTitle(e.target.value)}
+                        placeholder="Enter a title for this contact"
+                        className={styles.contactInput}
                     />
+                </div>
+                
+                <div className={styles.inputWrapper}>
+                    <label htmlFor="contactValue" className={styles.contactLabel}>
+                        {contactTypes.find(t => t.id === contactType).label}
+                    </label>
+                    
+                    {contactType === 'phone' ? (
+                        <div className={styles.phoneInputContainer}>
+                            <span className={styles.countryCode}>+65</span>
+                            <input
+                                id="contactValue"
+                                type="tel"
+                                value={contactValue.replace(/^\+65\s?/, '')}
+                                onChange={handleInputChange}
+                                placeholder="XXXX-YYYY"
+                                className={`${styles.phoneInput} ${error ? styles.inputError : ''}`}
+                            />
+                        </div>
+                    ) : (
+                        <input
+                            id="contactValue"
+                            type={contactTypes.find(t => t.id === contactType).type}
+                            value={contactValue}
+                            onChange={handleInputChange}
+                            placeholder={`Enter your ${contactTypes.find(t => t.id === contactType).label.toLowerCase()}`}
+                            className={`${styles.contactInput} ${error ? styles.inputError : ''}`}
+                        />
+                    )}
+                    
                     {error && <div className={styles.errorMessage}>{error}</div>}
+                    {contactType === 'phone' && (
+                        <div className={styles.phoneHint}>
+                            Enter 8 digits in XXXX-YYYY format
+                        </div>
+                    )}
                 </div>
             </div>
         </Dialog>
     );
 };
+
+const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, title, message }) => {
+    return (
+        <Dialog
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title || "Confirm Deletion"}
+            primaryAction={{
+                label: 'Delete',
+                onClick: onConfirm,
+                className: styles.dangerButton
+            }}
+            secondaryAction={{
+                label: 'Cancel',
+                onClick: onClose
+            }}
+        >
+            <div className={styles.confirmationDialog}>
+                <div className={styles.iconContainer}>
+                    <FaTrashAlt className={styles.deleteIcon} />
+                </div>
+                <p className={styles.confirmationMessage}>
+                    {message || "Are you sure you want to delete this item?"}
+                </p>
+                <p className={styles.confirmationWarning}>
+                    This action cannot be undone.
+                </p>
+            </div>
+        </Dialog>
+    );
+};
+
+// Define the industry options
+const INDUSTRY = [
+    "Accounting",
+    "Advertising & Marketing",
+    "Aerospace",
+    "Agriculture",
+    "AI & Machine Learning",
+    "Architecture & Design",
+    "Automotive",
+    "Aviation",
+    "Banking",
+    "Chemical & Pharmaceutical",
+    "Construction",
+    "Consulting",
+    "Cybersecurity",
+    "Data Analytics",
+    "Defense & Military",
+    "Education & Training",
+    "Electronics",
+    "Energy & Utilities",
+    "Environmental Services",
+    "Event Management",
+    "Film & Animation",
+    "Fishing",
+    "Food & Beverage Manufacturing",
+    "Food & Beverage Services",
+    "Forestry",
+    "Gaming",
+    "Government & Public Administration",
+    "Healthcare & Hospitals",
+    "Hospitality & Tourism",
+    "Information Technology",
+    "Insurance",
+    "Investment & Asset Management",
+    "Legal Services",
+    "Maritime",
+    "Media & Broadcasting",
+    "Metal & Machinery",
+    "Mining",
+    "Non-Profit & NGOs",
+    "Oil & Gas",
+    "Pharmaceuticals & Biotechnology",
+    "Plastics & Rubber",
+    "Public Relations",
+    "Public Safety & Law Enforcement",
+    "Publishing",
+    "Real Estate",
+    "Religious Organizations",
+    "Renewable Energy",
+    "Research & Development",
+    "Retail & E-Commerce",
+    "Shipbuilding",
+    "Software Development",
+    "Sports & Recreation",
+    "Supply Chain Management",
+    "Telecommunications",
+    "Textile & Apparel",
+    "Translation & Linguistics",
+    "Transportation & Logistics",
+    "Travel & Leisure",
+    "Veterinary",
+    "Waste Management"
+];
 
 export default function EP_ProfilePage() {
     const navigate = useNavigate();
@@ -155,6 +360,10 @@ export default function EP_ProfilePage() {
     
     const [tempFile, setTempFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
+    
+    // Contact deletion dialog state
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -183,15 +392,22 @@ export default function EP_ProfilePage() {
 
                 const profileData = {
                     companyLogo: data.profileImage?.url || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-                    companyName: data.companyName || data.userName,
+                    companyName: data.companyName || '',
+                    userName: data.userName || '',
                     industry: data.industry || '',
                     location: data.location || '',
                     companySize: data.companySize || '',
                     contactList: data.contactList || [],
+                    website: data.website || '',
+                    address: data.address || '',
                     missionStatement: data.missionStatement || '',
-                    companyDescription: data.companyDescription || '',
+                    companyDescription: data.description || '', // Map from description field
                     benefits: data.benefits || ''
                 };
+
+                // Log the received data to debug
+                console.log("Received profile data:", data);
+                console.log("Mapped profile data:", profileData);
 
                 setProfileData(profileData);
                 setOriginalData(profileData);
@@ -256,9 +472,9 @@ export default function EP_ProfilePage() {
             return;
         }
 
-        // Validate file size (5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showNotification('File size is too large. Maximum size is 5MB', 'error');
+        // Validate file size (800KB)
+        if (file.size > 800 * 1024) {
+            showNotification('File size is too large. Maximum size is 800KB', 'error');
             return;
         }
 
@@ -287,7 +503,12 @@ export default function EP_ProfilePage() {
             setIsSaving(true);
             const token = localStorage.getItem('token');
             const formData = new FormData();
-    
+
+            // Map companyDescription to description for database field name
+            if (profileData.companyDescription !== originalData.companyDescription) {
+                formData.append('description', profileData.companyDescription);
+            }
+
             // Append changed fields based on which section we're saving
             Object.entries(profileData).forEach(([key, value]) => {
                 // Skip irrelevant fields based on section being saved
@@ -300,12 +521,15 @@ export default function EP_ProfilePage() {
                 // Skip file fields
                 if (key === 'companyLogo') return;
                 
+                // Map frontend field names to database field names
+                const dbFieldName = key === 'companyDescription' ? 'description' : key;
+                
                 // Only include changed fields
                 if (value !== originalData[key]) {
-                    formData.append(key, value);
+                    formData.append(dbFieldName, value);
                 }
             });
-    
+
             // Add files only if editing company section
             if (section === 'company') {
                 // Add new company logo
@@ -313,7 +537,7 @@ export default function EP_ProfilePage() {
                     formData.append('profileImage', tempFile);
                 }
             }
-    
+
             const response = await fetch('/api/auth/update', {
                 method: 'PATCH',
                 headers: {
@@ -375,10 +599,9 @@ export default function EP_ProfilePage() {
         }
     };
 
-    const handleAddContact = async (contact) => {
+    const handleUpdateContact = async (newContacts) => {
         try {
-            // Optimistically update UI
-            const newContacts = [...(profileData.contactList || []), contact];
+            // Update UI optimistically
             setProfileData(prev => ({
                 ...prev,
                 contactList: newContacts
@@ -400,19 +623,62 @@ export default function EP_ProfilePage() {
                 // Revert the local change if the server update fails
                 setProfileData(prev => ({
                     ...prev,
-                    contactList: prev.contactList.slice(0, -1)
+                    contactList: profileData.contactList  // Restore original contacts
                 }));
-                throw new Error(await response.text() || 'Failed to add contact');
+                throw new Error(await response.text() || 'Failed to update contacts');
             }
 
             const result = await response.json();
-            setProfileData(prev => ({
-                ...prev,
-                contactList: result.data.contactList || []
-            }));
-            showNotification('Contact added successfully', 'success');
+            if (result.success && result.data && result.data.contactList) {
+                // Update with the data from server to ensure consistency
+                setProfileData(prev => ({
+                    ...prev,
+                    contactList: result.data.contactList
+                }));
+                
+                // Also update the original data to prevent reversion on cancel
+                setOriginalData(prev => ({
+                    ...prev,
+                    contactList: result.data.contactList
+                }));
+            }
+            showNotification('Contact list updated successfully', 'success');
+        } catch (error) {
+            showNotification('Error updating contacts: ' + error.message, 'error');
+        }
+    };
+
+    const handleAddContact = async (contact) => {
+        try {
+            // Ensure contactList is always an array
+            const currentContacts = Array.isArray(profileData.contactList) ? [...profileData.contactList] : [];
+            // Create a properly structured contact object to avoid type errors
+            const newContact = {
+                type: contact.type,
+                value: contact.value,
+                title: contact.title || contact.type.charAt(0).toUpperCase() + contact.type.slice(1)
+            };
+            // Create updated contacts list
+            const newContacts = [...currentContacts, newContact];
+            
+            // Use the common update function
+            await handleUpdateContact(newContacts);
         } catch (error) {
             showNotification('Error adding contact: ' + error.message, 'error');
+        }
+    };
+
+    const handleDeleteContact = async () => {
+        try {
+            if (!contactToDelete) return;
+
+            const updatedContacts = profileData.contactList.filter(contact => contact !== contactToDelete);
+            await handleUpdateContact(updatedContacts);
+
+            setShowDeleteDialog(false);
+            setContactToDelete(null);
+        } catch (error) {
+            showNotification('Error deleting contact: ' + error.message, 'error');
         }
     };
 
@@ -503,6 +769,12 @@ export default function EP_ProfilePage() {
 
                         <div className={styles.basicInfo}>
                             <ProfileField
+                                label="Displayed Name"
+                                value={profileData.userName}
+                                onChange={(value) => handleFieldChange('userName', value)}
+                                isEditing={isEditingCompany}
+                            />
+                            <ProfileField
                                 label="Company Name"
                                 value={profileData.companyName}
                                 onChange={(value) => handleFieldChange('companyName', value)}
@@ -513,6 +785,7 @@ export default function EP_ProfilePage() {
                                 value={profileData.industry}
                                 onChange={(value) => handleFieldChange('industry', value)}
                                 isEditing={isEditingCompany}
+                                type="select"
                             />
                             <ProfileField
                                 label="Location"
@@ -543,6 +816,27 @@ export default function EP_ProfilePage() {
                         <div className={styles.contactsList}>
                             {profileData.contactList?.map((contact, index) => (
                                 <div key={index} className={styles.contactItem}>
+                                    <div className={styles.contactItemHeader}>
+                                        <span className={styles.contactTitle}>
+                                            {contact.title || (contact.type === 'email' ? 'Email' : 
+                                                             contact.type === 'phone' ? 'Phone Number' : 
+                                                             contact.type === 'linkedin' ? 'LinkedIn' : 
+                                                             contact.type === 'website' ? 'Website' : 'Other')}
+                                        </span>
+                                        <button 
+                                            className={styles.deleteContactBtn} 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                setContactToDelete(contact);
+                                                setShowDeleteDialog(true);
+                                            }}
+                                            aria-label="Delete contact"
+                                        >
+                                            <FaTrashAlt />
+                                        </button>
+                                    </div>
+                                    
                                     {contact.type === 'email' && (
                                         <a href={`mailto:${contact.value}`} className={styles.contactLink}>
                                             <FaEnvelope className={styles.contactIcon} />
@@ -615,6 +909,7 @@ export default function EP_ProfilePage() {
                                 </button>
                             )}
                         </div>
+                    
                     </div>
                     
                     <div className={styles.additionalContent}>
@@ -780,6 +1075,13 @@ export default function EP_ProfilePage() {
                     isOpen={showContactDialog}
                     onClose={() => setShowContactDialog(false)}
                     onAdd={handleAddContact}
+                />
+                <DeleteConfirmationDialog
+                    isOpen={showDeleteDialog}
+                    onClose={() => setShowDeleteDialog(false)}
+                    onConfirm={handleDeleteContact}
+                    title="Delete Contact"
+                    message="Are you sure you want to delete this contact?"
                 />
             </main>
         </ErrorBoundary>

@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './SearchAndFilter.module.css';
 import RangeSlider from './RangeSlider';
+import FieldCourseSelector from './FieldCourseSelector';
 
 const SearchAndFilter = ({ 
   searchTerm, 
@@ -61,6 +62,13 @@ const SearchAndFilter = ({
                       onChange={(value) => handleFilterChange(key, value)}
                       min={options.min}
                       max={options.max}
+                      type={key === 'duration' ? 'months' : 'money'}
+                      step={key === 'duration' ? 1 : 100}
+                    />
+                  ) : options.type === 'fieldCourse' ? (
+                    <FieldCourseSelector
+                      selectedCourses={filters[key]}
+                      onChange={(selectedCourses) => handleFilterChange(key, selectedCourses)}
                     />
                   ) : (
                     <select 
@@ -69,7 +77,7 @@ const SearchAndFilter = ({
                       onChange={onFilterChange}
                     >
                       <option value="">{options.defaultOption}</option>
-                      {options.choices.map(choice => (
+                      {options.choices?.map(choice => (
                         <option key={choice.value} value={choice.value}>
                           {choice.label}
                         </option>

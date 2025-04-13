@@ -23,18 +23,31 @@ class BaseAuthenticator {
 
   // Helper method to analyze authentication errors
   analyzeAuthError(email, status, serverMessage) {
-    // If the server specifically indicates wrong password
-    if (serverMessage && serverMessage.toLowerCase().includes('password')) {
-      return {
-        success: false,
-        status: status,
-        message: 'Incorrect password. Please try again.',
-        errorType: 'wrong_password'
-      };
+    // Check for specific server messages first
+    if (serverMessage) {
+      if (serverMessage.toLowerCase().includes('password') && serverMessage.toLowerCase().includes('incorrect')) {
+        return {
+          success: false,
+          status: status,
+          message: 'Incorrect password. Please try again.',
+          errorType: 'wrong_password'
+        };
+      }
+      
+      if (serverMessage.toLowerCase().includes('user not found') || 
+          serverMessage.toLowerCase().includes('no account') ||
+          serverMessage.toLowerCase().includes('not registered')) {
+        return {
+          success: false,
+          status: status,
+          message: 'No account found with this email. Please sign up first.',
+          errorType: 'account_not_found'
+        };
+      }
     }
     
-    // If the server indicates user not found
-    if (status === 404 || (serverMessage && serverMessage.toLowerCase().includes('not found'))) {
+    // Use status codes if specific message not found
+    if (status === 404) {
       return {
         success: false,
         status: status,
@@ -43,9 +56,8 @@ class BaseAuthenticator {
       };
     }
     
-    // For 401 errors that aren't explicitly about password
+    // For 401 errors assume wrong password
     if (status === 401) {
-      // Check if email exists but password is wrong (this requires server-side support)
       return {
         success: false,
         status: status,

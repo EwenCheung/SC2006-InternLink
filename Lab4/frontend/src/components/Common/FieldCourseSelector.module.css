@@ -1,0 +1,154 @@
+.dropdownContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dropdownHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #111827;
+  user-select: none;
+}
+
+.dropdownHeader:hover {
+  border-color: #9333ea;
+}
+
+.dropdownText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-height: 350px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 30;
+}
+
+/* Search input styling */
+.searchInputWrapper {
+  position: relative;
+  padding: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #f9fafb;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.5rem 0.5rem 0.5rem 2rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background-color: white;
+  color: #111827;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #9333ea;
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.1);
+}
+
+.noResults {
+  padding: 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.fieldSection:not(:last-child) {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem;
+  cursor: pointer;
+  background-color: #f9fafb;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.fieldHeader:hover {
+  background-color: #f3f4f6;
+}
+
+.fieldName {
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
+.coursesList {
+  padding-left: 1.5rem;
+}
+
+.courseItem {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+}
+
+.courseItem:hover {
+  background-color: #f3f4f6;
+}
+
+.courseName {
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.checkbox.checked {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+}
+
+.checkIcon {
+  color: white;
+  font-size: 0.6rem;
+}

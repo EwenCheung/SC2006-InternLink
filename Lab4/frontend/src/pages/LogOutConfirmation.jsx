@@ -5,13 +5,23 @@ const LogOutConfirmation = () => {
   const navigate = useNavigate();
 
   const handleLogOut = () => {
+    // Get the user role before clearing localStorage
+    const userRole = localStorage.getItem('userRole');
+    
     // Clear all auth related data from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userRole');
     
-    // Navigate to home page
-    navigate('/', { replace: true });
+    // Navigate based on user role
+    if (userRole === 'jobseeker') {
+      navigate('/jobseeker/login', { replace: true });
+    } else if (userRole === 'employer') {
+      navigate('/employer/login', { replace: true });
+    } else {
+      // Fallback to home page if role is unknown
+      navigate('/', { replace: true });
+    }
   };
 
   const handleCancel = () => {

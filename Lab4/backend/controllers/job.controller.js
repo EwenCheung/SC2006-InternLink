@@ -18,11 +18,20 @@ const buildFilterQuery = (filters, jobType) => {
   
   if (jobType === 'internship') {
     if (filters.course) {
-      query.courseStudy = { $regex: filters.course, $options: 'i' };
+      // Handle both string and array of course filters
+      if (Array.isArray(filters.course)) {
+        if (filters.course.length > 0) {
+          query.courseStudy = { $in: filters.course.map(course => new RegExp(course, 'i')) };
+        }
+      } else {
+        query.courseStudy = { $regex: filters.course, $options: 'i' };
+      }
     }
+    
     if (filters.year) {
       query.yearOfStudy = { $regex: filters.year, $options: 'i' };
     }
+    
     if (filters.minStipend || filters.maxStipend) {
       query.stipend = {};
       if (filters.minStipend) {
@@ -30,6 +39,30 @@ const buildFilterQuery = (filters, jobType) => {
       }
       if (filters.maxStipend) {
         query.stipend.$lte = Number(filters.maxStipend);
+      }
+    }
+    
+    // Handle duration range filtering
+    if (filters.minDuration || filters.maxDuration) {
+      // Extract numeric duration value from the duration string (e.g., "3 months" -> 3)
+      query.duration = {};
+      
+      if (filters.minDuration) {
+        const minDuration = Number(filters.minDuration);
+        // Use regex to match durations that are greater than or equal to minDuration
+        query.$or = query.$or || [];
+        query.$or.push({
+          duration: { $regex: new RegExp(`^(${minDuration}|[${minDuration+1}-9][0-9]*)\\s*(month|months)`, 'i') }
+        });
+      }
+      
+      if (filters.maxDuration) {
+        const maxDuration = Number(filters.maxDuration);
+        // Use regex to match durations that are less than or equal to maxDuration
+        query.$and = query.$and || [];
+        query.$and.push({
+          duration: { $regex: new RegExp(`^([1-9]|[1-${maxDuration}][0-9]*)\\s*(month|months)`, 'i') }
+        });
       }
     }
   } else if (jobType === 'adhoc') {
@@ -45,11 +78,12 @@ const buildFilterQuery = (filters, jobType) => {
   }
 
   if (filters.search) {
-    query.$or = [
+    query.$or = query.$or || [];
+    query.$or.push(
       { title: { $regex: filters.search, $options: 'i' } },
       { company: { $regex: filters.search, $options: 'i' } },
       { description: { $regex: filters.search, $options: 'i' } }
-    ];
+    );
   }
 
   return query;

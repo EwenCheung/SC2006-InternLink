@@ -187,9 +187,29 @@
 }
 
 .backButton {
-  @apply absolute top-8 left-8 text-[#7C3AED] hover:text-[#8B5CF6] flex items-center gap-2;
+  @apply absolute top-8 left-8 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md text-[#7C3AED] font-medium;
   transition: all 0.2s ease-in-out;
   z-index: 10;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.backButton:hover {
+  @apply bg-[#7C3AED] text-white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.switchRoleButton {
+  @apply absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md text-[#7C3AED] font-medium;
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.switchRoleButton:hover {
+  @apply bg-[#7C3AED] text-white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
 }
 
 .stepIndicator {

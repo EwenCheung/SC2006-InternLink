@@ -14,7 +14,7 @@ const JobSeekerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide email'],
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide a valid email',
     ],
     unique: true,
@@ -31,13 +31,6 @@ const JobSeekerSchema = new mongoose.Schema({
     required: true
   },
   profileImage: {
-    data: Buffer,
-    contentType: String,
-    originalName: String,
-    uploadedAt: Date,
-    size: Number
-  },
-  resume: {
     data: Buffer,
     contentType: String,
     originalName: String,
@@ -153,6 +146,12 @@ const JobSeekerSchema = new mongoose.Schema({
 });
 
 JobSeekerSchema.pre('save', async function () {
+  // Convert email to lowercase
+  if (this.email) {
+    this.email = this.email.toLowerCase();
+  }
+  
+  // Hash password if modified
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

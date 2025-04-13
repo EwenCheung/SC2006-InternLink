@@ -13,7 +13,7 @@ const EmployerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide email'],
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide a valid email',
     ],
     unique: true,
@@ -41,7 +41,8 @@ const EmployerSchema = new mongoose.Schema({
   location: String,
   website: String,
   description: String,
-  phoneNumber: String,
+  address: String,
+  userName: String, // For the "Displayed Name"
   jobPosts: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Application'
@@ -49,13 +50,48 @@ const EmployerSchema = new mongoose.Schema({
   contactEmail: {
     type: String,
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide a valid contact email',
     ]
   },
+  missionStatement: {
+    type: String,
+    default: ''
+  },
+  benefits: {
+    type: String,
+    default: ''
+  },
+  contactList: [{
+    type: {
+      type: String,
+      enum: ['email', 'phone', 'linkedin', 'website', 'other'],
+      required: true
+    },
+    value: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    label: {
+      type: String,
+      trim: true
+    }
+  }]
 });
 
 EmployerSchema.pre('save', async function () {
+  // Convert email to lowercase
+  if (this.email) {
+    this.email = this.email.toLowerCase();
+  }
+  
+  // Also convert contact email to lowercase if exists
+  if (this.contactEmail) {
+    this.contactEmail = this.contactEmail.toLowerCase();
+  }
+  
+  // Hash password if modified
   if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

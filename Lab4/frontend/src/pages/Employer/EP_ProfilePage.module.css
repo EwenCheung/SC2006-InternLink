@@ -341,6 +341,42 @@
     border-radius: 6px;
 }
 
+.contactItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactTitle {
+    font-weight: 500;
+    color: #6747e0;
+    font-size: 0.9rem;
+}
+
+.deleteContactBtn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    padding: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deleteContactBtn:hover {
+    opacity: 1;
+    background: rgba(220, 53, 69, 0.1);
+    transform: scale(1.1);
+}
+
 /* Additional Information Section */
 .additionalContent {
     display: flex;

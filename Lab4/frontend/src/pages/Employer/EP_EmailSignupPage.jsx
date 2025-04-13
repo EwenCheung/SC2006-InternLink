@@ -1,8 +1,71 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './EP_EmailSignupPage.module.css';
-import { FaGoogle, FaGithub, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaGithub, FaArrowLeft, FaExchangeAlt } from 'react-icons/fa';
 
+// Define the industry options
+const INDUSTRY = [
+    "Accounting",
+    "Advertising & Marketing",
+    "Aerospace",
+    "Agriculture",
+    "AI & Machine Learning",
+    "Architecture & Design",
+    "Automotive",
+    "Aviation",
+    "Banking",
+    "Chemical & Pharmaceutical",
+    "Construction",
+    "Consulting",
+    "Cybersecurity",
+    "Data Analytics",
+    "Defense & Military",
+    "Education & Training",
+    "Electronics",
+    "Energy & Utilities",
+    "Environmental Services",
+    "Event Management",
+    "Film & Animation",
+    "Fishing",
+    "Food & Beverage Manufacturing",
+    "Food & Beverage Services",
+    "Forestry",
+    "Gaming",
+    "Government & Public Administration",
+    "Healthcare & Hospitals",
+    "Hospitality & Tourism",
+    "Information Technology",
+    "Insurance",
+    "Investment & Asset Management",
+    "Legal Services",
+    "Maritime",
+    "Media & Broadcasting",
+    "Metal & Machinery",
+    "Mining",
+    "Non-Profit & NGOs",
+    "Oil & Gas",
+    "Pharmaceuticals & Biotechnology",
+    "Plastics & Rubber",
+    "Public Relations",
+    "Public Safety & Law Enforcement",
+    "Publishing",
+    "Real Estate",
+    "Religious Organizations",
+    "Renewable Energy",
+    "Research & Development",
+    "Retail & E-Commerce",
+    "Shipbuilding",
+    "Software Development",
+    "Sports & Recreation",
+    "Supply Chain Management",
+    "Telecommunications",
+    "Textile & Apparel",
+    "Translation & Linguistics",
+    "Transportation & Logistics",
+    "Travel & Leisure",
+    "Veterinary",
+    "Waste Management"
+];
 
 const EP_EmailSignupPage = () => {
   const navigate = useNavigate();
@@ -12,7 +75,6 @@ const EP_EmailSignupPage = () => {
   const [showProfileChoice, setShowProfileChoice] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [profileImagePreview, setProfileImagePreview] = useState(null); // Add this line to store image preview
 
   // Form states
   const [requiredData, setRequiredData] = useState({ // Step 1 - Required fields
@@ -24,13 +86,11 @@ const EP_EmailSignupPage = () => {
   });
 
   const [optionalData, setOptionalData] = useState({ // Step 2 - Optional fields
-    profileImage: null, // Company logo
-    phoneNumber: '+65',  // Initialize with Singapore country code, just like JS_EmailSignupPage
+    phoneNumber: '+65',  // Initialize with Singapore country code
     industry: '',
     companySize: '',
     companyWebsite: '',
     companyDescription: '',
-    address: '',
   });
 
   // Validation states
@@ -78,11 +138,6 @@ const EP_EmailSignupPage = () => {
       default:
         return '';
     }
-  };
-
-  // Update file input to trigger only on button click
-  const handleFileUploadClick = (inputId) => {
-    document.getElementById(inputId).click();
   };
 
   // Handle field blur
@@ -176,38 +231,36 @@ const EP_EmailSignupPage = () => {
 
   // Handle optional fields changes
   const handleOptionalChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value } = e.target;
     setError('');
-
-    if (type === 'file') {
-      const file = files[0];
-      if (!file) return;
-
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Company logo must be less than 5MB');
-        e.target.value = '';
-        return;
+    
+    if (name === 'phoneNumber') {
+      // Only allow digits for Singapore phone number
+      let numericValue = value.replace(/^\+65/, '').replace(/\D/g, '');
+      
+      // Limit to exactly 8 digits
+      numericValue = numericValue.substring(0, 8);
+      
+      // Format as XXXX-YYYY if we have enough digits
+      if (numericValue.length > 4) {
+        numericValue = `${numericValue.substring(0, 4)}-${numericValue.substring(4)}`;
       }
-
-      // Validate image type for profile image
-      if (!file.type.includes('image/')) {
-        setError('Company logo must be an image file');
-        e.target.value = '';
-        return;
-      }
-
+      
       setOptionalData(prev => ({
         ...prev,
-        [name]: file
+        phoneNumber: `+65 ${numericValue}`
       }));
-
-      // Set image preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        setProfileImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      
+      // Add validation for the phone field if it's not empty but incomplete
+      if (numericValue && numericValue.replace(/\D/g, '').length < 8) {
+        setFieldErrors(prev => ({ 
+          ...prev, 
+          phoneNumber: 'Phone number must be exactly 8 digits'
+        }));
+        setTouchedFields(prev => ({ ...prev, phoneNumber: true }));
+      } else if (numericValue) {
+        setFieldErrors(prev => ({ ...prev, phoneNumber: '' }));
+      }
     } else {
       setOptionalData(prev => ({
         ...prev,
@@ -222,9 +275,7 @@ const EP_EmailSignupPage = () => {
            optionalData.companySize && 
            optionalData.phoneNumber && 
            optionalData.companyWebsite && 
-           optionalData.companyDescription && 
-           optionalData.address && 
-           optionalData.profileImage;
+           optionalData.companyDescription;
   };
 
   // Handle navigation choice from modal
@@ -234,34 +285,63 @@ const EP_EmailSignupPage = () => {
   };
 
   // Form submission handlers
-  const createAccount = async () => {
+  const createAccount = async (withOptionalData = false) => {
     try {
       setIsLoading(true);
       // Prepare registration data
       const registrationData = {
-        type: "employer",
         role: "employer",
         email: requiredData.email,
         password: requiredData.password,
-        userName: requiredData.userName,
-        companyName: requiredData.companyName
+        companyName: requiredData.companyName,
+        userName: requiredData.userName, // Add userName (displayed name)
+        profileImage: {
+          url: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+          uploadedAt: new Date()
+        }
       };
 
-      // Add optional fields if they exist
-      if (optionalData.phoneNumber) registrationData.phoneNumber = optionalData.phoneNumber;
-      if (optionalData.industry) registrationData.industry = optionalData.industry;
-      if (optionalData.companySize) registrationData.companySize = optionalData.companySize;
-      if (optionalData.companyWebsite) registrationData.website = optionalData.companyWebsite;
-      if (optionalData.companyDescription) registrationData.description = optionalData.companyDescription;
-      if (optionalData.address) registrationData.location = optionalData.address;
+      // Add optional fields if they exist and are requested
+      if (withOptionalData) {
+        // Initialize contactList array
+        registrationData.contactList = [];
+        
+        if (optionalData.phoneNumber) {
+          registrationData.phoneNumber = optionalData.phoneNumber;
+          
+          // Add phone to contactList
+          registrationData.contactList.push({
+            type: 'phone',
+            value: optionalData.phoneNumber,
+            label: 'Phone Number'
+          });
+        }
+        
+        // Add website to contactList if it exists
+        if (optionalData.companyWebsite) {
+          registrationData.website = optionalData.companyWebsite; // Keep the original field mapping
+          
+          // Also add to contactList
+          registrationData.contactList.push({
+            type: 'website',
+            value: optionalData.companyWebsite,
+            label: 'Company Website'
+          });
+        }
+        
+        if (optionalData.industry) registrationData.industry = optionalData.industry;
+        if (optionalData.companySize) registrationData.companySize = optionalData.companySize;
+        if (optionalData.companyDescription) registrationData.description = optionalData.companyDescription;
+      }
 
       // Send registration request
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registrationData)
+        body: JSON.stringify(registrationData),
       });
 
       const data = await response.json();
@@ -293,7 +373,6 @@ const EP_EmailSignupPage = () => {
     }
   };
 
-  // Form submission handlers
   const handleRequiredSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -311,7 +390,19 @@ const EP_EmailSignupPage = () => {
       setCurrentStep(1);
       return;
     }
-    await createAccount();
+
+    // Validate phone number if provided (not empty)
+    if (optionalData.phoneNumber && optionalData.phoneNumber !== '+65') {
+      const phoneDigits = optionalData.phoneNumber.replace(/\D/g, '').replace(/^65/, '');
+      if (phoneDigits.length !== 8) {
+        setError('Please provide a valid Singapore phone number with exactly 8 digits.');
+        setFieldErrors(prev => ({ ...prev, phoneNumber: 'Phone number must be exactly 8 digits' }));
+        setTouchedFields(prev => ({ ...prev, phoneNumber: true }));
+        return;
+      }
+    }
+
+    await createAccount(true);
   };
 
   // OAuth handler
@@ -352,6 +443,13 @@ const EP_EmailSignupPage = () => {
         className={styles.backButton}
       >
         <FaArrowLeft /> {currentStep === 2 ? 'Back to Sign Up' : 'Back'}
+      </button>
+
+      <button 
+        onClick={() => navigate('/jobseeker/signup')}
+        className={styles.switchRoleButton}
+      >
+        <FaExchangeAlt /> Switch to JobSeeker
       </button>
 
       <div className={`${styles.formContainer} ${currentStep === 1 ? styles.formContainerStep1 : styles.formContainerStep2}`}>
@@ -595,35 +693,11 @@ const EP_EmailSignupPage = () => {
           // Step 2: Optional Fields (Company Details)
           <form onSubmit={handleOptionalSubmit} className={styles.form}>
             <div className={styles.formGrid}>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="profileImage" className={styles.label}>
-                  Company Logo <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="profileImage"
-                  name="profileImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleOptionalChange}
-                  className={styles.fileInput}
-                />
-                {profileImagePreview && (
-                  <div className={styles.previewContainer}>
-                    <img
-                      src={profileImagePreview}
-                      alt="Company Logo Preview"
-                      className={styles.previewImage}
-                    />
-                  </div>
-                )}
-              </div>
-
               <div className={styles.inputGroup}>
                 <label htmlFor="phoneNumber" className={styles.label}>
                   Company Phone Number <span className={styles.optional}>(optional)</span>
                 </label>
-<div className={styles.phoneInputContainer}>
+                <div className={styles.phoneInputContainer}>
                   <span className={styles.countryCode}>+65</span>
                   <input
                     id="phoneNumber"
@@ -663,30 +737,38 @@ const EP_EmailSignupPage = () => {
                 <label htmlFor="industry" className={styles.label}>
                   Industry <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
+                <select
                   id="industry"
                   name="industry"
-                  type="text"
                   value={optionalData.industry}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="Enter company industry"
-                />
+                >
+                  <option value="">Select an industry</option>
+                  {INDUSTRY.map((industry, index) => (
+                    <option key={index} value={industry}>
+                      {industry}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.inputGroup}>
                 <label htmlFor="companySize" className={styles.label}>
                   Company Size <span className={styles.optional}>(optional)</span>
                 </label>
-                <input
+                <select
                   id="companySize"
                   name="companySize"
-                  type="text"
                   value={optionalData.companySize}
                   onChange={handleOptionalChange}
                   className={styles.input}
-                  placeholder="e.g. 1-10, 11-50, 51-200"
-                />
+                >
+                  <option value="">Select Company Size</option>
+                  {['1-10 employees', '11-50 employees', '51-200 employees', '201-500 employees', '501-1000 employees', '1000+ employees'].map(size => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.inputGroup}>
@@ -701,21 +783,6 @@ const EP_EmailSignupPage = () => {
                   onChange={handleOptionalChange}
                   className={styles.input}
                   placeholder="Enter company website URL"
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="address" className={styles.label}>
-                  Company Address <span className={styles.optional}>(optional)</span>
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={optionalData.address}
-                  onChange={handleOptionalChange}
-                  className={styles.input}
-                  placeholder="Enter company address"
                 />
               </div>
 
