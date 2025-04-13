@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import styles from './EP_InternshipDetailsPage.module.css'; // Reusing the same styles
-import { FaArrowLeft, FaBuilding, FaMapMarkerAlt, FaDollarSign, 
-  FaSearch, FaFilter, FaUser, FaClock } from 'react-icons/fa';
+import styles from './EP_InternshipDetailsPage.module.css'; // Reuse the same styles
+import { FaArrowLeft, FaBuilding, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, 
+  FaGraduationCap, FaSearch, FaFilter, FaUser, FaUniversity, FaClock } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -31,6 +31,7 @@ const EP_AdHocDetailsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [formattedDeadline, setFormattedDeadline] = useState('');
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -49,6 +50,16 @@ const EP_AdHocDetailsPage = () => {
         }
 
         const data = await response.json();
+        
+        if (data.data.applicationDeadline) {
+          const deadlineDate = new Date(data.data.applicationDeadline);
+          setFormattedDeadline(deadlineDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }));
+        }
+        
         setJobDetails(data.data);
       } catch (err) {
         console.error('Error fetching job details:', err);
@@ -233,7 +244,7 @@ const EP_AdHocDetailsPage = () => {
     }
   };
 
-  const handleEditAdHoc = () => {
+  const handleEditAdhoc = () => {
     navigate(`/employer/edit-adhoc/${jobId}`);
   };
 
@@ -267,7 +278,7 @@ const EP_AdHocDetailsPage = () => {
           onClick={() => navigate('/employer/post-adhoc')}
           className={styles.returnButton}
         >
-          Return to Ad-Hoc Job Posts
+          Return to Ad-Hoc Posts
         </button>
       </div>
     );
@@ -276,12 +287,12 @@ const EP_AdHocDetailsPage = () => {
   if (!jobDetails) {
     return (
       <div className={styles.errorContainer}>
-        <h2>Ad-Hoc Job not found</h2>
+        <h2>Ad-Hoc job not found</h2>
         <button 
           onClick={() => navigate('/employer/post-adhoc')}
           className={styles.returnButton}
         >
-          Return to Ad-Hoc Job Posts
+          Return to Ad-Hoc Posts
         </button>
       </div>
     );
@@ -294,9 +305,8 @@ const EP_AdHocDetailsPage = () => {
           onClick={() => navigate('/employer/post-adhoc')}
           className={styles.backButton}
         >
-          <FaArrowLeft /> Back to Ad-Hoc Job Posts
+          <FaArrowLeft /> Back to Ad-Hoc Posts
         </button>
-       
       </div>
 
       <div className={styles.jobDetailsSection}>
@@ -316,10 +326,16 @@ const EP_AdHocDetailsPage = () => {
               <FaDollarSign className={styles.infoIcon} />
               <span>SGD {jobDetails.payPerHour}/hour</span>
             </div>
-            {jobDetails.area && (
+            {jobDetails.duration && (
               <div className={styles.infoItem}>
-                <FaMapMarkerAlt className={styles.infoIcon} />
-                <span>Area: {jobDetails.area}</span>
+                <FaCalendarAlt className={styles.infoIcon} />
+                <span>{jobDetails.duration}</span>
+              </div>
+            )}
+            {jobDetails.yearOfStudy && (
+              <div className={styles.infoItem}>
+                <FaGraduationCap className={styles.infoIcon} />
+                <span>{jobDetails.yearOfStudy}</span>
               </div>
             )}
           </div>
@@ -363,6 +379,11 @@ const EP_AdHocDetailsPage = () => {
               </div>
             </div>
           )}
+
+          <div className={styles.jobDeadline}>
+            <h2>Application Deadline</h2>
+            <p>{formattedDeadline || 'Not specified'}</p>
+          </div>
         </div>
       </div>
 
@@ -428,7 +449,7 @@ const EP_AdHocDetailsPage = () => {
                     </span>
                   </div>
                   <p className={styles.applicantSchool}>
-                    <FaUser className={styles.infoIcon} />
+                    <FaUniversity className={styles.infoIcon} />
                     {applicant.school || 'N/A'}
                   </p>
                 </div>
