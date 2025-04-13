@@ -18,7 +18,9 @@ import {
   updateAdHocJob,
   deleteAdHocJob,
   createDraftAdHoc,
-  updateAdHocDraft
+  updateAdHocDraft,
+  incrementInternshipViewCount,
+  incrementAdHocViewCount
   
 } from '../controllers/job.controller.js';
 import { 
@@ -51,6 +53,8 @@ router.get('/internship/my-posts', authMiddleware, getEmployerInternshipJobs);
 router.get('/internship/:id', getInternshipJobById);
 router.put('/internship/:id', authMiddleware, updateInternshipJob);
 router.delete('/internship/:id', authMiddleware, deleteInternshipJob);
+// Add view count increment route for internship jobs
+router.patch('/internship/:id/increment-view', authenticateUser, incrementInternshipViewCount);
 
 // Ad hoc job routes
 router.post('/adhoc', authMiddleware, createAdHocJob);
@@ -59,6 +63,8 @@ router.get('/adhoc/my-posts', authMiddleware, getEmployerAdHocJobs);
 router.get('/adhoc/:id', getAdHocJobById);
 router.put('/adhoc/:id', authMiddleware, updateAdHocJob);
 router.delete('/adhoc/:id', authMiddleware, deleteAdHocJob);
+// Add view count increment route for ad-hoc jobs
+router.patch('/adhoc/:id/increment-view', authenticateUser, incrementAdHocViewCount);
 
 // Application routes
 router.use(authenticateUser);

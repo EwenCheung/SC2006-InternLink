@@ -33,10 +33,33 @@ const JS_InternshipDetailsPage = () => {
     }
   }, []);
 
+  // Function to increment view count
+  const incrementViewCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      await fetch(`${API_BASE_URL}/api/jobs/internship/${jobId}/increment-view`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      console.error('Error incrementing view count:', err);
+      // Don't set error state as this is a non-critical operation
+    }
+  };
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/jobs/internship/${jobId}`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        
+        const response = await fetch(`${API_BASE_URL}/api/jobs/internship/${jobId}`, {
+          headers
+        });
         const { data } = await response.json();
         if (response.ok && data) {
           console.log('Job details:', data);
@@ -51,6 +74,9 @@ const JS_InternshipDetailsPage = () => {
               day: 'numeric'
             }));
           }
+          
+          // Increment view count after successfully fetching job details
+          incrementViewCount();
         } else {
           setError(data?.message || 'Failed to fetch job details');
         }

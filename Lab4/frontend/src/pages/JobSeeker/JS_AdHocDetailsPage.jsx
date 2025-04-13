@@ -33,13 +33,38 @@ const JS_AdHocDetailsPage = () => {
     }
   }, []);
 
+  // Function to increment view count
+  const incrementViewCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      await fetch(`${API_BASE_URL}/api/jobs/adhoc/${jobId}/increment-view`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      console.error('Error incrementing view count:', err);
+      // Don't set error state as this is a non-critical operation
+    }
+  };
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/${jobId}`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        
+        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/${jobId}`, {
+          headers
+        });
+        
         if (!response.ok) {
           throw new Error('Failed to fetch job details');
         }
+        
         const { data } = await response.json();
         setJobDetails(data);
 
@@ -59,6 +84,9 @@ const JS_AdHocDetailsPage = () => {
             day: 'numeric'
           }));
         }
+        
+        // Increment view count after successfully fetching job details
+        incrementViewCount();
       } catch (error) {
         console.error('Error fetching job details:', error);
         setError('Failed to load job details');

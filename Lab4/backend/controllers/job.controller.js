@@ -771,4 +771,44 @@ export const deleteAdHocJob = async (req, res) => {
   }
 };
 
+// Increment view count for internship job
+export const incrementInternshipViewCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const job = await InternshipJob.findById(id);
+    if (!job) {
+      return res.status(404).json({ success: false, error: 'Job not found' });
+    }
+    
+    job.views = (job.views || 0) + 1;
+    await job.save();
+    
+    res.status(200).json({ success: true, data: { views: job.views } });
+  } catch (error) {
+    console.error('Error incrementing internship view count:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
+// Increment view count for ad hoc job
+export const incrementAdHocViewCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const job = await AdHocJob.findById(id);
+    if (!job) {
+      return res.status(404).json({ success: false, error: 'Job not found' });
+    }
+    
+    job.views = (job.views || 0) + 1;
+    await job.save();
+    
+    res.status(200).json({ success: true, data: { views: job.views } });
+  } catch (error) {
+    console.error('Error incrementing ad hoc view count:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+};
+
 
