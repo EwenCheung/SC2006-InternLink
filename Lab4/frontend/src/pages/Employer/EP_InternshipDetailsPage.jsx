@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from './EP_InternshipDetailsPage.module.css';
 import { FaArrowLeft, FaBuilding, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, 
-  FaGraduationCap, FaSearch, FaFilter, FaUser, FaUniversity, FaClock } from 'react-icons/fa';
+  FaGraduationCap, FaSearch, FaFilter, FaUser, FaUniversity, FaClock, FaFilePdf, FaExternalLinkAlt } from 'react-icons/fa';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -31,6 +31,7 @@ const EP_InternshipDetailsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [resumePreviewUrl, setResumePreviewUrl] = useState(null);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -97,7 +98,7 @@ const EP_InternshipDetailsPage = () => {
         return;
       }
       
-      // Now fetch details for each applicant using the new getJobSeekerProfile endpoint
+      // Now fetch details for each applicant
       const applicantsData = await Promise.all(
         applications.map(async (application) => {
           try {
@@ -108,7 +109,30 @@ const EP_InternshipDetailsPage = () => {
               return null;
             }
             
-            // Use the new getJobSeekerProfile endpoint
+            // Get application details first - this has the resume data
+            const applicationResponse = await fetch(`${API_BASE_URL}/api/applications/${application._id}`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            
+            if (!applicationResponse.ok) {
+              console.warn(`Failed to fetch application details for ID ${application._id}: ${applicationResponse.status}`);
+            }
+            
+            let applicationDetails = null;
+            try {
+              const appData = await applicationResponse.json();
+              if (appData.success && appData.data) {
+                applicationDetails = appData.data;
+                console.log('Application details retrieved:', application._id, 
+                  applicationDetails.resume ? 'Has resume' : 'No resume');
+              }
+            } catch (appError) {
+              console.error('Error parsing application data:', appError);
+            }
+            
+            // Use the getJobSeekerProfile endpoint
             const userResponse = await fetch(`${API_BASE_URL}/api/auth/jobseeker/${jobseekerId}`, {
               headers: {
                 'Authorization': `Bearer ${token}`
@@ -127,7 +151,7 @@ const EP_InternshipDetailsPage = () => {
               return null;
             }
             
-            // Construct applicant object using the detailed profile data
+            // Construct applicant object combining user profile and application data (including resume)
             return {
               id: application._id,
               applicationId: application._id,
@@ -139,8 +163,11 @@ const EP_InternshipDetailsPage = () => {
               course: userData.data.course || 'Not specified',
               status: application.status || 'Pending',
               appliedDate: application.appliedDate || application.createdAt || new Date().toISOString(),
-              resumeUrl: userData.data.resume?.url || null,
-              profileImage: userData.data.profileImage?.url || null
+              // Get resume from the application document, not the user profile
+              resumeData: applicationDetails?.resume || null,
+              profileImage: userData.data.profileImage?.url || null,
+              // Include the full application data for reference
+              applicationDetails: applicationDetails
             };
           } catch (userError) {
             console.error(`Error fetching user details:`, userError);
@@ -162,12 +189,74 @@ const EP_InternshipDetailsPage = () => {
     }
   };
 
-  const handleViewApplicantDetails = (applicant) => {
+  const handleViewApplicantDetails = async (applicant) => {
     setSelectedApplicant(applicant);
+    
+    // If there's resume data in the application
+    if (applicant.resumeData) {
+      try {
+        console.log('Resume data found in application:', applicant.resumeData);
+        
+        // If we have direct access to resume data in the application
+        if (applicant.resumeData.data) {
+          try {
+            // Create a blob from the base64 data
+            const binaryString = atob(applicant.resumeData.data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            // Create a blob and object URL for display
+            const blob = new Blob([bytes.buffer], { type: applicant.resumeData.type || 'application/pdf' });
+            const previewUrl = URL.createObjectURL(blob);
+            setResumePreviewUrl(previewUrl);
+            console.log('Resume blob created from binary data');
+          } catch (error) {
+            console.error('Error processing resume binary data:', error);
+            setResumePreviewUrl(null);
+          }
+        }
+        // If we need to fetch the resume data from the API
+        else {
+          const token = localStorage.getItem('token');
+          const resumeEndpoint = `${API_BASE_URL}/api/applications/${applicant.id}/resume`;
+            
+          console.log('Fetching resume from endpoint:', resumeEndpoint);
+          
+          const resumeResponse = await fetch(resumeEndpoint, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
+          if (resumeResponse.ok) {
+            const blob = await resumeResponse.blob();
+            const previewUrl = URL.createObjectURL(blob);
+            setResumePreviewUrl(previewUrl);
+            console.log('Resume fetched successfully from API');
+          } else {
+            console.error('Failed to fetch resume:', resumeResponse.status);
+            setResumePreviewUrl(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error handling resume:', error);
+        setResumePreviewUrl(null);
+      }
+    } else {
+      console.log('No resume data available for this applicant');
+      setResumePreviewUrl(null);
+    }
   };
 
   const handleCloseApplicantDetails = () => {
     setSelectedApplicant(null);
+    // Clean up URL object
+    if (resumePreviewUrl) {
+      URL.revokeObjectURL(resumePreviewUrl);
+      setResumePreviewUrl(null);
+    }
   };
 
   const handleStatusChange = async (applicantId, newStatus) => {
@@ -536,19 +625,38 @@ const EP_InternshipDetailsPage = () => {
                 <h3>Application Information</h3>
                 <p><strong>Status:</strong> <span className={`${styles.statusLabel} ${getStatusClass(selectedApplicant.status)}`}>{selectedApplicant.status}</span></p>
                 <p><strong>Applied Date:</strong> {new Date(selectedApplicant.appliedDate).toLocaleDateString()}</p>
-                {selectedApplicant.resumeUrl && (
-                  <div className={styles.resumeSection}>
-                    <h3>Resume</h3>
-                    <a 
-                      href={selectedApplicant.resumeUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={styles.viewResumeButton}
-                    >
-                      View Resume
-                    </a>
-                  </div>
-                )}
+                
+                {/* PDF Resume Section */}
+                <div className={styles.resumeSection}>
+                  <h3>Resume</h3>
+                  
+                  {resumePreviewUrl ? (
+                    <div className={styles.pdfContainer}>
+                      <div className={styles.pdfHeader}>
+                        <h4>{selectedApplicant.applicantName}'s Resume</h4>
+                        <a 
+                          href={resumePreviewUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={styles.fullScreenButton}
+                        >
+                          <FaExternalLinkAlt /> Open Full Screen
+                        </a>
+                      </div>
+                      <iframe 
+                        src={resumePreviewUrl} 
+                        className={styles.resumePreview} 
+                        title="Resume Preview"
+                        frameBorder="0"
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <div className={styles.noResume}>
+                      <FaFilePdf className={styles.noPdfIcon} />
+                      <p>No resume available for this applicant</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             

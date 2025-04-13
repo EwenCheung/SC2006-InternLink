@@ -6,7 +6,8 @@ import {
     updateApplication, 
     deleteApplication, 
     getApplicationsByJobId,
-    updateApplicationStatus
+    updateApplicationStatus,
+    getApplicationResume
 } from '../controllers/application.controller.js';
 import authenticateUser from '../middleware/authentication.js';
 
@@ -20,6 +21,9 @@ router.get('/job/:id', authenticateUser, getApplicationsByJobId);
 
 // Get a specific application by ID
 router.get('/:id', authenticateUser, getOneApplication);
+
+// Get resume for an application
+router.get('/:id/resume', authenticateUser, getApplicationResume);
 
 // Create a new application - requires authentication
 router.post('/', authenticateUser, createApplication);

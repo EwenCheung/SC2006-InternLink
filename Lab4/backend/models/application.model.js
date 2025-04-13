@@ -2,6 +2,13 @@ import mongoose from 'mongoose';
 
 const jobListDb = mongoose.connection.useDb('job_list', { useCache: true });
 
+const ResumeSchema = new mongoose.Schema({
+  data: String,  // Store base64 encoded resume data
+  name: String,  // Original filename
+  type: String,  // MIME type (e.g., application/pdf)
+  size: Number   // File size in bytes
+}, { _id: false });
+
 const ApplicationSchema = new mongoose.Schema({
   jobSeeker: {
     type: mongoose.Types.ObjectId,
@@ -16,14 +23,12 @@ const ApplicationSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['Pending', 'Accepted', 'Rejected'],
-    default: 'pending'
+    default: 'Pending'
   },
   coverLetter: {
     type: String
   },
-  resume: {
-    type: String
-  },
+  resume: ResumeSchema,
   appliedDate: {
     type: Date,
     default: Date.now

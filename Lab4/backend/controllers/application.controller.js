@@ -139,7 +139,7 @@ export const getOneApplication = async (req, res) => {
 
 // Create an application
 export const createApplication = async (req, res) => {
-    const { jobId, coverLetter, resume } = req.body;
+    const { jobId, coverLetter, resumeData } = req.body;
     const applicantId = req.user.userId; // Ensure applicantId matches userId from authMiddleware
 
     if (!jobId || !applicantId) {
@@ -147,11 +147,11 @@ export const createApplication = async (req, res) => {
     }
 
     try {
-        // Log the request for debugging
+        // Log the request for debugging (without the full resume data to keep logs clean)
         console.log('Creating application with data:', {
             jobId,
             applicantId,
-            body: req.body
+            hasResumeData: !!resumeData
         });
 
         // Check if the applicant has already applied for this job
@@ -159,25 +159,50 @@ export const createApplication = async (req, res) => {
         if (existingApplication) {
             return res.status(400).json({ success: false, message: 'You have already applied for this job' });
         }
-        console.log(req.body.jobType)
-        // Create a new application - include coverLetter and resume fields but make them optional
-        const newApplication = new Application({
+        
+        console.log(req.body.jobType);
+        
+        // Create a new application object with basic fields
+        const applicationData = {
             job: jobId,
             jobSeeker: applicantId,
             coverLetter: coverLetter || '', // Use empty string if not provided
-            resume: resume || '',           // Use empty string if not provided
             status: 'Pending',
             appliedDate: new Date(),
             jobType: req.body.jobType || 'internship' // Default to 'internship' if not provided
-        });
+        };
 
-        // Log the application object before saving
-        console.log('Application object to save:', newApplication);
+        // Handle resume data if provided
+        if (resumeData && resumeData.data) {
+            applicationData.resume = {
+                data: resumeData.data,
+                name: resumeData.name || 'resume.pdf',
+                type: resumeData.type || 'application/pdf',
+                size: resumeData.size || 0
+            };
+            console.log('Resume data included, size:', (resumeData.data.length * 0.75) / 1024, 'KB');
+        } else {
+            applicationData.resume = {
+                data: '',
+                name: '',
+                type: '',
+                size: 0
+            };
+        }
+
+        // Create and save the new application
+        const newApplication = new Application(applicationData);
+        
+        // Log the application object structure before saving (without the actual binary data)
+        const logSafeApplication = { ...newApplication.toObject() };
+        if (logSafeApplication.resume && logSafeApplication.resume.data) {
+            logSafeApplication.resume.data = `[Base64 data - ${(logSafeApplication.resume.data.length * 0.75) / 1024} KB]`;
+        }
+        console.log('Application object to save:', logSafeApplication);
 
         const savedApplication = await newApplication.save();
         
         // Update the JobSeeker document to add this application to their jobApplications array
-        // Use the imported JobSeeker model directly
         await JobSeeker.findByIdAndUpdate(
             applicantId,
             { $push: { jobApplications: savedApplication._id } },
@@ -417,3 +442,62 @@ export const updateApplicationStatus = async (req, res) => {
       });
     }
   };
+
+/**
+ * Get resume data for an application
+ * @param {Object} req - Request object with application id
+ * @param {Object} res - Response object
+ * @returns {Object} PDF resume data as blob
+ */
+export const getApplicationResume = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid application ID'
+      });
+    }
+    
+    // Find the application
+    const application = await Application.findById(id);
+    
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+    
+    // Check if resume data exists
+    if (!application.resume || !application.resume.data) {
+      return res.status(404).json({
+        success: false,
+        message: 'No resume found for this application'
+      });
+    }
+    
+    // Get the base64 data
+    const base64Data = application.resume.data;
+    
+    // Convert base64 string to binary Buffer
+    const binaryData = Buffer.from(base64Data, 'base64');
+    
+    // Set appropriate headers
+    res.setHeader('Content-Type', application.resume.type || 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${application.resume.name || 'resume.pdf'}"`);
+    res.setHeader('Content-Length', binaryData.length);
+    
+    // Send the binary data
+    return res.send(binaryData);
+    
+  } catch (error) {
+    console.error('Error retrieving resume:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve resume',
+      error: error.message
+    });
+  }
+};

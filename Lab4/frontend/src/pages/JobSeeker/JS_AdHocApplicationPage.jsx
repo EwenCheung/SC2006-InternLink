@@ -1,18 +1,21 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import { useEffect, useState } from 'react';
-
 import styles from './ApplicationDetailPage.module.css';
+import { FaFilePdf, FaTrash, FaSpinner } from 'react-icons/fa';
 
 const JS_AdHocApplicationPage = () => {
   const navigate = useNavigate();
-  const { jobId } = useParams(); // Use route parameter instead of query parameter
+  const { jobId } = useParams();
   const [details, setDetails] = useState({ name: '', email: '' });
   const [jobseekerID, setJobseekerID] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [applicationId, setApplicationId] = useState(null);
   const [error, setError] = useState(null);
+  const [resume, setResume] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -22,7 +25,7 @@ const JS_AdHocApplicationPage = () => {
         const userData = JSON.parse(user);
         setDetails({ name: userData.name, email: userData.email });
         setJobseekerID(userData._id);
-        console.log('User ID loaded:', userData._id); // Add logging to verify ID is set
+        console.log('User ID loaded:', userData._id);
       } catch (err) {
         console.error('Error parsing user data:', err);
         navigate('/jobseeker/login');
@@ -30,37 +33,101 @@ const JS_AdHocApplicationPage = () => {
     } else {
       navigate('/jobseeker/login');
     }
-  }, [navigate]); // Add navigate to dependency array
+  }, [navigate]);
+
+  // Handle file upload
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (file.type !== 'application/pdf') {
+      setError('Only PDF files are allowed');
+      return;
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      setError(`File size exceeds 5MB limit (${(file.size / (1024 * 1024)).toFixed(2)}MB)`);
+      return;
+    }
+
+    // Create preview URL
+    const fileUrl = URL.createObjectURL(file);
+    setPreviewUrl(fileUrl);
+    setResume(file);
+    setError(null);
+  };
+
+  const clearResume = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setResume(null);
+    setPreviewUrl(null);
+  };
 
   const handleSubmit = async () => {
     try {
+      setIsUploading(true);
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-      const url = `${API_BASE_URL}/api/jobs/create-application/${jobId}`; 
-      const method = 'POST';
-      
-      // Get the JWT token from localStorage
       const token = localStorage.getItem('token');
       
       if (!token) {
         throw new Error('Authentication token is missing');
       }
       
-      // Fix: Adjust property names to match what the server expects
+      // Create the application data object
       const postData = {
-        jobId: jobId,         // Changed from 'job' to 'jobId'
+        jobId: jobId,
         applicantId: jobseekerID,
-        jobType:'adhoc'  
-        
+        jobType: 'adhoc'
       };
 
-      console.log('Request Payload:', postData);
-      console.log('Request Headers:', {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      });
+      // If a resume is selected, read it as binary and attach it
+      if (resume) {
+        try {
+          // Read the file as binary data
+          const fileReader = new FileReader();
+          
+          // Convert the file reading to a Promise
+          const readFileAsArrayBuffer = () => {
+            return new Promise((resolve, reject) => {
+              fileReader.onload = () => resolve(fileReader.result);
+              fileReader.onerror = () => reject(new Error('File reading failed'));
+              fileReader.readAsArrayBuffer(resume);
+            });
+          };
+          
+          // Wait for the file to be read as array buffer
+          const arrayBuffer = await readFileAsArrayBuffer();
+          
+          // Convert ArrayBuffer to Base64
+          const base64String = btoa(
+            new Uint8Array(arrayBuffer)
+              .reduce((data, byte) => data + String.fromCharCode(byte), '')
+          );
+          
+          // Add resume data to postData
+          postData.resumeData = {
+            data: base64String,
+            name: resume.name,
+            type: resume.type,
+            size: resume.size
+          };
+          
+          console.log('Resume encoded successfully, size:', (base64String.length * 0.75) / 1024, 'KB');
+        } catch (fileError) {
+          console.error('Error reading file:', fileError);
+          throw new Error('Failed to process resume file');
+        }
+      }
+      
+      // Now create the application with the resume binary data included
+      const url = `${API_BASE_URL}/api/jobs/create-application/${jobId}`;
+      
+      console.log('Sending application request');
       
       const response = await fetch(url, {
-        method,
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -69,7 +136,6 @@ const JS_AdHocApplicationPage = () => {
       });
 
       if (!response.ok) {
-        // Try to get more detailed error information from the response
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = await response.json();
@@ -90,8 +156,9 @@ const JS_AdHocApplicationPage = () => {
       setShowDialog(true);
     } catch (error) {
       console.error('Error submitting application:', error);
-      // Use error dialog with purple theme styling
       setError(error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -214,34 +281,80 @@ const JS_AdHocApplicationPage = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <label htmlFor="resume" className={styles.label}>Resume</label>
-            <input
-              type="file"
-              id="resume"
-              name="resume"
-              className={styles.fileInput}
-            />
+            <label htmlFor="resume" className={styles.label}>Resume (PDF only, max 5MB)</label>
+            <div className={styles.fileUploadContainer}>
+              <input
+                type="file"
+                id="resume"
+                name="resume"
+                accept="application/pdf"
+                onChange={handleFileChange}
+                className={styles.fileInput}
+              />
+              {!resume && (
+                <div className={styles.uploadInstructions}>
+                  <FaFilePdf className={styles.pdfIcon} />
+                  <span>Click to upload your resume (PDF)</span>
+                </div>
+              )}
+            </div>
+
+            {resume && (
+              <div className={styles.previewContainer}>
+                <div className={styles.fileInfo}>
+                  <FaFilePdf className={styles.pdfIcon} />
+                  <span className={styles.fileName}>{resume.name}</span>
+                  <span className={styles.fileSize}>({(resume.size / 1024 / 1024).toFixed(2)} MB)</span>
+                  <button 
+                    type="button" 
+                    onClick={clearResume} 
+                    className={styles.removeButton}
+                    aria-label="Remove resume"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+                
+                <iframe 
+                  src={previewUrl} 
+                  className={styles.pdfPreview} 
+                  title="Resume preview"
+                ></iframe>
+              </div>
+            )}
+
+            {error && error.includes('File size') && (
+              <p className={styles.fileError}>{error}</p>
+            )}
           </div>
 
           <button
             type="button"
             onClick={handleSubmit}
             className={styles.enhancedSubmitButton}
-            disabled={jobseekerID === null} // More explicit condition
+            disabled={jobseekerID === null || isUploading}
             style={{ 
               backgroundColor: '#6f42c1', 
               color: 'white',
               background: 'linear-gradient(135deg, #8e44ad, #6f42c1)',
-              cursor: jobseekerID === null ? 'not-allowed' : 'pointer' // Visual feedback
+              cursor: (jobseekerID === null || isUploading) ? 'not-allowed' : 'pointer'
             }}
           >
-            {jobseekerID === null ? 'Loading...' : 'Submit Application'}
+            {isUploading ? (
+              <>
+                <FaSpinner className={styles.loadingIcon} /> Uploading...
+              </>
+            ) : jobseekerID === null ? (
+              'Loading...'
+            ) : (
+              'Submit Application'
+            )}
           </button>
         </form>
       </div>
 
       {showDialog && <SuccessDialog />}
-      {error && <ErrorDialog />}
+      {error && !error.includes('File size') && <ErrorDialog />}
     </div>
   );
 };
