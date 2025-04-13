@@ -1,0 +1,293 @@
+/* General container styling */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  color: #333;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%);
+  position: relative;
+  min-height: 100vh;
+  animation: gradientAnimation 15s ease infinite alternate;
+}
+
+/* Background animated elements */
+.container:before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 90% 10%, rgba(111, 66, 193, 0.05) 0%, transparent 50%),
+              radial-gradient(circle at 10% 90%, rgba(142, 68, 173, 0.05) 0%, transparent 50%);
+  animation: pulseBackground 15s ease-in-out infinite alternate;
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  background: rgba(243, 235, 255, 0.7);
+  backdrop-filter: blur(5px);
+  color: #6f42c1;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(111, 66, 193, 0.1);
+}
+
+.backButton:hover {
+  background: rgba(233, 222, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.15);
+}
+
+.backButton svg {
+  margin-right: 0.5rem;
+}
+
+/* Job details section with glassmorphism */
+.jobDetailsCard {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05),
+              0 1px 1px rgba(255, 255, 255, 0.7) inset;
+  padding: 2.5rem;
+  margin: 0 auto 2rem auto;
+  transition: all 0.5s ease;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-width: 900px;
+  animation: cardEntrance 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.jobDetailsCard:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+              0 1px 1px rgba(255, 255, 255, 0.7) inset;
+  transform: translateY(-5px);
+}
+
+.companySection,
+.jobDetailsSection,
+.applicationCard,
+.minimapCard {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06),
+              0 1px 1px rgba(255, 255, 255, 0.6) inset;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.companySection:hover,
+.jobDetailsSection:hover,
+.applicationCard:hover,
+.minimapCard:hover {
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08),
+              0 1px 1px rgba(255, 255, 255, 0.6) inset;
+  transform: translateY(-3px);
+}
+
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.jobTitle {
+  font-size: 2.25rem;
+  color: #5a2ca0;
+  margin-bottom: 8px;
+  font-weight: 700;
+  background: rgba(243, 235, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.companyName {
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Section headings with purple theme */
+.companySection h3,
+.jobDetailsSection h3,
+.applicationCard h3,
+.minimapCard h3 {
+  color: #5a2ca0;
+  background-color: rgba(248, 245, 255, 0.8);
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  display: inline-block;
+  border-left: 4px solid #6f42c1;
+  box-shadow: 0 2px 4px rgba(111, 66, 193, 0.1);
+  transition: all 0.2s ease;
+}
+
+.companySection h3:hover,
+.jobDetailsSection h3:hover,
+.applicationCard h3:hover,
+.minimapCard h3:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(111, 66, 193, 0.15);
+}
+
+/* Skill tags */
+.skillsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.skillTag {
+  color: #5a2ca0;
+  background-color: rgba(243, 235, 255, 0.7);
+  border: 1px solid rgba(212, 194, 255, 0.7);
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.skillTag:hover {
+  background-color: rgba(229, 216, 255, 0.9);
+  border-color: rgba(183, 148, 244, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(111, 66, 193, 0.2);
+}
+
+/* Deadline info */
+.deadlineInfo {
+  background: rgba(248, 245, 255, 0.7);
+  backdrop-filter: blur(5px);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(212, 194, 255, 0.4);
+  box-shadow: 0 2px 10px rgba(111, 66, 193, 0.1);
+}
+
+.deadlineTimer {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.deadlineLabel {
+  font-size: 14px;
+  color: #666;
+}
+
+.deadlineDate {
+  font-size: 18px;
+  font-weight: bold;
+  color: #5a2ca0;
+}
+
+/* Apply button */
+.applyButton {
+  background: linear-gradient(135deg, #8e44ad, #6f42c1);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(111, 66, 193, 0.2);
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.applyButton:hover {
+  box-shadow: 0 6px 15px rgba(111, 66, 193, 0.3);
+  transform: translateY(-3px);
+}
+
+/* Animation keyframes */
+@keyframes cardEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pulseBackground {
+  0% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 992px) {
+  .contentWrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .jobDetailsCard {
+    padding: 1.5rem;
+  }
+  
+  .jobTitle {
+    font-size: 1.75rem;
+  }
+}

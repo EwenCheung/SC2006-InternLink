@@ -101,7 +101,7 @@ const EP_EmailLoginPage = () => {
               alt="InternLink Logo"
             />
           </Link>
-          <h2 className={styles.title}>Sign in to your employer account</h2>
+          <h2 className={styles.title}>Sign in to your Employer account</h2>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>

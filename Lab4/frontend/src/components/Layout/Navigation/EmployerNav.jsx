@@ -10,7 +10,7 @@ const EmployerNav = () => {
     { label: 'Post Internship', path: '/employer/post-internship', icon: 'M12 4v16m8-8H4' },
     { label: 'Post Ad-Hoc', path: '/employer/post-adhoc', icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
     { label: 'Messages', path: '/employer/messages', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
-    { label: 'Profile', path: '/employer/profile', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
+    { label: 'Profile', path: '/employer/profile', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
   ];
 
   // Check if the path matches the current location
@@ -28,12 +28,12 @@ const EmployerNav = () => {
             to={item.path}
             className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative whitespace-nowrap
               ${isActive(item.path) 
-                ? 'bg-purple-100 text-purple-700 shadow-sm' 
+                ? 'text-purple-700' 
                 : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'}`}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4" 
+              className={`h-4 w-4 mr-1.5 ${isActive(item.path) ? 'text-purple-500' : 'text-gray-400'}`}
               fill="none" 
               viewBox="0 0 24 24" 
               stroke="currentColor" 
@@ -41,9 +41,9 @@ const EmployerNav = () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
             </svg>
-            <span>{item.label}</span>
+            {item.label}
             {isActive(item.path) && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 transform translate-y-1"></div>
+              <div className="absolute bottom-0 left-0 right-0 mx-auto w-full h-0.5 bg-purple-500"></div>
             )}
           </Link>
         ))}

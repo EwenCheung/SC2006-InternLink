@@ -21,36 +21,25 @@ const JS_AdHocDetailsPage = () => {
   const [formattedDeadline, setFormattedDeadline] = useState('');
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      setError('User not authenticated');
-      setLoading(false);
-      return;
-    }
-
-    const fetchJobseekerInfo = async () => {
+    const user = localStorage.getItem('user');
+    if (user) {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/find-jobseeker/${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch jobseeker info');
-        }
-        const data = await response.json();
-        setJobseekerId(data.jobseekerId);
-
-        fetchApplicationStatus(data.jobseekerId);
-      } catch (error) {
-        console.error('Error fetching jobseeker info:', error);
-        setError('Error fetching jobseeker info');
+        const userData = JSON.parse(user);
+        setJobseekerId(userData._id);
+      } catch (err) {
+        console.error('Error parsing user data:', err);
       }
-    };
+    }
+  }, []);
 
+  useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/jobs/${jobId}`);
+        const response = await fetch(`${API_BASE_URL}/api/jobs/adhoc/${jobId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch job details');
         }
-        const data = await response.json();
+        const { data } = await response.json();
         setJobDetails(data);
 
         if (data.latitude && data.longitude) {
@@ -61,8 +50,8 @@ const JS_AdHocDetailsPage = () => {
           setLongitude(103.8198);
         }
 
-        if (data.deadline) {
-          const deadlineDate = new Date(data.deadline);
+        if (data.applicationDeadline) {
+          const deadlineDate = new Date(data.applicationDeadline);
           setFormattedDeadline(deadlineDate.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -77,27 +66,37 @@ const JS_AdHocDetailsPage = () => {
       }
     };
 
-    const fetchApplicationStatus = async (jobseekerId) => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/applications/check/${jobseekerId}/${jobId}`);
-        if (!response.ok) {
-          if (response.status !== 404) {
-            throw new Error('Failed to check application status');
-          }
-          setIsApplied(false);
-          return;
-        }
+    fetchJobDetails();
+  }, [jobId]);
 
-        const data = await response.json();
-        setIsApplied(data.exists);
-      } catch (error) {
-        console.error('Error checking application status:', error);
+  useEffect(() => {
+    const checkApplicationStatus = async () => {
+      if (!jobseekerId || !jobId) return;
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE_URL}/api/jobs/check-application-status/${jobseekerId}/${jobId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.hasApplied) {
+            setIsApplied(true);
+          }
+        }
+      } catch (err) {
+        console.error('Error checking application status:', err);
       }
     };
 
-    fetchJobseekerInfo();
-    fetchJobDetails();
-  }, [jobId]);
+    checkApplicationStatus();
+  }, [jobseekerId, jobId]);
 
   const handleWithdrawApplication = async () => {
     setShowConfirmation(true);
@@ -105,8 +104,16 @@ const JS_AdHocDetailsPage = () => {
 
   const confirmWithdrawal = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/applications/withdraw/${jobseekerId}/${jobId}`, {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/jobs/withdraw-application/${jobId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       if (!response.ok) {
@@ -136,7 +143,7 @@ const JS_AdHocDetailsPage = () => {
   const handleMessageEmployer = () => {
     setFeatureMessage('The messaging feature is currently under development and will be available soon!');
     setShowFeatureMessage(true);
-
+    
     setTimeout(() => {
       setShowFeatureMessage(false);
     }, 1500);
@@ -145,7 +152,7 @@ const JS_AdHocDetailsPage = () => {
   const handleShareJob = () => {
     setFeatureMessage('The job sharing feature is currently under development and will be available soon!');
     setShowFeatureMessage(true);
-
+    
     setTimeout(() => {
       setShowFeatureMessage(false);
     }, 1500);
@@ -157,7 +164,7 @@ const JS_AdHocDetailsPage = () => {
 
   return (
     <div className={styles.container}>
-      <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-ad-hoc')}>
+      <button className={styles.backButton} onClick={() => navigate('/jobseeker/find-adhoc')}>
         ← Back to Listings
       </button>
       <div className={styles.jobHeader}>
@@ -169,7 +176,7 @@ const JS_AdHocDetailsPage = () => {
             <div className={styles.quickInfo}>
               <span className={styles.location}>📍 {jobDetails.location}</span>
               <span className={styles.duration}>⏱️ {jobDetails.duration}</span>
-              <span className={styles.salary}>💰 {jobDetails.stipend}/hour</span>
+              <span className={styles.salary}>💰 ${jobDetails.payPerHour}/hour</span>
             </div>
           </div>
         </div>

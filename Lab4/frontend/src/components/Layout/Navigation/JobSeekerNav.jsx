@@ -43,7 +43,7 @@ const JobSeekerNav = () => {
             </svg>
             <span>{item.label}</span>
             {isActive(item.path) && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 transform translate-y-1"></div>
+              <div className="absolute bottom-0 left-0 right-0 mx-auto w-full h-0.5 bg-purple-500"></div>
             )}
           </Link>
         ))}

@@ -20,7 +20,7 @@ const PrivacySettings = () => {
 
   const validatePassword = (password) => {
     const reqs = {
-      length: password.length >= 6 && password.length <= 50,
+      length: password.length >= 8 && password.length <= 12,
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
@@ -154,7 +154,7 @@ const PrivacySettings = () => {
               <svg className="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              <span>6-50 characters</span>
+              <span>8-12 characters</span>
             </div>
             <div className={`flex items-center mt-1 ${passwordReqs.uppercase ? 'text-green-500' : 'text-red-500'}`}>
               <svg className="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
