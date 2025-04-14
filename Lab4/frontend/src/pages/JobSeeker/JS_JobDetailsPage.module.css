@@ -1067,7 +1067,83 @@ h4 {
   border-radius: 8px;
   overflow: hidden;
   border: none; /* Removed border */
-   /* Using shadow instead of border */
+  position: relative; /* Add position relative for absolute positioning of maximize button */
+}
+
+/* Maximize Button */
+.maximizeButton {
+  position: absolute;
+  bottom: 35px;  /* Lowered position from 85px to 35px */
+  left: 10px;
+  background: #242f3e !important;
+  border: 1px solid #444c56 !important;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  color: #e8eaed !important;
+}
+
+.maximizeButton:hover {
+  background: #34404c !important;
+}
+
+/* Maximized Map Container */
+.maximizedMapOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.maximizedMapContainer {
+  width: 85%;
+  height: 50%;
+  max-width: 1200px;
+  
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  
+  animation: zoomIn 0.3s ease;
+}
+
+/* Maximized Map Container */
+.closeMaximizedButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(36, 47, 62, 0.9); /* Match the map control theme */
+  border: 1px solid #444c56;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  font-size: 18px;
+  color: #e8eaed;
+}
+
+.closeMaximizedButton:hover {
+  background: #34404c;
 }
 
 /* Route Steps Styling */

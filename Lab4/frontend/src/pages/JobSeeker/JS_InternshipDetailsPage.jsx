@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import styles from './JS_JobDetailsPage.module.css';
-import { FaMapMarkerAlt, FaCalendarAlt, FaGraduationCap, FaDollarSign, FaClock, FaBuilding, FaArrowLeft, FaShareAlt, FaComment, FaTimes, FaBriefcase, FaLocationArrow } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaGraduationCap, FaDollarSign, FaClock, FaBuilding, FaArrowLeft, FaShareAlt, FaComment, FaTimes, FaBriefcase, FaLocationArrow, FaExpand, FaCompress } from 'react-icons/fa';
 import LeafletMap from '../../components/Maps/LeafletMap';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
@@ -34,6 +34,8 @@ const JS_InternshipDetailsPage = () => {
   const [fromLocationSuggestions, setFromLocationSuggestions] = useState([]);
   const [isLoadingFromSuggestions, setIsLoadingFromSuggestions] = useState(false);
   const [isGettingCurrentLocation, setIsGettingCurrentLocation] = useState(false);
+
+  const [isMapMaximized, setIsMapMaximized] = useState(false);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -760,7 +762,7 @@ const JS_InternshipDetailsPage = () => {
     );
   };
 
-  // Update the route details display to include Leaflet map
+  // Update the route details display to include maximize button for Leaflet map
   const renderRouteDetails = (selectedRoute) => {
     // For transit mode
     if (travelMode === 'TRANSIT') {
@@ -788,8 +790,15 @@ const JS_InternshipDetailsPage = () => {
             )}
           </div>
 
-          {/* Add Leaflet map for transit route */}
+          {/* Add Leaflet map for transit route with maximize button */}
           <div className={styles.routeMapContainer}>
+            <button 
+              className={styles.maximizeButton}
+              onClick={toggleMapMaximize}
+              title="Maximize map"
+            >
+              <FaExpand />
+            </button>
             <LeafletMap routeData={selectedRoute} travelMode={travelMode} />
           </div>
         </div>
@@ -810,13 +819,25 @@ const JS_InternshipDetailsPage = () => {
             </div>
           </div>
 
-          {/* Add Leaflet map for other route types */}
+          {/* Add Leaflet map for other route types with maximize button */}
           <div className={styles.routeMapContainer}>
+            <button 
+              className={styles.maximizeButton}
+              onClick={toggleMapMaximize}
+              title="Maximize map"
+            >
+              <FaExpand />
+            </button>
             <LeafletMap routeData={selectedRoute} travelMode={travelMode} />
           </div>
         </div>
       );
     }
+  };
+
+  // Function to toggle map maximized state
+  const toggleMapMaximize = () => {
+    setIsMapMaximized(!isMapMaximized);
   };
 
   if (loading) {
@@ -1019,6 +1040,22 @@ const JS_InternshipDetailsPage = () => {
           {renderRouteCalculator()}
         </aside>
       </div>
+
+      {/* Maximized map overlay */}
+      {isMapMaximized && selectedRoute && (
+        <div className={styles.maximizedMapOverlay}>
+          <div className={styles.maximizedMapContainer}>
+            <button 
+              className={styles.closeMaximizedButton}
+              onClick={toggleMapMaximize}
+              title="Close maximized map"
+            >
+              <FaTimes />
+            </button>
+            <LeafletMap routeData={selectedRoute} travelMode={travelMode} />
+          </div>
+        </div>
+      )}
 
       {showConfirmation && (
         <div className={styles.confirmationOverlay}>
