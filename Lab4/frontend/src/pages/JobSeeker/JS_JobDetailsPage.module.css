@@ -2,10 +2,27 @@
 .minimapCard {
     margin-top: 16px;
     background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.15);
     margin-bottom: 20px;
+    border-left: 4px solid #9C27B0;
+}
+
+.minimapCard h3 {
+    color: #7B1FA2;
+    margin-top: 0;
+    font-weight: 600;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.minimapCard h3::before {
+    content: '📍'; /* Changed from empty string to map pin emoji */
+    margin-right: 8px;
+    font-size: 1.1rem;
+    color: #9C27B0;
 }
 
 .mapIframe {
@@ -676,6 +693,15 @@ h4 {
     .quickInfoPanel {
         grid-template-columns: 1fr;
     }
+
+    .buttonGroup {
+        flex-direction: column;
+    }
+    
+    .modeButton {
+        width: 100%;
+        padding: 12px 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -726,3 +752,472 @@ h4 {
     font-size: 0.9rem;
     border: 1px solid #e0e0e0;
 }
+
+/* Route Calculator Styles with Purple Theme */
+.routeCalculator {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.routeForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.routeInput {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative; /* Add this to make absolute positioning work correctly */
+  margin-bottom: 45px; /* Add more space below each input for dropdown */
+}
+
+.locationInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.routeInput input, .routeInput select {
+  padding: 10px 12px;
+  border: 1px solid #E1BEE7;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #FAFAFA;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.routeInput input:focus, .routeInput select:focus {
+  outline: none;
+  border-color: #9C27B0;
+  box-shadow: 0 0 0 2px rgba(156, 39, 176, 0.2);
+}
+
+.routeInput input:disabled {
+  background-color: #F5F5F5;
+  color: #757575;
+  border-color: #E0E0E0;
+}
+
+.currentLocationButton {
+  position: absolute;
+  right: 8px;
+  background: white;
+  border: 1px solid #9C27B0;
+  border-radius: 6px; /* Changed from 50% (circle) to 6px (rounded square) */
+  color: #9C27B0;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  width: 30px; /* Changed to fixed width */
+  height: 30px; /* Changed to fixed height (same as width for square) */
+}
+
+.currentLocationButton:hover {
+  background-color: #F3E5F5;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(156, 39, 176, 0.2);
+}
+
+.currentLocationButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.loadingText {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #757575;
+  font-style: italic;
+}
+
+.suggestionsDropdown {
+  position: absolute;
+  width: 100%;
+  max-height: 250px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #E1BEE7;
+  border-radius: 8px;
+  top: 70px; /* Position it below the input */
+  left: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100; /* Increase z-index to ensure dropdown appears on top */
+}
+
+.suggestionItem {
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid #F3E5F5;
+}
+
+.suggestionItem:hover {
+  background-color: #F3E5F5;
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionPrimary {
+  font-weight: 500;
+  color: #333;
+}
+
+.suggestionSecondary {
+  font-size: 0.85rem;
+  color: #757575;
+  margin-top: 2px;
+}
+
+.travelModeButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.travelModeButtons label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #5D4037;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modeButton {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 5px; /* Added horizontal padding */
+  border: 1px solid #E1BEE7;
+  background-color: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #5D4037;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center; /* Ensure text is centered */
+}
+
+.modeButton span {
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit; /* Ensure span inherits the button text color */
+  transition: color 0.2s; /* Smooth transition for color changes */
+}
+
+.activeMode {
+  background-color: #9C27B0 !important;
+  color: white !important; 
+  border-color: #7B1FA2 !important;
+}
+
+.activeMode span {
+  color: white !important;
+}
+
+.activeMode:hover {
+  background-color: #7B1FA2 !important;
+  border-color: #6A1B9A !important;
+  color: white !important;
+}
+
+.calculateButton {
+  background-color: #9C27B0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.calculateButton::before {
+  content: ""; /* Remove emoji content for cleaner look */
+  font-size: 0;
+}
+
+.calculateButton:hover {
+  background-color: #7B1FA2;
+}
+
+.calculateButton:disabled {
+  background-color: #D1C4E9;
+  cursor: not-allowed;
+}
+
+.routeError {
+  color: #D32F2F;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  padding: 8px 12px;
+  background-color: #FFEBEE;
+  border-radius: 6px;
+  border-left: 3px solid #F44336;
+}
+
+.routeResults {
+  margin-top: 15px;
+  border-top: 1px solid #E1BEE7;
+  padding-top: 15px;
+}
+
+.routeOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.routeOption {
+  background-color: #F3E5F5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #E1BEE7;
+}
+
+.routeOption:hover {
+  background-color: #E1BEE7;
+}
+
+.selectedRoute {
+  background-color: #D1C4E9;
+  border-color: #9C27B0;
+  box-shadow: 0 2px 4px rgba(156, 39, 176, 0.2);
+}
+
+.routeOptionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.routeNumber {
+  font-weight: 500;
+  color: #5D4037;
+}
+
+.routeDuration {
+  font-weight: 600;
+  color: #9C27B0;
+}
+
+.routeDetails {
+  background-color: #F9F5FC;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #E1BEE7;
+}
+
+.routeSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.routeMetric {
+  display: flex;
+  flex-direction: column;
+  min-width: 100px;
+}
+
+.metricLabel {
+  font-size: 0.8rem;
+  color: #7B1FA2;
+  font-weight: 500;
+}
+
+.metricValue {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #5D4037;
+}
+
+/* Route Map Container */
+.routeMapContainer {
+  width: 100%;
+  height: 350px; /* Explicit height */
+  margin: 10px 0 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: none; /* Removed border */
+  position: relative; /* Add position relative for absolute positioning of maximize button */
+}
+
+/* Maximize Button */
+.maximizeButton {
+  position: absolute;
+  bottom: 35px;  /* Lowered position from 85px to 35px */
+  left: 10px;
+  background: #242f3e !important;
+  border: 1px solid #444c56 !important;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  color: #e8eaed !important;
+}
+
+.maximizeButton:hover {
+  background: #34404c !important;
+}
+
+/* Maximized Map Container */
+.maximizedMapOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.maximizedMapContainer {
+  width: 85%;
+  height: 50%;
+  max-width: 1200px;
+  
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  
+  animation: zoomIn 0.3s ease;
+}
+
+/* Maximized Map Container */
+.closeMaximizedButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(36, 47, 62, 0.9); /* Match the map control theme */
+  border: 1px solid #444c56;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1100;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  font-size: 18px;
+  color: #e8eaed;
+}
+
+.closeMaximizedButton:hover {
+  background: #34404c;
+}
+
+/* Route Steps Styling */
+.routeSteps {
+  margin-top: 20px;
+}
+
+.routeSteps h4 {
+  font-size: 1rem;
+  color: #5D4037;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #E1BEE7;
+}
+
+.routeLeg {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: white;
+  margin-bottom: 10px;
+  border: 1px solid #E1BEE7;
+}
+
+.legType {
+  font-weight: 600;
+  color: #5D4037;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.legDistance {
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #757575;
+}
+
+.legTimes {
+  font-size: 0.9rem;
+  color: #9C27B0;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.legStops {
+  font-size: 0.9rem;
+  background-color: #F3E5F5;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.stopInfo {
+  margin: 5px 0;
+  color: #5D4037;
+}
+
+.stopsDetails {
+  margin: 8px 0;
+}
+
+.stopsDetails summary {
+  cursor: pointer;
+  color: #9C27B0;
+  font-weight: 500;
+}
+
+.stopsList {
+  margin-top: 8px;
+  padding-left: 20px;
+  color: #757575;
+}
+
+.stopsList li {
+  margin-bottom: 4px;
+}
+
