@@ -179,8 +179,8 @@
   
   .categoryLabel input[type="checkbox"]:checked,
   .courseLabel input[type="checkbox"]:checked {
-    background-color: #1976d2;
-    border-color: #1976d2;
+    background-color: #ce97cf;
+    border-color: #daa9e1;
   }
   
   .categoryLabel input[type="checkbox"]:checked::after,

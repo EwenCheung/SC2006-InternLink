@@ -45,12 +45,21 @@
   color: #333;
   font-size: 20px;
   font-weight: 600;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .messageBox p {
   margin: 0;
   color: #666;
   font-size: 16px;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+
 }
 
 @keyframes fadeIn {

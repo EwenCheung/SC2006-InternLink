@@ -371,6 +371,10 @@
   font-size: 1.5rem;
   color: #333;
   margin-bottom: 1rem;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .emptyState p {

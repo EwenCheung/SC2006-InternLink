@@ -881,6 +881,17 @@ const DeleteConfirmationDialog = ({ isOpen, onClose, onConfirm, title, message }
     );
 };
 
+// Function to determine field of study based on selected course
+const getFieldFromCourse = (selectedCourse) => {
+    // Find which field the course belongs to
+    for (const [field, courses] of Object.entries(FIELDS_AND_COURSES)) {
+        if (courses.includes(selectedCourse)) {
+            return field;
+        }
+    }
+    return ''; // Return empty string if no match found
+};
+
 export default function JS_ProfilePage() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
@@ -1052,10 +1063,16 @@ export default function JS_ProfilePage() {
 
     const handleFieldChange = (field, value) => {
         if (isEditingProfile || isEditingAdditional) {
-            setProfileData(prev => ({
-                ...prev,
-                [field]: value
-            }));
+            const updatedData = { ...profileData, [field]: value };
+            
+            // If course is changed, automatically update fieldOfStudy
+            if (field === 'course') {
+                const fieldOfStudy = getFieldFromCourse(value);
+                updatedData.fieldOfStudy = fieldOfStudy;
+                console.log(`Course updated: ${value}, Field determined: ${fieldOfStudy}`);
+            }
+            
+            setProfileData(updatedData);
         }
     };
 
@@ -1149,12 +1166,16 @@ export default function JS_ProfilePage() {
                     ...prev,
                     skills: userSkills,
                     interests: profileData.interests,
-                    personalStatement: profileData.personalStatement
+                    personalDescription: profileData.personalStatement
                 }));
                 
                 showNotification('Additional Information updated successfully', 'success');
                 setIsEditingAdditional(false);
-                window.location.reload();
+                
+                // Add a delay before refreshing to show the notification
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
                 
             } else {
                 // For profile section, continue using FormData
@@ -1215,7 +1236,11 @@ export default function JS_ProfilePage() {
 
                 showNotification('Personal Information updated successfully', 'success');
                 setIsEditingProfile(false);
-                window.location.reload();
+                
+                // Add a delay before refreshing to show the notification
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             }
             
         } catch (err) {
@@ -1525,6 +1550,31 @@ export default function JS_ProfilePage() {
                 </div>
             </div>
         );
+    };
+
+    // New function to determine field of study based on selected course
+    const getFieldFromCourse = (selectedCourse) => {
+        // Find which field the course belongs to
+        for (const [field, courses] of Object.entries(FIELDS_AND_COURSES)) {
+            if (courses.includes(selectedCourse)) {
+                return field;
+            }
+        }
+        return ''; // Return empty string if no match found
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        
+        let updatedData = { ...formData, [name]: value };
+        
+        // If course is changed, automatically update the fieldOfStudy
+        if (name === 'course') {
+            const fieldOfStudy = getFieldFromCourse(value);
+            updatedData.fieldOfStudy = fieldOfStudy;
+        }
+        
+        setFormData(updatedData);
     };
 
     if (isLoading || !profileData) {

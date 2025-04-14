@@ -258,7 +258,7 @@
 }
 
 .selector:hover, .selector:focus {
-  border-color: #1976d2;
+  border-color: #cf19d2;
   outline: none;
 }
 
@@ -306,7 +306,7 @@
 }
 
 .searchInput:focus {
-  border-color: #1976d2;
+  border-color: #991c9d;
   outline: none;
 }
 
