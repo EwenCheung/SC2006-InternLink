@@ -240,7 +240,7 @@ const JS_InternshipApplicationPage = () => {
   return (
     <div className={styles.container}>
       <button 
-        onClick={() => navigate('/jobseeker/find-internship')}
+        onClick={() => navigate(`/jobseeker/internship/${jobId}`)}
         className={styles.backButton}
       >
         Back

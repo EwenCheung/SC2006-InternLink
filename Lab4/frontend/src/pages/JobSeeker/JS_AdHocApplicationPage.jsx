@@ -241,7 +241,7 @@ const JS_AdHocApplicationPage = () => {
   return (
     <div className={styles.container}>
       <button 
-        onClick={() => navigate('/jobseeker/find-adhoc')}
+        onClick={() => navigate(`/jobseeker/adhoc/${jobId}`)}
         className={styles.backButton}
       >
         Back
