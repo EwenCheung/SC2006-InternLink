@@ -360,13 +360,24 @@ export const updateUser = async (req, res) => {
     console.log('Request body:', req.body);
     console.log('Files received:', req.files);
     
+    // Convert any array fields to strings - this fixes the issue with description field
+    if (req.body.description && Array.isArray(req.body.description)) {
+      console.log('Converting description array to string:', req.body.description);
+      req.body.description = req.body.description.join('\n');
+    }
+    
     let updates = {};
 
     // Handle regular fields
     if (req.body) {
       Object.keys(req.body).forEach(key => {
         if (!['password', 'email', 'role', '_id'].includes(key)) {
-          updates[key] = req.body[key];
+          // Convert any array values to strings to prevent type errors
+          if (Array.isArray(req.body[key])) {
+            updates[key] = req.body[key].join('\n');
+          } else {
+            updates[key] = req.body[key];
+          }
         }
       });
     }

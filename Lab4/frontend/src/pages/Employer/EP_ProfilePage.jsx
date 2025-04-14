@@ -592,15 +592,18 @@ export default function EP_ProfilePage() {
             // Show success notification
             showNotification(`${section === 'company' ? 'Company Information' : 'Additional Information'} updated successfully`, 'success');
             
-            // Reset appropriate edit mode
-            if (section === 'company') {
-                setIsEditingCompany(false);
-            } else {
-                setIsEditingAdditional(false);
-            }
-            
-            // Refresh the page to show updated company logo
-            window.location.reload();
+            // Keep the save flag visible for 2 seconds before resetting
+            setTimeout(() => {
+                // Reset appropriate edit mode
+                if (section === 'company') {
+                    setIsEditingCompany(false);
+                } else {
+                    setIsEditingAdditional(false);
+                }
+                
+                // Refresh the page to show updated data
+                window.location.reload();
+            }, 1500);
             
         } catch (err) {
             console.error('Error saving profile:', err);
