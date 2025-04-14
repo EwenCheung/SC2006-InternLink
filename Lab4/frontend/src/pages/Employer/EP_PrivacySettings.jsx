@@ -116,7 +116,9 @@ const PrivacySettings = () => {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <h3 className="text-xl font-bold text-center mb-2">Password Changed Successfully!</h3>
+            <h3 className="text-xl font-bold mb-2 flex justify-center items-center gap-2 text-center">
+              Password Changed Successfully!
+            </h3>
             <p className="text-gray-600 text-center mb-4">
               Your password has been updated. You will be redirected to the login page in a few seconds.
             </p>
@@ -132,7 +134,7 @@ const PrivacySettings = () => {
       <h1 className="text-2xl font-bold mb-4">Password Change Request</h1>
       <form onSubmit={handleChangePassword}>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        {success && <p className="text-green-500 mb-4">{success}</p>}
+        {success && <p className="text-green-500 mb-4 items-center justify-center text-center">{success}</p>}
         
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="currentPassword">
