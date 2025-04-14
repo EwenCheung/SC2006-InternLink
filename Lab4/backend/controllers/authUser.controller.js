@@ -271,6 +271,83 @@ export const getJobSeekerProfile = async (req, res) => {
   }
 };
 
+export const resetPassword = async (req, res) => {
+  const { id} = req.params;
+  const { password, currentPassword } = req.body;
+
+  if (!currentPassword) {
+    return res.status(400).json({ message: "Current password is required!" });
+  }
+
+  try {
+    const user = await JobSeeker.findOne({ _id: id });
+    if (!user) {
+      return res.status(400).json({ message: "User not exists!" });
+    }
+
+    
+    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Current password is incorrect!" });
+    }
+
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await JobSeeker.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: encryptedPassword,
+        },
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
+
+export const resetPassword2 = async (req, res) => {
+  const { id} = req.params;
+  const { password, currentPassword } = req.body;
+
+  if (!currentPassword) {
+    return res.status(400).json({ message: "Current password is required!" });
+  }
+
+  try {
+    const user = await Employer.findOne({ _id: id });
+    if (!user) {
+      return res.status(400).json({ message: "User not exists!" });
+    }
+
+    
+    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Current password is incorrect!" });
+    }
+
+    const encryptedPassword = await bcrypt.hash(password, 10);
+    await Employer.updateOne(
+      {
+        _id: id,
+      },
+      {
+        $set: {
+          password: encryptedPassword,
+        },
+      }
+    );
+
+    res.status(200).json({ message: 'Password has been reset' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Something went wrong' });
+  }
+};
 
 // Update User
 export const updateUser = async (req, res) => {

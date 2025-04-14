@@ -17,6 +17,7 @@ const PrivacySettings = () => {
   });
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const validatePassword = (password) => {
     const reqs = {
@@ -30,76 +31,88 @@ const PrivacySettings = () => {
     return Object.values(reqs).every(req => req);
   };
 
-  const handleSubmit = async (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault();
-
-    if (!validatePassword(newPassword)) {
-      setError('Password does not meet requirements.');
-      setSuccess('');
+    
+    // Validate inputs
+    if (!currentPassword) {
+      setError('Please enter your current password');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
-      setSuccess('');
+      setError('New passwords do not match');
+      return;
+    }
+
+    if (!validatePassword(newPassword)) {
+      setError('Password does not meet requirements.');
       return;
     }
 
     setError('');
     setSuccess('');
+    setIsChangingPassword(true);
 
     try {
-      const user = localStorage.getItem('user');
-      const userData = JSON.parse(user);
-      const employerID = userData._id; // Use _id directly from userData
-      const token = localStorage.getItem('token'); // Retrieve token from localStorage
+      // Get token and user ID from localStorage
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      if (!token || !user || !user.id) {
+        setError('Authentication error. Please log in again.');
+        setIsChangingPassword(false);
+        return;
+      }
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/resetPassword/${employerID}`, {
+      // Use resetPassword endpoint directly
+      const changeResponse = await fetch(`${API_BASE_URL}/api/auth/employer/reset-password/${user._id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          id: employerID,
           currentPassword,
-          password: newPassword,
-        }),
+          password: newPassword
+        })
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to reset password');
-      }
+      const changeData = await changeResponse.json();
 
-      setSuccess('Password changed successfully.');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      
-      // Show success modal
-      setShowModal(true);
-      
-      // Log out and redirect after a delay
-      setTimeout(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        navigate('/employer/login');
-      }, 3000); // 3 second delay
-      
-    } catch (err) {
-      setError(err.message);
+      if (changeResponse.ok) {
+        setSuccess('Password changed successfully');
+        setNewPassword('');
+        setConfirmPassword('');
+        setCurrentPassword('');
+        
+        // Show success modal
+        setShowModal(true);
+        
+        // Log out and redirect after a delay
+        setTimeout(() => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/employer/login');
+        }, 3000); // 3 second delay
+      } else {
+        setError(changeData.message || 'Failed to change password');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded relative">
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="bg-white p-6 rounded-lg shadow-xl z-10 max-w-md w-full mx-4">
-            <div className="flex items-center justify-center text-green-500 mb-4">
-              <svg className="w-12 h-12" viewBox="0 0 20 20" fill="currentColor">
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 z-10">
+          <div className="text-center p-6">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+              <svg className="h-6 w-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
@@ -117,9 +130,10 @@ const PrivacySettings = () => {
       )}
       
       <h1 className="text-2xl font-bold mb-4">Password Change Request</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleChangePassword}>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {success && <p className="text-green-500 mb-4">{success}</p>}
+        
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="currentPassword">
             Current Password
@@ -133,6 +147,7 @@ const PrivacySettings = () => {
             required
           />
         </div>
+        
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="newPassword">
             New Password
@@ -182,6 +197,7 @@ const PrivacySettings = () => {
             </div>
           </div>
         </div>
+        
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="confirmPassword">
             Confirm New Password
@@ -195,11 +211,13 @@ const PrivacySettings = () => {
             required
           />
         </div>
+        
         <button
           type="submit"
           className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+          disabled={isChangingPassword}
         >
-          Change Password
+          {isChangingPassword ? 'Changing Password...' : 'Change Password'}
         </button>
       </form>
     </div>

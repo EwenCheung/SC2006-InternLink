@@ -17,6 +17,7 @@ const PrivacySettings = () => {
   });
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const validatePassword = (password) => {
     const reqs = {
@@ -47,28 +48,39 @@ const PrivacySettings = () => {
 
     setError('');
     setSuccess('');
+    setIsChangingPassword(true);
 
     try {
-      const user = localStorage.getItem('user');
-      const userData = JSON.parse(user);
-      const jobseekerID = userData._id; // Use _id directly from userData
-      const token = localStorage.getItem('token'); // Retrieve token from localStorage
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user'));
 
-      const response = await fetch(`${API_BASE_URL}/api/auth/resetPassword/${jobseekerID}`, {
+      if (!token || !user || !user.id) {
+        setError('Authentication error. Please log in again.');
+        setIsChangingPassword(false);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/jobseeker/reset-password/${user.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          id: jobseekerID,
           currentPassword,
           password: newPassword,
         }),
       });
 
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        console.error('Error parsing response:', error);
+        data = { message: 'Server error. Please try again.' };
+      }
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || 'Failed to reset password');
       }
 
@@ -76,19 +88,17 @@ const PrivacySettings = () => {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
-      // Show success modal
       setShowModal(true);
-      
-      // Log out and redirect after a delay
+
       setTimeout(() => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/jobseeker/login');
-      }, 3000); // 3 second delay
-      
+      }, 3000);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -198,8 +208,9 @@ const PrivacySettings = () => {
         <button
           type="submit"
           className="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+          disabled={isChangingPassword}
         >
-          Change Password
+          {isChangingPassword ? 'Changing Password...' : 'Change Password'}
         </button>
       </form>
     </div>

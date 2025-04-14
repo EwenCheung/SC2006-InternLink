@@ -1,4 +1,5 @@
 import express from 'express';
+
 import {
     register,
     login,
@@ -9,7 +10,9 @@ import {
     deleteFile,
     updateWorkExperience,
     updateAcademicHistory,
-    getJobSeekerProfile
+    getJobSeekerProfile,
+    resetPassword,
+    resetPassword2
 } from '../controllers/authUser.controller.js';
 
 import authenticateUser from '../middleware/authentication.js';
@@ -66,5 +69,7 @@ router.get('/files/:type/:userId', serveFile);
 
 // Delete files (requires authentication)
 router.delete('/files/:type', authenticateUser, deleteFile);
+router.post('/jobseeker/reset-password/:id', authenticateUser, resetPassword);
+router.post('/employer/reset-password/:id', authenticateUser, resetPassword2);
 
 export default router;
