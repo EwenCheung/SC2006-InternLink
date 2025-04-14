@@ -472,6 +472,9 @@
   z-index: 2001;
   animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy animation */
   transform-origin: center;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
 .successIcon {

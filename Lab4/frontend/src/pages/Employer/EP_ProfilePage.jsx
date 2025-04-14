@@ -504,9 +504,17 @@ export default function EP_ProfilePage() {
             const token = localStorage.getItem('token');
             const formData = new FormData();
 
-            // Map companyDescription to description for database field name
-            if (profileData.companyDescription !== originalData.companyDescription) {
-                formData.append('description', profileData.companyDescription);
+            // Debug the data being sent
+            console.log("About to save data:", profileData);
+            
+            // First ensure description is a string if it's an array
+            if (Array.isArray(profileData.companyDescription)) {
+                profileData.companyDescription = profileData.companyDescription.join('\n');
+            }
+            
+            // This will handle the case where description exists directly in profileData
+            if (Array.isArray(profileData.description)) {
+                profileData.description = profileData.description.join('\n');
             }
 
             // Append changed fields based on which section we're saving
@@ -521,14 +529,28 @@ export default function EP_ProfilePage() {
                 // Skip file fields
                 if (key === 'companyLogo') return;
                 
-                // Map frontend field names to database field names
-                const dbFieldName = key === 'companyDescription' ? 'description' : key;
-                
-                // Only include changed fields
-                if (value !== originalData[key]) {
-                    formData.append(dbFieldName, value);
+                // Handle special case for companyDescription -> description mapping
+                if (key === 'companyDescription') {
+                    // Ensure it's a string before adding to formData
+                    const strValue = Array.isArray(value) ? value.join('\n') : String(value);
+                    if (strValue !== originalData[key]) {
+                        formData.append('description', strValue);
+                        console.log("Adding description as:", strValue);
+                    }
+                } else {
+                    // Only include changed fields
+                    if (value !== originalData[key]) {
+                        // Ensure all values are strings
+                        const strValue = Array.isArray(value) ? value.join('\n') : value;
+                        formData.append(key, strValue);
+                    }
                 }
             });
+
+            // Debugging: Log the FormData contents before sending
+            for (let pair of formData.entries()) {
+                console.log(`FormData contains: ${pair[0]}: ${pair[1]}`);
+            }
 
             // Add files only if editing company section
             if (section === 'company') {
