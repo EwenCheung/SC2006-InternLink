@@ -17,6 +17,13 @@ const JS_InternshipApplicationPage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return details.name.trim() !== '' && 
+           details.email.trim() !== '' && 
+           resume !== null;
+  };
+
   useEffect(() => {
     const user = localStorage.getItem('user');
     
@@ -263,7 +270,11 @@ const JS_InternshipApplicationPage = () => {
               onChange={(e) => setDetails({ ...details, name: e.target.value })}
               className={styles.input}
               placeholder="Enter your name"
+              required
             />
+            {details.name.trim() === '' && (
+              <p className={styles.fieldError}>Name is required</p>
+            )}
           </div>
 
           <div className={styles.inputGroup}>
@@ -276,7 +287,11 @@ const JS_InternshipApplicationPage = () => {
               onChange={(e) => setDetails({ ...details, email: e.target.value })}
               className={styles.input}
               placeholder="Enter your email"
+              required
             />
+            {details.email.trim() === '' && (
+              <p className={styles.fieldError}>Email is required</p>
+            )}
           </div>
 
           <div className={styles.inputGroup}>
@@ -289,6 +304,7 @@ const JS_InternshipApplicationPage = () => {
                 accept="application/pdf"
                 onChange={handleFileChange}
                 className={styles.fileInput}
+                required
               />
               {!resume && (
                 <div className={styles.uploadInstructions} style={{
@@ -332,6 +348,10 @@ const JS_InternshipApplicationPage = () => {
               </div>
             )}
 
+            {!resume && (
+              <p className={styles.fieldError}>Resume is required</p>
+            )}
+
             {error && error.includes('File size') && (
               <p className={styles.fileError}>{error}</p>
             )}
@@ -341,12 +361,13 @@ const JS_InternshipApplicationPage = () => {
             type="button"
             onClick={handleSubmit}
             className={styles.enhancedSubmitButton}
-            disabled={jobseekerID === null || isUploading}
+            disabled={jobseekerID === null || isUploading || !isFormValid()}
             style={{ 
               backgroundColor: '#6f42c1', 
               color: 'white',
               background: 'linear-gradient(135deg, #8e44ad, #6f42c1)',
-              cursor: (jobseekerID === null || isUploading) ? 'not-allowed' : 'pointer'
+              cursor: (jobseekerID === null || isUploading || !isFormValid()) ? 'not-allowed' : 'pointer',
+              opacity: (jobseekerID === null || isUploading || !isFormValid()) ? 0.7 : 1
             }}
           >
             {isUploading ? (
@@ -355,6 +376,8 @@ const JS_InternshipApplicationPage = () => {
               </>
             ) : jobseekerID === null ? (
               'Loading...'
+            ) : !isFormValid() ? (
+              'Please Complete All Fields'
             ) : (
               'Submit Application'
             )}

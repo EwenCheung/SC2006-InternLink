@@ -332,11 +332,19 @@
   color: #1f2937;
   margin-bottom: 1rem;
   font-size: 1.25rem;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .confirmationDialog p {
   color: #6b7280;
   margin-bottom: 1.5rem;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .confirmationButtons {
@@ -387,6 +395,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  text-align: center;
 }
 
 .successMessage {
@@ -398,6 +407,9 @@
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
   text-align: center;
   animation: fadeIn 0.3s ease-out;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
 }
 
 .successIcon {
@@ -417,11 +429,19 @@
   color: #6f42c1; /* Changed to purple */
   margin-bottom: 0.5rem;
   font-size: 1.25rem;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 .successMessage p {
   color: #6b7280;
   margin-bottom: 0;
+  justify-content: center; /* Horizontally center contents inside h3 */
+  align-items: center;
+  gap: 10px;
+  text-align: center;
 }
 
 @keyframes fadeIn {

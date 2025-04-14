@@ -1917,7 +1917,7 @@ export default function JS_ProfilePage() {
                         <h2>Job Applications</h2>
                         <button 
                             className={styles.viewApplicationsBtn}
-                            onClick={() => navigate('/jobseeker/applications')}
+                            onClick={() => navigate('/jobseeker/applications/${jobId}')}
                         >
                             View Applications
                         </button>
