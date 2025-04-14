@@ -138,13 +138,46 @@ const EP_AddAdHocPage = () => {
       const data = await response.json();
 
       if (data && data.results) {
-        setSuggestions(data.results);
+        const searchLower = searchVal.toLowerCase();
+        
+        // First, get exact building name matches
+        const buildingMatches = data.results.filter(item => 
+          item.BUILDING !== "NIL" && 
+          item.BUILDING.toLowerCase().includes(searchLower)
+        );
+        
+        // Next, get exact road name matches
+        const roadMatches = data.results.filter(item => 
+          (item.BUILDING === "NIL" || !item.BUILDING.toLowerCase().includes(searchLower)) &&
+          item.ROAD_NAME.toLowerCase().includes(searchLower)
+        );
+        
+        // Finally, get address matches that aren't already in our lists
+        const addressMatches = data.results.filter(item => 
+          !buildingMatches.includes(item) && 
+          !roadMatches.includes(item) && 
+          item.ADDRESS.toLowerCase().includes(searchLower)
+        );
+        
+        // Combine all matches in priority order (building first, then road, then address)
+        let combinedResults = [...buildingMatches, ...roadMatches, ...addressMatches];
+        
+        // If we have fewer than 5 results, add additional results to reach at least 5
+        // regardless of search term length
+        if (combinedResults.length < 5 && data.results.length > combinedResults.length) {
+          const additionalResults = data.results.filter(item => !combinedResults.includes(item));
+          combinedResults = [...combinedResults, ...additionalResults.slice(0, 5 - combinedResults.length)];
+        }
+        
+        // Always return at least 5 results when available, up to max 10
+        const minResults = Math.min(Math.max(5, combinedResults.length), 10);
+        setSuggestions(combinedResults.slice(0, minResults));
       } else {
-        setSuggestions([]);
+        setSuggestions([]);  // Clear suggestions if no results
       }
     } catch (error) {
       console.error('Error fetching address suggestions:', error);
-      setSuggestions([]);
+      setSuggestions([]);  // Clear suggestions in case of an error
     } finally {
       setIsLoading(false);
     }
@@ -462,30 +495,44 @@ const EP_AddAdHocPage = () => {
 
         <div className={styles.formGroup}>
           <label htmlFor="location">Address*</label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="e.g. Singapore"
-            className={styles.inputBox}
-            autoComplete="off"
-          />
-          {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
-          {!isLoading && suggestions.length > 0 && (
-            <div className={styles.suggestionsContainer}>
-              {suggestions.map((suggestion, index) => (
-                <div 
-                  key={index} 
-                  className={styles.suggestionItem}
-                  onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
-                >
-                  {suggestion.ADDRESS}
-                </div>
-              ))}
-            </div>
-          )}
+          <div className={styles.dropdownContainer}>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              placeholder="e.g. Singapore"
+              className={styles.inputBox}
+              autoComplete="off"
+            />
+            {isLoading && <div className={styles.loadingText}>Searching addresses...</div>}
+            {!isLoading && suggestions.length > 0 && (
+              <div className={styles.suggestionsDropdown}>
+                {suggestions.map((suggestion, index) => {
+                  // Determine the primary information to display (building name or road name)
+                  const primaryInfo = suggestion.BUILDING !== "NIL" 
+                    ? suggestion.BUILDING 
+                    : suggestion.ROAD_NAME;
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={styles.suggestionItem}
+                      onClick={() => handleSuggestionSelect(suggestion.ADDRESS)}
+                    >
+                      <div className={styles.suggestionPrimary}>
+                        {primaryInfo}
+                      </div>
+                      <div className={styles.suggestionSecondary}>
+                        {suggestion.ADDRESS}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
         
         <div className={styles.formGroup}>

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import styles from './JS_JobDetailsPage.module.css';
-import { FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, FaClock, FaBuilding, FaArrowLeft, FaShareAlt, FaComment, FaTimes, FaBriefcase } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, FaClock, FaBuilding, FaArrowLeft, FaShareAlt, FaComment, FaTimes, FaBriefcase, FaLocationArrow } from 'react-icons/fa';
+import LeafletMap from '../../components/Maps/LeafletMap';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
@@ -20,6 +21,19 @@ const JS_AdHocDetailsPage = () => {
   const [showFeatureMessage, setShowFeatureMessage] = useState(false);
   const [featureMessage, setFeatureMessage] = useState('');
   const [formattedDeadline, setFormattedDeadline] = useState('');
+
+  // Add states for route planning
+  const [fromLocation, setFromLocation] = useState('');
+  const [routeOptions, setRouteOptions] = useState([]);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [travelMode, setTravelMode] = useState('TRANSIT');
+  const [isCalculatingRoute, setIsCalculatingRoute] = useState(false);
+  const [routeError, setRouteError] = useState('');
+
+  // Add states for address suggestions
+  const [fromLocationSuggestions, setFromLocationSuggestions] = useState([]);
+  const [isLoadingFromSuggestions, setIsLoadingFromSuggestions] = useState(false);
+  const [isGettingCurrentLocation, setIsGettingCurrentLocation] = useState(false);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -214,6 +228,563 @@ const JS_AdHocDetailsPage = () => {
     }, 1500);
   };
 
+  // Function to handle from location input change
+  const handleFromLocationChange = (e) => {
+    const value = e.target.value;
+    setFromLocation(value);
+    fetchFromLocationSuggestions(value);
+  };
+
+  // Add function to fetch address suggestions for starting point
+  const fetchFromLocationSuggestions = async (searchVal) => {
+    if (!searchVal.trim()) {
+      setFromLocationSuggestions([]);
+      return;
+    }
+    
+    setIsLoadingFromSuggestions(true);
+    try {
+      const url = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(searchVal)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+      const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+      const tokenData = await tokenResponse.json();
+      const authToken = tokenData.token;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data && data.results) {
+        const searchLower = searchVal.toLowerCase();
+        
+        // First, get exact building name matches
+        const buildingMatches = data.results.filter(item => 
+          item.BUILDING !== "NIL" && 
+          item.BUILDING.toLowerCase().includes(searchLower)
+        );
+        
+        // Next, get exact road name matches
+        const roadMatches = data.results.filter(item => 
+          (item.BUILDING === "NIL" || !item.BUILDING.toLowerCase().includes(searchLower)) &&
+          item.ROAD_NAME.toLowerCase().includes(searchLower)
+        );
+        
+        // Finally, get address matches that aren't already in our lists
+        const addressMatches = data.results.filter(item => 
+          !buildingMatches.includes(item) && 
+          !roadMatches.includes(item) && 
+          item.ADDRESS.toLowerCase().includes(searchLower)
+        );
+        
+        // Combine all matches in priority order
+        let combinedResults = [...buildingMatches, ...roadMatches, ...addressMatches];
+        
+        // If we have fewer than 5 results, add additional results
+        if (combinedResults.length < 5 && data.results.length > combinedResults.length) {
+          const additionalResults = data.results.filter(item => !combinedResults.includes(item));
+          combinedResults = [...combinedResults, ...additionalResults.slice(0, 5 - combinedResults.length)];
+        }
+        
+        // Return up to 10 results
+        const minResults = Math.min(Math.max(5, combinedResults.length), 10);
+        setFromLocationSuggestions(combinedResults.slice(0, minResults));
+      } else {
+        setFromLocationSuggestions([]);
+      }
+    } catch (err) {
+      console.error('Error fetching address suggestions:', err);
+      setFromLocationSuggestions([]);
+    } finally {
+      setIsLoadingFromSuggestions(false);
+    }
+  };
+
+  // Function to select a suggestion
+  const handleFromSuggestionSelect = (address) => {
+    setFromLocation(address);
+    setFromLocationSuggestions([]);
+  };
+
+  // Add function to calculate route
+  const calculateRoute = async () => {
+    if (!fromLocation || !latitude || !longitude) {
+      setRouteError('Please enter a starting location');
+      return;
+    }
+
+    setIsCalculatingRoute(true);
+    setRouteError('');
+    setRouteOptions([]);
+    setSelectedRoute(null);
+
+    try {
+      // Check if the location is already in lat,long format
+      const latLongPattern = /^(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)$/;
+      const latLongMatch = fromLocation.trim().match(latLongPattern);
+      
+      let fromLatitude, fromLongitude;
+      
+      // Get token for API calls
+      const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+      const tokenData = await tokenResponse.json();
+      const authToken = tokenData.token;
+      
+      if (latLongMatch) {
+        // If location is already in lat,long format, use it directly
+        fromLatitude = latLongMatch[1];
+        fromLongitude = latLongMatch[3];
+        console.log('Using direct coordinates:', fromLatitude, fromLongitude);
+      } else {
+        // Otherwise, fetch coordinates from the location string
+        const fromCoordinatesUrl = `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(fromLocation)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+
+        const fromLocationResponse = await fetch(fromCoordinatesUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${authToken}`,
+          }
+        });
+        
+        const fromLocationData = await fromLocationResponse.json();
+        if (!fromLocationData.results || fromLocationData.results.length === 0) {
+          throw new Error('Starting location not found. Please try a different address.');
+        }
+        
+        fromLatitude = fromLocationData.results[0].LATITUDE;
+        fromLongitude = fromLocationData.results[0].LONGITUDE;
+      }
+      
+      // Format date and time for the API
+      const today = new Date();
+      const date = today.toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      }).replace(/(\d+)\/(\d+)\/(\d+)/, '$1-$2-$3');
+      
+      // Format time as HH:MM:SS
+      const time = today.toLocaleTimeString('en-US', {
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).replace(/:/g, '%3A');
+      
+      // Configure URL parameters based on travel mode
+      let routeUrl;
+      
+      if (travelMode === 'TRANSIT') {
+        // For transit, use the selected route type with date and time
+        routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${fromLatitude}%2C${fromLongitude}&end=${latitude}%2C${longitude}&routeType=pt&date=${date}&time=${time}&mode=TRANSIT&maxWalkDistance=1000&numItineraries=3`;
+      } else if (travelMode === 'WALK') {
+        // For walking, use walk route type (lowercase)
+        routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${fromLatitude}%2C${fromLongitude}&end=${latitude}%2C${longitude}&routeType=walk`;
+      } else if (travelMode === 'DRIVE') {
+        // For driving, use drive route type (lowercase)
+        routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${fromLatitude}%2C${fromLongitude}&end=${latitude}%2C${longitude}&routeType=drive`;
+      } else if (travelMode === 'CYCLE') {
+        // For cycling, use cycle route type (lowercase)
+        routeUrl = `https://www.onemap.gov.sg/api/public/routingsvc/route?start=${fromLatitude}%2C${fromLongitude}&end=${latitude}%2C${longitude}&routeType=cycle`;
+      }
+      
+      console.log('Route URL:', routeUrl); // Debug log
+      
+      const routeResponse = await fetch(routeUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `${authToken}`,
+        }
+      });
+      
+      const routeData = await routeResponse.json();
+      console.log('Route data:', routeData); // Debug log
+      
+      // Handle different response formats based on travel mode
+      if (travelMode === 'TRANSIT') {
+        // Handle public transit response format
+        if (routeData.plan && routeData.plan.itineraries && routeData.plan.itineraries.length > 0) {
+          // For transit, we can use the response directly
+          setRouteOptions(routeData.plan.itineraries);
+          setSelectedRoute(routeData.plan.itineraries[0]); // Select the first route by default
+        } else {
+          throw new Error('No public transport routes found between these locations. The locations might be too far apart or not well-connected by public transport. Try using a different travel mode or locations.');
+        }
+      } else {
+        // Handle walking/driving/cycling response format
+        if (routeData.status === 0 && routeData.status_message === "Found route between points") {
+          // Convert the non-transit response to a format similar to transit for consistent display
+          const totalTime = routeData.route_summary.total_time;
+          const totalDistance = routeData.route_summary.total_distance;
+          const now = Date.now();
+          
+          // Create a synthetic itinerary that matches the format we use for display
+          // but also includes the raw route data for the map component
+          const syntheticItinerary = {
+            duration: totalTime,
+            walkTime: travelMode === 'WALK' ? totalTime : 0,
+            transitTime: travelMode !== 'WALK' ? totalTime : 0,
+            startTime: now,
+            endTime: now + (totalTime * 1000), // Convert seconds to milliseconds
+            legs: [{
+              mode: travelMode.toUpperCase(),
+              route: '',
+              from: { name: fromLocation },
+              to: { name: jobDetails?.location || 'Destination' },
+              startTime: now,
+              endTime: now + (totalTime * 1000),
+              distance: totalDistance,
+              intermediateStops: []
+            }],
+            walkDistance: travelMode === 'WALK' ? totalDistance : 0,
+            fare: 0,
+            // Add the raw route data for map rendering
+            rawRouteData: routeData
+          };
+          
+          setRouteOptions([syntheticItinerary]);
+          setSelectedRoute(syntheticItinerary);
+        } else {
+          const modeText = travelMode === 'WALK' ? 'walking' : travelMode === 'DRIVE' ? 'driving' : 'cycling';
+          throw new Error(`No ${modeText} routes found between these locations. The locations might be too far apart or not connected by roads. Try using a different travel mode or locations.`);
+        }
+      }
+    } catch (err) {
+      console.error('Error calculating route:', err);
+      
+      // Set a user-friendly error message
+      if (err.message.includes('Starting location not found')) {
+        setRouteError(err.message);
+      } else if (err.message.includes('No public transport routes found') || 
+                 err.message.includes('No walking routes found') ||
+                 err.message.includes('No driving routes found') ||
+                 err.message.includes('No cycling routes found') ||
+                 err.message.includes('No routes found')) {
+        setRouteError(err.message);
+      } else {
+        // Generic error message for other issues
+        setRouteError('Route calculation failed. Please check your internet connection and try again.');
+      }
+    } finally {
+      setIsCalculatingRoute(false);
+    }
+  };
+
+  // Function to get current location
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setRouteError('Geolocation is not supported by your browser');
+      return;
+    }
+    
+    setIsGettingCurrentLocation(true);
+    setRouteError('');
+    
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Reverse geocode to get address from coordinates
+          const url = `https://www.onemap.gov.sg/api/common/revgeocode?location=${latitude},${longitude}&buffer=10&addressType=All`;
+          const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
+          const tokenData = await tokenResponse.json();
+          const authToken = tokenData.token;
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Authorization': `${authToken}`,
+            }
+          });
+          
+          const data = await response.json();
+          
+          if (data && data.GeocodeInfo && data.GeocodeInfo.length > 0) {
+            const address = data.GeocodeInfo[0].ROAD || data.GeocodeInfo[0].BUILDINGNAME || 'Your Location';
+            setFromLocation(address);
+          } else {
+            setFromLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          }
+        } catch (err) {
+          console.error('Error getting address from coordinates:', err);
+          setFromLocation(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+        } finally {
+          setIsGettingCurrentLocation(false);
+        }
+      },
+      (error) => {
+        console.error('Error getting current location:', error);
+        setRouteError('Unable to retrieve your location. Please ensure location services are enabled.');
+        setIsGettingCurrentLocation(false);
+      }
+    );
+  };
+
+  // Helper function to format time
+  const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Helper function to format duration
+  const formatDuration = (seconds) => {
+    // If seconds is already in minutes format (less than 500), treat as minutes directly
+    const totalMinutes = seconds < 500 ? seconds : Math.floor(seconds / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+    
+    if (hours > 0) {
+      return `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ''}`;
+    } else {
+      return `${totalMinutes}m`;
+    }
+  };
+
+  // Helper function to format distance
+  const formatDistance = (meters) => {
+    if (meters >= 1000) {
+      return `${(meters / 1000).toFixed(2)} km`;
+    } else {
+      return `${Math.round(meters)} m`;
+    }
+  };
+
+  const renderRouteOptions = () => {
+    return (
+      <div className={styles.routeOptions}>
+        {routeOptions.map((route, index) => (
+          <div 
+            key={index} 
+            className={`${styles.routeOption} ${selectedRoute === route ? styles.selectedRoute : ''}`}
+            onClick={() => setSelectedRoute(route)}
+          >
+            <div className={styles.routeOptionHeader}>
+              <span className={styles.routeNumber}>
+                {routeOptions.length > 1 && travelMode === 'TRANSIT' ? `Route ${index + 1}` : 
+                 travelMode === 'TRANSIT' ? 'Transit' : 
+                 travelMode === 'WALK' ? 'Walking' :
+                 travelMode === 'DRIVE' ? 'Driving' : 'Cycling'}
+              </span>
+              <span className={styles.routeDuration}>{formatDuration(route.duration)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Update the renderRouteCalculator function to remove the route type selection
+  const renderRouteCalculator = () => {
+    return (
+      <div className={styles.minimapCard}>
+        <h3>Calculate Your Route</h3>
+        <div className={styles.routeCalculator}>
+          <div className={styles.routeForm}>
+            <div className={styles.routeInput}>
+              <label htmlFor="fromLocation">Starting Point:</label>
+              <div className={styles.locationInputWrapper}>
+                <input
+                  type="text"
+                  id="fromLocation"
+                  value={fromLocation}
+                  onChange={handleFromLocationChange}
+                  placeholder="Enter your starting location"
+                  autoComplete="off"
+                />
+                <button 
+                  type="button" 
+                  className={styles.currentLocationButton}
+                  onClick={getCurrentLocation}
+                  disabled={isGettingCurrentLocation}
+                  title="Use current location"
+                >
+                  {isGettingCurrentLocation ? '...' : <FaLocationArrow />}
+                </button>
+              </div>
+              {isLoadingFromSuggestions && <div className={styles.loadingText}>Searching locations...</div>}
+              
+              {!isLoadingFromSuggestions && fromLocationSuggestions.length > 0 && (
+                <div className={styles.suggestionsDropdown}>
+                  {fromLocationSuggestions.map((suggestion, index) => {
+                    // Get the most relevant info to display
+                    const primaryInfo = suggestion.BUILDING !== "NIL" 
+                      ? suggestion.BUILDING 
+                      : suggestion.ROAD_NAME;
+                    
+                    return (
+                      <div 
+                        key={index} 
+                        className={styles.suggestionItem}
+                        onClick={() => handleFromSuggestionSelect(suggestion.ADDRESS)}
+                      >
+                        <div className={styles.suggestionPrimary}>
+                          {primaryInfo}
+                        </div>
+                        <div className={styles.suggestionSecondary}>
+                          {suggestion.ADDRESS}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            
+            <div className={styles.routeInput}>
+              <label htmlFor="destination">Destination:</label>
+              <input
+                type="text"
+                value={jobDetails?.location || ''}
+                disabled
+                placeholder="Job location"
+              />
+            </div>
+            
+            <div className={styles.travelModeButtons}>
+              <label>Travel By:</label>
+              <div className={styles.buttonGroup}>
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${travelMode === 'TRANSIT' ? styles.activeMode : ''}`}
+                  onClick={() => {
+                    // Clear route options and selected route immediately
+                    setRouteOptions([]);
+                    setSelectedRoute(null);
+                    setRouteError('');
+                    
+                    // Only update the travel mode, don't auto-calculate
+                    setTravelMode('TRANSIT');
+                  }}
+                >
+                  <span>Public Transport</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${travelMode === 'WALK' ? styles.activeMode : ''}`}
+                  onClick={() => {
+                    setRouteOptions([]);
+                    setSelectedRoute(null);
+                    setRouteError('');
+                    setTravelMode('WALK');
+                  }}
+                >
+                  <span>Walking</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${travelMode === 'DRIVE' ? styles.activeMode : ''}`}
+                  onClick={() => {
+                    setRouteOptions([]);
+                    setSelectedRoute(null);
+                    setRouteError('');
+                    setTravelMode('DRIVE');
+                  }}
+                >
+                  <span>Driving</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.modeButton} ${travelMode === 'CYCLE' ? styles.activeMode : ''}`}
+                  onClick={() => {
+                    setRouteOptions([]);
+                    setSelectedRoute(null);
+                    setRouteError('');
+                    setTravelMode('CYCLE');
+                  }}
+                >
+                  <span>Cycling</span>
+                </button>
+              </div>
+            </div>
+            
+            <button 
+              className={styles.calculateButton} 
+              onClick={calculateRoute}
+              disabled={isCalculatingRoute}
+            >
+              {isCalculatingRoute ? 'Calculating...' : 'Calculate Route'}
+            </button>
+            
+            {routeError && <p className={styles.routeError}>{routeError}</p>}
+          </div>
+          
+          {routeOptions.length > 0 && (
+            <div className={styles.routeResults}>
+              {renderRouteOptions()}
+              
+              {selectedRoute && renderRouteDetails(selectedRoute)}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Update the renderRouteDetails function to remove the route instructions
+  const renderRouteDetails = (selectedRoute) => {
+    // For transit mode
+    if (travelMode === 'TRANSIT') {
+      return (
+        <div className={styles.routeDetails}>
+          <div className={styles.routeSummary}>
+            <div className={styles.routeMetric}>
+              <span className={styles.metricLabel}>Total Time:</span>
+              <span className={styles.metricValue}>{formatDuration(selectedRoute.duration)}</span>
+            </div>
+            
+            <div className={styles.routeMetric}>
+              <span className={styles.metricLabel}>Walking Time:</span>
+              <span className={styles.metricValue}>{formatDuration(selectedRoute.walkTime)}</span>
+            </div>
+            <div className={styles.routeMetric}>
+              <span className={styles.metricLabel}>Transit Time:</span>
+              <span className={styles.metricValue}>{formatDuration(selectedRoute.transitTime)}</span>
+            </div>
+            {selectedRoute.fare && (
+              <div className={styles.routeMetric}>
+                <span className={styles.metricLabel}>Fare:</span>
+                <span className={styles.metricValue}>${selectedRoute.fare}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Add Leaflet map for transit route */}
+          <div className={styles.routeMapContainer}>
+            <LeafletMap routeData={selectedRoute} travelMode={travelMode} />
+          </div>
+        </div>
+      );
+    } else {
+      // For other modes (walking, driving, cycling)
+      return (
+        <div className={styles.routeDetails}>
+          <div className={styles.routeSummary}>
+            <div className={styles.routeMetric}>
+              <span className={styles.metricLabel}>Total Time:</span>
+              <span className={styles.metricValue}>{formatDuration(selectedRoute.duration)}</span>
+            </div>
+            
+            <div className={styles.routeMetric}>
+              <span className={styles.metricLabel}>Distance:</span>
+              <span className={styles.metricValue}>{formatDistance(selectedRoute.legs[0].distance)}</span>
+            </div>
+          </div>
+
+          {/* Add Leaflet map for other route types */}
+          <div className={styles.routeMapContainer}>
+            <LeafletMap routeData={selectedRoute} travelMode={travelMode} />
+          </div>
+        </div>
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -391,26 +962,7 @@ const JS_AdHocDetailsPage = () => {
             </div>
           </div>
           
-          {(latitude && longitude) ? (
-            <div className={styles.minimapCard}>
-              <h3>Location On Map</h3>
-              <iframe
-                src={`https://www.onemap.gov.sg/minimap/minimap.html?mapStyle=Default&zoomLevel=15&latLng=${latitude},${longitude}&ewt=JTNDcCUzRSUzQ3N0cm9uZyUzRSR7am9iRGV0YWlscy5jb21wYW55fSUzQyUyRnN0cm9uZyUzRSUyMCUzQ2JyJTIwJTJGJTNFJTNDYnIlMjAlMkYlM0Uke2pvYkRldGFpbHMubG9jYXRpb259JTNDYXI+JTNDJTJGcCUzRQ&popupWidth=200`}
-                height="300"
-                width="100%"
-                scrolling="no"
-                frameBorder="0"
-                allowFullScreen="allowfullscreen"
-                title="Location Map"
-                className={styles.mapIframe}
-              ></iframe>
-            </div>
-          ) : (
-            <div className={styles.minimapCard}>
-              <h3>Location On Map</h3>
-              <p className={styles.mapPlaceholder}>Map loading...</p>
-            </div>
-          )}
+          {renderRouteCalculator()}
         </aside>
       </div>
 
@@ -438,7 +990,8 @@ const JS_AdHocDetailsPage = () => {
       )}
 
       {showFeatureMessage && (
-        <div className={styles.featureMessageOverlay}>
+        <div>
+          <div className={styles.featureMessageOverlay}></div>
           <div className={styles.featureMessage}>
             {featureMessage}
           </div>
