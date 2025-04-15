@@ -9,16 +9,18 @@ InternLink is a comprehensive web-based platform developed as part of the SC2006
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
-2. [System Demo & Application Features](#system-demo--application-features)
-3. [System Architecture & Extensibility](#system-architecture--extensibility)
-4. [Software Development Life Cycle & Engineering Principles](#software-development-life-cycle--engineering-principles)
-5. [Requirements Traceability](#requirements-traceability)
-6. [User Roles and Functionality](#user-roles-and-functionality)
-7. [Special Features & Enhanced UX](#special-features--enhanced-ux)
-8. [Error Handling & Exception Management](#error-handling--exception-management)
-9. [Technology Stack & Implementation](#technology-stack--implementation)
-10. [Setup and Installation](#setup-and-installation)
-11. [Future Enhancements](#future-enhancements)
+2. [Project Documentation](#project-documentation)
+3. [System Demo & Application Features](#system-demo--application-features)
+4. [System Architecture & Extensibility](#system-architecture--extensibility)
+5. [Directory Structure](#directory-structure)
+6. [Software Development Life Cycle & Engineering Principles](#software-development-life-cycle--engineering-principles)
+7. [Requirements Traceability](#requirements-traceability)
+8. [User Roles and Functionality](#user-roles-and-functionality)
+9. [Special Features & Enhanced UX](#special-features--enhanced-ux)
+10. [Error Handling & Exception Management](#error-handling--exception-management)
+11. [Technology Stack & Implementation](#technology-stack--implementation)
+12. [Setup and Installation](#setup-and-installation)
+13. [Future Enhancements](#future-enhancements)
 
 ## Project Overview & Smart Nation Context
 
@@ -39,6 +41,34 @@ InternLink leverages several government and public APIs to enhance functionality
 - **Skills API (LightCast)**: For standardized skills matching and tagging
 - **OneMap API**: For location-based job searching and visualization
 - **University API**: For education verification and standardization
+
+## Project Documentation
+
+InternLink was developed following a systematic software engineering approach with comprehensive documentation at each phase:
+
+### Lab 1: Requirements & Analysis
+- Use Case Diagrams
+- Functional & Non-functional Requirements
+- UI Prototypes
+- Data Dictionary
+
+### Lab 2: System Design
+- Boundary & Control Classes
+- Class Diagrams of Entity Classes
+- Sequence Diagrams
+- State Machine Diagrams
+- UI Design
+
+### Lab 3: Detailed Design
+- System Architecture
+- Enhanced Boundary & Control Classes
+- Updated Sequence Diagrams
+- Dialog Map State Machine
+
+### Lab 4: Implementation
+- Functional Backend & Frontend Code
+- API Integration
+- Testing and Deployment
 
 ## System Demo & Application Features
 
@@ -79,10 +109,47 @@ InternLink follows a modern, scalable architecture designed for future expansion
 - **Node.js**: JavaScript runtime for server-side operations
 
 ### Component-Based Architecture
-The application is built using reusable components to maximize code reuse and maintainability:
-- Shared UI components across different pages
-- Common validation and form handling logic
-- Reusable API service modules
+The frontend implements a **Component-Based Architecture** with reusable UI components:
+
+```javascript
+// Button component example
+const Button = ({ children, onClick, variant }) => {
+  // Add styling classes based on variant
+  // ...existing code...
+  
+  return (
+    <button onClick={onClick} className={styles}>
+      {children}
+    </button>
+  );
+};
+
+// Form input component
+const FormField = ({ label, name, error, children }) => {
+  // Create form field with label and error handling
+  // ...existing code...
+};
+
+// Domain-specific component example
+const JobCard = ({ job }) => {
+  // Display job information in a card format
+  // ...existing code...
+};
+
+// Page component using multiple components
+const JS_FindInternshipPage = () => {
+  // State and data fetching
+  // ...existing code...
+  
+  return (
+    <div>
+      <SearchBar />
+      <FilterPanel />
+      {jobs.map(job => <JobCard key={job._id} job={job} />)}
+    </div>
+  );
+};
+```
 
 ### Database Design
 - **Users Database**: Stores Job Seeker and Employer profiles
@@ -99,6 +166,261 @@ The application is built using reusable components to maximize code reuse and ma
 - Modular codebase allows for easy addition of new features
 - Standardized API design supports future integrations
 - Separation of concerns enables independent scaling of components
+
+## Directory Structure
+
+The InternLink project follows a structured organization that clearly separates frontend and backend responsibilities.
+
+### Project Structure Overview
+
+```
+SC2006-InternLink/
+├── Lab1/           # Requirements & analysis documentation
+├── Lab2/           # System design documentation
+├── Lab3/           # Detailed design documentation
+├── Lab4/           # Implementation code
+│   ├── backend/    # Node.js/Express backend
+│   └── frontend/   # React.js frontend
+└── README.md       # Project documentation
+```
+
+### Backend Structure (`/Lab4/backend/`)
+
+```
+backend/
+├── config/             # Configuration files for database and environments
+├── controllers/        # Business logic for handling requests
+├── errors/             # Custom error classes and error handling
+├── middleware/         # Request processing middleware
+├── models/             # Data models and schemas
+├── routes/             # API endpoint definitions
+├── utils/              # Utility functions
+└── server.js           # Main application entry point
+```
+
+#### `/config`
+Contains database connection settings and environment configurations.
+- `db.js` - Handles MongoDB connection setup and error handling
+
+#### `/controllers`
+Contains the business logic that processes API requests, interacts with models, and returns responses.
+- `authUser.controller.js` - User authentication, registration, and profile management
+- `job.controller.js` - Job listing creation, retrieval, updating, and filtering
+- `application.controller.js` - Job application submission and processing
+- `message.controller.js` - Messaging between users (future implementation)
+- `areaname.contoller.js` - Integration with OneMap API for location services
+- `skillsdata.controller.js` - Integration with Skills API for standardized skills
+- `universitiesdata.controller.js` - Integration with University API for education verification
+- `schoolInput.controller.js` - School data validation and formatting
+
+#### `/errors`
+Defines custom error classes and error handling middleware for consistent API responses.
+- `bad-request.js` - Custom error for invalid requests
+- `unauthenticated.js` - Custom error for authentication failures
+- `index.js` - Exports all error classes
+- `errorMiddleware.js` - Centralized error handling middleware
+
+#### `/middleware`
+Contains functions that process requests before they reach route handlers.
+- `authentication.js` - JWT token verification and user authentication
+- `error-handler.js` - Global error handling middleware
+- `fileUpload.js` - Multipart form processing for file uploads
+
+#### `/models`
+Defines MongoDB schemas and models for data structure and validation.
+- `JobSeeker.model.js` - Schema for student user profiles
+- `Employer.model.js` - Schema for employer user profiles
+- `job.model.js` - Schemas for internship and ad-hoc job listings
+- `draftJob.model.js` - Schema for saved job drafts
+- `application.model.js` - Schema for job applications
+- `message.model.js` - Schema for user-to-user messages
+- `User.js` - Common user authentication methods
+
+#### `/routes`
+Defines API endpoints and connects them to controller functions.
+- `authUser.route.js` - User authentication and profile endpoints
+- `job.route.js` - Job listing endpoints
+- `application.route.js` - Job application endpoints
+- `message.route.js` - Messaging endpoints (placeholder for future implementation)
+
+#### `/utils`
+Utility functions used throughout the application.
+- `portSync.js` - Utility for synchronizing port between frontend and backend
+
+#### `server.js`
+The main application entry point which:
+- Configures Express and middleware
+- Connects to MongoDB
+- Sets up API routes
+- Initializes external API tokens (OneMap, Skills API)
+- Starts the server
+
+### Frontend Structure (`/Lab4/frontend/`)
+
+```
+frontend/
+├── public/             # Static assets and public files
+│   └── images/         # Application images and icons
+├── src/                # Source code
+│   ├── assets/         # Images, fonts, and other assets
+│   ├── components/     # Reusable UI components
+│   │   ├── Common/     # Shared components
+│   │   ├── Employer/   # Employer-specific components
+│   │   ├── JobSeeker/  # JobSeeker-specific components
+│   │   └── Layout/     # Layout components
+│   ├── hooks/          # Custom React hooks
+│   ├── pages/          # Page components
+│   │   ├── Employer/   # Employer pages
+│   │   └── JobSeeker/  # JobSeeker pages
+│   ├── services/       # API service functions
+│   ├── utils/          # Utility functions
+│   ├── App.jsx         # Main component and routing
+│   ├── main.jsx        # Application entry point
+│   ├── index.css       # Global styles
+│   └── App.css         # App-specific styles
+├── vite.config.js      # Vite configuration
+├── tailwind.config.js  # Tailwind CSS configuration
+└── package.json        # Dependencies and scripts
+```
+
+#### `/src/components`
+Reusable UI components organized by functionality and user role:
+
+- **Common/** - Shared components used throughout the application
+  - `Button.jsx` - Customizable button component with different variants and states
+  - `FormField.jsx` - Input component with built-in label and error handling
+  - `LoadingSpinner.jsx` - Animation shown during data loading
+  - `Modal.jsx` - Popup dialog for confirmations and forms
+  - `NotFound.jsx` - 404 error page
+  - `ProtectedRoute.jsx` - Route wrapper that handles authentication redirects
+  - `SearchBar.jsx` - Search input with filtering capabilities
+
+- **Layout/** - Page structure components
+  - `Layout.jsx` - Main page wrapper with navigation and footer
+  - `NavBar.jsx` - Navigation header with role-specific menus
+  - `Footer.jsx` - Page footer with links and copyright
+  - `SideBar.jsx` - Side navigation for filtering options
+
+- **JobSeeker/** - Components for job seeker interfaces
+  - `JobCard.jsx` - Card displaying job listing summary
+  - `ApplicationForm.jsx` - Form for submitting job applications
+  - `FilterPanel.jsx` - Job search filtering options
+  - `ProfileCard.jsx` - User profile summary display
+
+- **Employer/** - Components for employer interfaces
+  - `JobForm.jsx` - Form for creating and editing job listings
+  - `ApplicationList.jsx` - List of received applications
+  - `CandidateCard.jsx` - Card displaying applicant information
+  - `CompanyProfileForm.jsx` - Form for company profile management
+
+#### `/src/pages`
+Complete page components that use the smaller components:
+
+- **JobSeeker/** - Job seeker user interfaces
+  - `JS_FindInternshipPage.jsx` - Search and browse internship listings
+  - `JS_FindAdHocPage.jsx` - Search and browse ad-hoc job listings
+  - `JS_InternshipDetailsPage.jsx` - Detailed view of an internship listing
+  - `JS_AdHocDetailsPage.jsx` - Detailed view of an ad-hoc job listing
+  - `JS_InternshipApplicationPage.jsx` - Application form for internships
+  - `JS_AdHocApplicationPage.jsx` - Application form for ad-hoc jobs
+  - `JS_ProfilePage.jsx` - User profile editing and management
+  - `JS_ViewApplicationPage.jsx` - View submitted application status
+  - `JS_MessagesPage.jsx` - Messaging interface (placeholder for future)
+  - `JS_PrivacySettings.jsx` - User privacy and security settings
+
+- **Employer/** - Employer user interfaces
+  - `EP_PostInternshipPage.jsx` - Manage posted internship listings
+  - `EP_PostAdHocPage.jsx` - Manage posted ad-hoc job listings
+  - `EP_AddInternshipPage.jsx` - Create new internship listings
+  - `EP_AddAdHocPage.jsx` - Create new ad-hoc job listings
+  - `EP_ViewCandidatesPage.jsx` - View and evaluate applicants
+  - `EP_ProfilePage.jsx` - Company profile management
+  - `EP_MessagesPage.jsx` - Messaging interface (placeholder for future)
+  - `EP_PrivacySettings.jsx` - Company privacy and security settings
+  - `EP_ViewApplicantProfilePage.jsx` - Detailed view of applicant profiles
+
+- `ChooseRolePage.jsx` - Initial role selection (job seeker or employer)
+- `LogOutConfirmation.jsx` - Logout confirmation screen
+
+#### `/src/services`
+API client functions that communicate with the backend:
+
+- `api.js` - Core Axios configuration with interceptors for authentication
+- `auth.service.js` - Authentication services (login, signup, token management)
+- `job.service.js` - Job listing CRUD operations and search functionality
+- `application.service.js` - Job application submission and tracking
+- `file.service.js` - File upload and management for resumes and images
+- `onemap.service.js` - Integration with OneMap API for location services
+- `skills.service.js` - Integration with Skills API for standardized skills
+- `university.service.js` - Integration with University API for education validation
+
+#### `/src/hooks`
+Custom React hooks for reusable logic:
+
+- `useAuth.js` - Authentication state and operations
+- `useForm.js` - Form state management and validation
+- `useApi.js` - API request handling with loading and error states
+- `useJobFilters.js` - Job search filter state management
+- `useLocalStorage.js` - Persistent client-side storage wrapper
+
+#### `/src/utils`
+Helper functions used throughout the application:
+
+- `dateUtils.js` - Date formatting and manipulation
+- `formatters.js` - Text formatting for display (currency, location, etc.)
+- `validators.js` - Input validation functions for forms
+- `errorHandlers.js` - Client-side error handling utilities
+
+#### `/src/assets`
+Static resources used in the application:
+
+- `images/` - Icons, illustrations, and other image assets
+- `fonts/` - Custom font files
+- `placeholders/` - Placeholder images for testing
+
+#### Key Root Files
+
+- `App.jsx` - Application entry point with route configuration
+  - Defines all application routes and their corresponding components
+  - Handles authentication state and protected routes
+  - Manages global application state
+
+- `main.jsx` - React application initialization
+  - Renders the App component to the DOM
+  - Sets up provider components for global state
+  - Configures global styles and themes
+
+- `index.css` - Global CSS styles
+  - Contains Tailwind CSS directives
+  - Defines global variables and base styles
+  - Sets up responsive breakpoints
+
+- `vite.config.js` - Build configuration
+  - Configures development server
+  - Sets up build optimization
+  - Defines environment variables and plugins
+
+### Database Implementation
+
+InternLink uses MongoDB with multiple database connections to organize data by domain:
+
+```javascript
+// From models/application.model.js
+const mongoose = require('mongoose');
+
+const ApplicationSchema = new mongoose.Schema({
+  // Schema definition
+  // ...existing code...
+});
+
+// Creating database connection for applications
+const applicationsDb = mongoose.connection.useDb('applications', { useCache: true });
+const Application = applicationsDb.model('Application', ApplicationSchema);
+
+export default Application;
+```
+
+This architecture provides clean separation between different data domains (users, jobs, applications) while maintaining relationships through referenced IDs.
 
 ## Software Development Life Cycle & Engineering Principles
 
@@ -168,97 +490,87 @@ This approach provides:
 - Consistent UI patterns throughout the application
 
 #### Repository Pattern
-For data access, we implemented the **Repository Pattern**:
+Our controllers implement repository-like functionality by abstracting data access:
 
-- Abstract data access behind repository interfaces
-- Controllers interact with repositories rather than directly with models
-- Centralized handling of database operations
-- Example: Job listings and applications are managed through dedicated repositories that abstract MongoDB operations
-
-This pattern isolates the data layer, making it easier to change database implementations or add caching without affecting business logic.
+```javascript
+// Example from job.controller.js
+export const getInternshipJobById = async (req, res) => {
+  try {
+    // Repository-like abstraction of data access
+    const job = await InternshipJob.findById(req.params.id);
+    
+    // Response handling
+    // ...existing code...
+  } catch (error) {
+    // Error handling
+    // ...existing code...
+  }
+};
+```
 
 #### Factory Pattern
-The **Factory Pattern** is used for object creation in several areas:
+Job object creation is handled in our models with schema definitions:
 
-- Job creation (internship vs ad-hoc jobs)
-- User creation (job seeker vs employer accounts)
-- Application status updates (pending, accepted, rejected)
+```javascript
+// Example from job.model.js - Creating different job types
+const internshipJobSchema = new mongoose.Schema({
+  // Common fields
+  // ...existing code...
+  
+  // Internship-specific fields
+  stipend: {
+    type: Number,
+    required: [true, 'Please provide stipend']
+  },
+  duration: {
+    type: String,
+    required: [true, 'Please provide duration']
+  }
+});
 
-This pattern centralizes complex object creation logic and makes it easier to extend with new types in the future.
+const adHocJobSchema = new mongoose.Schema({
+  // Common fields
+  // ...existing code...
+  
+  // Ad-hoc specific fields
+  payPerHour: {
+    type: Number,
+    required: [true, 'Please provide pay per hour']
+  }
+});
+```
 
 #### Observer Pattern
-The **Observer Pattern** is implemented for real-time updates:
+Event handling for UI updates is implemented using React hooks:
 
-- Used in the messaging system to notify users of new messages
-- Implemented for application status updates to notify job seekers
-- Applied to job posting views to track engagement metrics
+```javascript
+// Example from React components
+const [notifications, setNotifications] = useState([]);
 
-This pattern allows loose coupling between components while maintaining consistent state updates across the system.
+// Observer-like pattern for UI updates
+useEffect(() => {
+  // Update UI when data changes
+  // ...existing code...
+}, [dependencies]);
+```
 
 #### Facade Pattern
-The **Facade Pattern** is used to provide simplified interfaces to complex subsystems:
+API services abstract complex backend interactions:
 
-- API service modules in the frontend that abstract backend API calls
-- Authentication facade that handles tokens, login states, and permissions
-- Job search facade that combines filtering, sorting, and pagination
-
-This pattern simplifies client code and reduces dependencies between components.
-
-### SOLID Principles Implementation
-InternLink strictly adheres to SOLID principles:
-
-#### Single Responsibility Principle (SRP)
-- Each component and class has a single responsibility
-- Example: Separate controllers for jobs, applications, messages, etc.
-- Example: UI components focus on either rendering or behavior, not both
-
-#### Open/Closed Principle (OCP)
-- Components are open for extension but closed for modification
-- Example: Job filtering system can be extended with new filters without modifying existing code
-- Example: Form validation rules can be added without changing validation mechanisms
-
-#### Liskov Substitution Principle (LSP)
-- Child classes can be used in place of their parent classes
-- Example: Both internship and ad-hoc job types inherit from a base job model
-- Example: Authentication works consistently across job seeker and employer accounts
-
-#### Interface Segregation Principle (ISP)
-- Clients aren't forced to depend on interfaces they don't use
-- Example: API service modules are divided by domain (jobs, users, applications)
-- Example: UI components have focused props interfaces
-
-#### Dependency Inversion Principle (DIP)
-- High-level modules depend on abstractions, not details
-- Example: Controllers depend on model interfaces, not concrete implementations
-- Example: React components use service abstractions for API calls
-
-### Implementation Practices
-- Code reviews for quality assurance
-- Pair programming for complex features
-- Version control with Git and GitHub
-- Continuous integration for automated testing
-- Code style standardization with ESLint and Prettier
-
-### Testing Methodology
-InternLink implements a comprehensive testing strategy:
-
-- **Unit Testing**: Testing individual components and functions in isolation
-  - Example: Testing job filtering logic in `job.controller.js`
-  - Example: Testing form validation in React components
-
-- **Integration Testing**: Testing interactions between components
-  - Example: Testing API endpoints with mock databases
-  - Example: Testing React component integration using react-testing-library
-
-- **End-to-End Testing**: Testing complete user flows
-  - Example: Testing the job application process from search to submission
-  - Example: Testing employer job posting workflow
-
-- **User Acceptance Testing**: Testing with real users
-  - Example: Job seekers testing the application submission process
-  - Example: Employers testing the candidate review process
-
-This comprehensive approach ensures all aspects of the system are thoroughly tested before deployment.
+```javascript
+// Example from our service files
+export const jobService = {
+  getJobs: async (filters) => {
+    // Complex API interaction hidden behind simple interface
+    // ...existing code...
+  },
+  
+  applyForJob: async (jobId, applicationData) => {
+    // Multiple operations abstracted behind single method
+    // ...existing code...
+  }
+};
+```
 
 ## Requirements Traceability
 

@@ -31,7 +31,6 @@ import EP_ViewApplicantProfilePage from './pages/Employer/EP_ViewApplicantProfil
 import EP_PrivacySettings from './pages/Employer/EP_PrivacySettings';
 import LogOutConfirmation from './pages/LogOutConfirmation';
 import ProtectedRoute from './components/Common/ProtectedRoute';
-import ErrorBoundary from './components/Common/ErrorBoundary';
 
 const App = () => {
   // Function to check if user is already logged in and redirect accordingly
