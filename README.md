@@ -499,46 +499,55 @@ export const getInternshipJobById = async (req, res) => {
     // Repository-like abstraction of data access
     const job = await InternshipJob.findById(req.params.id);
     
-    // Response handling
     // ...existing code...
   } catch (error) {
-    // Error handling
     // ...existing code...
   }
 };
 ```
 
+**Why it's the Repository Pattern**: This approach hides the database implementation details from the rest of the application. Controllers don't need to know how data is stored or retrieved - they just work with a simple interface to access data, making it easier to change the database implementation later without affecting business logic.
+
 #### Factory Pattern
-Job object creation is handled in our models with schema definitions:
+Our application implements the Factory Pattern in our controller logic where we create different types of jobs:
 
 ```javascript
-// Example from job.model.js - Creating different job types
-const internshipJobSchema = new mongoose.Schema({
-  // Common fields
-  // ...existing code...
-  
-  // Internship-specific fields
-  stipend: {
-    type: Number,
-    required: [true, 'Please provide stipend']
-  },
-  duration: {
-    type: String,
-    required: [true, 'Please provide duration']
+// From job.controller.js - Factory pattern implementation for job creation
+export const createJob = async (req, res) => {
+  try {
+    const jobData = {
+      title: req.body.title,
+      company: req.body.company,
+      // ...existing code...
+    };
+    
+    // Factory pattern: creating different job types based on condition
+    let job;
+    if (req.params.type === 'internship') {
+      // Create an internship job with specific fields
+      job = await InternshipJob.create({
+        ...jobData,
+        stipend: req.body.stipend,
+        duration: req.body.duration
+        // ...existing code...
+      });
+    } else if (req.params.type === 'adhoc') {
+      // Create an ad-hoc job with specific fields
+      job = await AdHocJob.create({
+        ...jobData,
+        payPerHour: req.body.payPerHour
+        // ...existing code...
+      });
+    }
+    
+    // ...existing code...
+  } catch (error) {
+    // ...existing code...
   }
-});
-
-const adHocJobSchema = new mongoose.Schema({
-  // Common fields
-  // ...existing code...
-  
-  // Ad-hoc specific fields
-  payPerHour: {
-    type: Number,
-    required: [true, 'Please provide pay per hour']
-  }
-});
+};
 ```
+
+**Why it's the Factory Pattern**: This code centralizes the creation logic for different types of job objects. The route handler doesn't need to know the details of creating each job type - it just calls this function and gets back the right kind of job. It's like a factory that takes in raw materials (job data) and produces different products (internship or ad-hoc jobs) based on specifications.
 
 #### Observer Pattern
 Event handling for UI updates is implemented using React hooks:
@@ -553,6 +562,8 @@ useEffect(() => {
   // ...existing code...
 }, [dependencies]);
 ```
+
+**Why it's the Observer Pattern**: This pattern allows components to "observe" changes in state and react accordingly. The `useEffect` hook acts as an observer that watches for changes in the dependency array. When those dependencies change, the effect runs - just like how subscribers get notified when the subject they're observing changes. This creates a loosely coupled system where state changes automatically trigger UI updates.
 
 #### Facade Pattern
 API services abstract complex backend interactions:
@@ -571,6 +582,8 @@ export const jobService = {
   }
 };
 ```
+
+**Why it's the Facade Pattern**: This pattern simplifies complex systems by providing a user-friendly interface. Our service layer hides all the complexity of API calls, error handling, data transformation, and state management behind simple methods. Components don't need to worry about HTTP requests, headers, or response parsing - they just call these simple methods and get back exactly what they need. It's like having a concierge who handles all the complicated details for you.
 
 ## Requirements Traceability
 
