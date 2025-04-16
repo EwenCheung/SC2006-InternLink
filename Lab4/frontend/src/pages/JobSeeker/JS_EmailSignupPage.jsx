@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes, FaPlus, FaExchangeAlt } from 'react-icons/fa';
 import {fetchSkillsData} from '../../../../backend/controllers/skillsdata.controller.js';
+import AuthFactory from '../../services/AuthFactory';
 
 // Get course fields and course list from VALID_COURSES in job.model.js plus additional options
 const FIELDS_AND_COURSES = {
@@ -604,6 +605,20 @@ const JS_EmailSignupPage = () => {
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Authenticate the user using AuthFactory
+        const formData = {
+          email: requiredData.email,
+          password: requiredData.password
+        };
+        
+        const authenticator = AuthFactory.getAuthenticator('jobseeker');
+        const loginResult = await authenticator.login(formData);
+        
+        if (!loginResult.success) {
+          console.error('Auto-login after registration failed:', loginResult.message);
+          // Continue anyway since registration succeeded
+        }
 
         // Handle file uploads separately
         if (withOptionalData) {
@@ -625,12 +640,13 @@ const JS_EmailSignupPage = () => {
           }
         }
 
-        navigate('/jobseeker/find-internship');
+        return true; // Return true to indicate success
       } else {
         throw new Error('Invalid response from server. Missing authentication data.');
       }
     } catch (err) {
       setError(err.message);
+      return false; // Return false to indicate failure
     } finally {
       setIsLoading(false);
     }
@@ -674,14 +690,37 @@ const JS_EmailSignupPage = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Navigate to profile page directly (instead of going to step 2)
-        navigate('/jobseeker/profile');
+        // Authenticate the user using AuthFactory before navigation
+        const formData = {
+          email: requiredData.email,
+          password: requiredData.password
+        };
+        
+        const authenticator = AuthFactory.getAuthenticator('jobseeker');
+        const result = await authenticator.login(formData);
+        
+        if (result.success) {
+          // Navigate to profile page directly
+          navigate('/jobseeker/profile');
+        } else {
+          console.error('Auto-login after registration failed:', result.message);
+          // Still navigate but log the error
+          navigate('/jobseeker/profile');
+        }
       } catch (err) {
         setError(err.message);
         setIsLoading(false);
       }
     } else {
-      await createAccount(false);
+      try {
+        const result = await createAccount(false);
+        if (result) {
+          // If successful, navigate to find-internship
+          navigate('/jobseeker/find-internship');
+        }
+      } catch (err) {
+        setError(err.message);
+      }
     }
   };
 

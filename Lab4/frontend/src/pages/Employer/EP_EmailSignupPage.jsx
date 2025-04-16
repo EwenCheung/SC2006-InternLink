@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './EP_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaExchangeAlt } from 'react-icons/fa';
+import AuthFactory from '../../services/AuthFactory';
 
 // Define the industry options
 const INDUSTRY = [
@@ -281,7 +282,25 @@ const EP_EmailSignupPage = () => {
   // Handle navigation choice from modal
   const handleProfileChoice = async (completeNow) => {
     setShowProfileChoice(false);
-    navigate(completeNow ? '/employer/profile' : '/employer/post-internship');
+    try {
+      const formData = {
+        email: requiredData.email,
+        password: requiredData.password
+      };
+      
+      // Authenticate user before navigating
+      const authenticator = AuthFactory.getAuthenticator('employer');
+      const result = await authenticator.login(formData);
+      
+      if (result.success) {
+        navigate(completeNow ? '/employer/profile' : '/employer/post-internship');
+      } else {
+        // Handle authentication failure
+        setError(result.message || 'Authentication failed after registration. Please try logging in manually.');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   // Form submission handlers
@@ -356,18 +375,35 @@ const EP_EmailSignupPage = () => {
       if (data.token && data.user) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // After successful registration, authenticate the user immediately
+        const formData = {
+          email: requiredData.email,
+          password: requiredData.password
+        };
+        
+        const authenticator = AuthFactory.getAuthenticator('employer');
+        const loginResult = await authenticator.login(formData);
+        
+        if (!loginResult.success) {
+          console.error('Auto-login after registration failed:', loginResult.message);
+          // Don't throw an error here, we'll continue with the flow anyway since registration succeeded
+        }
+        
+        // Proceed with navigation based on whether all optional fields are filled
+        if (withOptionalData && hasAllOptionalFields()) {
+          navigate('/employer/post-internship');
+          return true;
+        } else {
+          setShowProfileChoice(true);
+          return true;
+        }
       } else {
         throw new Error('Invalid response from server. Missing authentication data.');
       }
-
-      // Check navigation path after saving
-      if (hasAllOptionalFields()) {
-        navigate('/employer/post-internship');
-      } else {
-        setShowProfileChoice(true);
-      }
     } catch (err) {
       setError(err.message);
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -402,7 +438,11 @@ const EP_EmailSignupPage = () => {
       }
     }
 
-    await createAccount(true);
+    const success = await createAccount(true);
+    if (success) {
+      // Here we don't need to navigate because createAccount will handle it
+      // This avoids double navigation
+    }
   };
 
   // OAuth handler
