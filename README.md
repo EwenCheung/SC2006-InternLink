@@ -842,4 +842,4 @@ InternLink has several planned enhancements for future releases:
 
 ---
 
-© 2025 InternLink - Developed by SC2006 Career Helper Group (FDAD)
+© 2025 InternLink – Developed by Ewen and Yong Xuen from SC2006 Group 2 (FDAD)
