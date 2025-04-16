@@ -572,15 +572,21 @@ const JS_InternshipDetailsPage = () => {
 
   // Helper function to format duration
   const formatDuration = (seconds) => {
-    // If seconds is already in minutes format (less than 500), treat as minutes directly
-    const totalMinutes = seconds < 500 ? seconds : Math.floor(seconds / 60);
+    // Convert all values to seconds for consistent handling
+    const totalSeconds = typeof seconds === 'number' ? seconds : 0;
+    
+    // Convert seconds to minutes
+    const totalMinutes = Math.floor(totalSeconds / 60);
     const hours = Math.floor(totalMinutes / 60);
     const remainingMinutes = totalMinutes % 60;
     
     if (hours > 0) {
       return `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}m` : ''}`;
-    } else {
+    } else if (totalMinutes > 0) {
       return `${totalMinutes}m`;
+    } else {
+      // If less than 1 minute, show seconds
+      return `${totalSeconds}s`;
     }
   };
 
