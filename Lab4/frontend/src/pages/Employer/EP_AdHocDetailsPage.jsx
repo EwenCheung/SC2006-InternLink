@@ -33,6 +33,8 @@ const EP_AdHocDetailsPage = () => {
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [formattedDeadline, setFormattedDeadline] = useState('');
   const [resumePreviewUrl, setResumePreviewUrl] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [showStatusMessage, setShowStatusMessage] = useState(false);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -323,6 +325,15 @@ const EP_AdHocDetailsPage = () => {
         
         // Close any open status dialog
         setShowStatusDialog(false);
+        
+        // Show success message
+        setStatusMessage(`Application status updated to ${newStatus} successfully!`);
+        setShowStatusMessage(true);
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+          setShowStatusMessage(false);
+        }, 3000);
       } else {
         // Handle error case
         throw new Error(data.message || 'Failed to update status');
@@ -690,6 +701,14 @@ const EP_AdHocDetailsPage = () => {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {showStatusMessage && (
+        <div className={styles.statusMessageOverlay}>
+          <div className={styles.statusMessage}>
+            {statusMessage}
           </div>
         </div>
       )}

@@ -32,6 +32,8 @@ const EP_InternshipDetailsPage = () => {
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [resumePreviewUrl, setResumePreviewUrl] = useState(null);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [showStatusMessage, setShowStatusMessage] = useState(false);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -312,6 +314,15 @@ const EP_InternshipDetailsPage = () => {
         
         // Close any open status dialog
         setShowStatusDialog(false);
+        
+        // Show success message
+        setStatusMessage(`Application status updated to ${newStatus} successfully!`);
+        setShowStatusMessage(true);
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+          setShowStatusMessage(false);
+        }, 3000);
       } else {
         // Handle error case
         throw new Error(data.message || 'Failed to update status');
@@ -714,6 +725,14 @@ const EP_InternshipDetailsPage = () => {
             >
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {showStatusMessage && (
+        <div className={styles.statusMessageOverlay}>
+          <div className={styles.statusMessage}>
+            {statusMessage}
           </div>
         </div>
       )}
