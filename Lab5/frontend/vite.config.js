@@ -42,6 +42,11 @@ export default defineConfig(async () => {
           target: process.env.VITE_API_BASE_URL,
           changeOrigin: true,
           secure: false
+        },
+        '/use-token': {
+          target: process.env.VITE_API_BASE_URL,
+          changeOrigin: true,
+          secure: false
         }
       },
       onListening: () => {

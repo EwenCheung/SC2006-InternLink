@@ -8,8 +8,8 @@ import NotificationStack from '../../components/Common/NotificationStack';
 import A11yAnnouncer from '../../components/Common/A11yAnnouncer';
 import Dialog from '../../components/Common/Dialog';
 import ErrorBoundary from '../../components/Common/ErrorBoundary';
-import { fetchUniversities } from '../../../../backend/controllers/universitiesdata.controller.js';
-import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
+import { fetchUniversities } from '../../services/UniversitiesService';
+import { fetchSkillsData } from '../../services/SkillsService';
 
 // Course fields and course list - same as in JS_EmailSignupPage
 const FIELDS_AND_COURSES = {

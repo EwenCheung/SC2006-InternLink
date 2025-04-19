@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css';
-import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
+import { fetchSkillsData } from '../../services/SkillsService';
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 import FieldCourseSelector from '../../components/Common/FieldCourseSelector';
 import { FIELDS_AND_COURSES } from '../../components/Common/FilterConfig';

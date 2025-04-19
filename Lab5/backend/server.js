@@ -15,6 +15,8 @@ import authUserRoutes from './routes/authUser.route.js';
 import jobRoutes from './routes/job.route.js';
 import applicationRoutes from './routes/application.route.js';
 import messageRoutes from './routes/message.route.js';
+import skillsRoutes from './routes/skills.route.js';
+import universitiesRoutes from './routes/universities.route.js';
 
 // Import error handler middleware
 import errorHandlerMiddleware from './middleware/error-handler.js';
@@ -142,6 +144,8 @@ const startServer = async () => {
     app.use('/api/jobs', jobRoutes);
     app.use('/api/applications', applicationRoutes);
     app.use('/api/messages', messageRoutes);
+    app.use('/api/skills', skillsRoutes);
+    app.use('/api/universities', universitiesRoutes);
     
     // Error handler middleware
     app.use(errorHandlerMiddleware);

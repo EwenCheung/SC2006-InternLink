@@ -1,8 +1,12 @@
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+// Ensure environment variables are loaded
+dotenv.config();
 
 const fetchSkillsData = async () => {
   try {
-    // Fetch the access token from the backend
+    // Fetch the access token from the backend using only environment variables
     const tokenResponse = await axios.get(`${process.env.TOKEN_SERVER_URL}/use-token`);
     const accessToken = tokenResponse.data.token2;
 
