@@ -77,8 +77,23 @@ Please:
 };
 
 // Middleware
-// Configure CORS and request size limits
-app.use(cors());  // Allow all origins for development
+// Configure CORS with specific origins allowed
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://internlink-n01f.onrender.com', 'https://internlink-frontend.onrender.com']  // Production domains
+    : 'http://localhost:5178',  // Development domain
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  credentials: true,
+  optionsSuccessStatus: 204,
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// Apply CORS configuration
+app.use(cors(corsOptions));
+
+// Add pre-flight OPTIONS handling for all routes
+app.options('*', cors(corsOptions));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
