@@ -32,5 +32,5 @@ services:
     buildCommand: npm install && npm run build
     startCommand: npm run preview
     envVars:
-      - key: VITE_API_URL
+      - key: VITE_API_BASE_URL
         value: https://internlink-backend.onrender.com # Replace with the actual backend render URL

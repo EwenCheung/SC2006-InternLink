@@ -242,7 +242,7 @@ const updateLocationFilter = (locations) => {
 async function getTokenAndFetchLocation(retryCount = 0) {
   try {
     // Use environment variable with fallback
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
     const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
     const tokenData = await tokenResponse.json();
 

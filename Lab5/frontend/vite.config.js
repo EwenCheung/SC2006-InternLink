@@ -31,22 +31,28 @@ const findPort = async (startPort) => {
 export default defineConfig(async () => {
   const port = await findPort(Number(process.env.PORT));
   
+  // Determine if we're in production mode
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   return {
     plugins: [react()],
     server: {
       port,
       host: true,
       open: true,
-      proxy: {
-        '/api': {
-          target: process.env.VITE_API_URL,
-          changeOrigin: true,
-          secure: false
+      // Only use proxy in development mode
+      ...(isProduction ? {} : {
+        proxy: {
+          '/api': {
+            target: process.env.VITE_API_BASE_URL,
+            changeOrigin: true,
+            secure: false
+          }
         }
-      },
+      }),
       onListening: () => {
         console.log(`Frontend running on port ${port}`);
-        console.log(`API Proxy target: ${process.env.VITE_API_URL}`);
+        console.log(`API Proxy target: ${process.env.VITE_API_BASE_URL}`);
       },
       // Add allowedHosts configuration to solve the blocked request issue
       allowedHosts: [
