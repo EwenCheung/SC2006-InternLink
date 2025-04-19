@@ -35,10 +35,15 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Find next available port
+// Find next available port for local development
+// In production (e.g., Render.com), we'll use the provided PORT env variable
 const findPort = async (startPort) => {
-  const preferredPort = 5001;
+  if (process.env.NODE_ENV === 'production') {
+    // In production, just return the provided port
+    return startPort;
+  }
   
+  // For local development, find an available port
   const test = (port) => {
     return new Promise((resolve) => {
       const server = net.createServer()
@@ -51,37 +56,13 @@ const findPort = async (startPort) => {
     });
   };
 
-  // Check if preferred port 5001 is available
-  if (startPort === preferredPort && !(await test(preferredPort))) {
-    console.error('\x1b[31m%s\x1b[0m', `
-=======================================================================
-ERROR: Port ${preferredPort} is already in use!
-This application requires port ${preferredPort} to function properly.
-
-Please:
-1. Close any other applications using port ${preferredPort}
-2. Restart this server
-=======================================================================
-`);
-    process.exit(1);
+  let port = startPort;
+  while (!(await test(port))) {
+    console.log(`Port ${port} in use, trying ${port + 1}`);
+    port++;
   }
-
-  // Don't try other ports, just return the preferred port if it's available
-  if (await test(startPort)) {
-    return startPort;
-  } else {
-    console.error('\x1b[31m%s\x1b[0m', `
-=======================================================================
-ERROR: Port ${startPort} is already in use!
-This application requires this port to function properly.
-
-Please:
-1. Close any other applications using port ${startPort}
-2. Restart this server
-=======================================================================
-`);
-    process.exit(1);
-  }
+  
+  return port;
 };
 
 // Middleware
@@ -146,7 +127,7 @@ const startServer = async () => {
     // Error handler middleware
     app.use(errorHandlerMiddleware);
     
-    // Start the server on the next available port
+    // Start server with port from environment or find available port
     const port = await findPort(process.env.PORT || 5001);
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
