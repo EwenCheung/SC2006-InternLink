@@ -4,6 +4,8 @@ import Layout from './components/Layout/Layout';
 import NotFound from './components/Common/NotFound';
 import LoadingSpinner from './components/Common/LoadingSpinner';
 import ChooseRolePage from './pages/ChooseRolePage';
+// Import debug component
+import EnvDebug from './components/Debug/EnvDebug';
 import JS_FindInternshipPage from './pages/JobSeeker/JS_FindInternshipPage';
 import JS_FindAdHocPage from './pages/JobSeeker/JS_FindAdHocPage';
 import JS_InternshipDetailsPage from './pages/JobSeeker/JS_InternshipDetailsPage';

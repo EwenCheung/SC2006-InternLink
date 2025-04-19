@@ -241,8 +241,9 @@ const updateLocationFilter = (locations) => {
 // Shared location filter
 async function getTokenAndFetchLocation(retryCount = 0) {
   try {
-    // Use environment variable with fallback
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+    // Use centralized configuration
+    const config = await import('../../config.js');
+    const API_BASE_URL = config.default.apiBaseUrl;
     const tokenResponse = await fetch(`${API_BASE_URL}/use-token`);
     const tokenData = await tokenResponse.json();
 

@@ -33,7 +33,14 @@ export default defineConfig(async ({ mode }) => {
   console.log('Environment mode:', mode);
   console.log('API Base URL:', env.VITE_API_BASE_URL);
   
-  const port = await findPort(Number(process.env.PORT));
+  // Fix: Provide a default port (5178) if process.env.PORT is undefined
+  const defaultPort = 5178;
+  const startPort = process.env.PORT ? Number(process.env.PORT) : defaultPort;
+  
+  // Check if the parsed port is valid (not NaN)
+  const validStartPort = isNaN(startPort) ? defaultPort : startPort;
+  
+  const port = await findPort(validStartPort);
   
   // Determine if we're in production mode
   const isProduction = mode === 'production';

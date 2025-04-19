@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './ChooseRolePage.module.css';
+import EnvDebug from '../components/Debug/EnvDebug';
 
 const ChooseRolePage = () => {
   const navigate = useNavigate();
@@ -49,6 +50,9 @@ const ChooseRolePage = () => {
               Choose your role to continue
             </p>
           </section>
+
+          {/* Add environment debug component */}
+          <EnvDebug />
 
           <nav className="flex flex-col gap-6 items-center" aria-label="User role selection">
             <button
