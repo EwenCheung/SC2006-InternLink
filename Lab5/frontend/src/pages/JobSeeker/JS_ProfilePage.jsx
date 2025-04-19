@@ -1042,12 +1042,17 @@ export default function JS_ProfilePage() {
                 }
 
                 // Fetch applications
-                const applicationsResponse = await fetch('/api/applications/application', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const currentUser = response.data;
+                if (!currentUser || !currentUser._id) {
+                    console.error('No user ID available for fetching applications');
+                    return;
+                }
+
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+                const applicationsResponse = await fetch(`${API_BASE_URL}/api/applications/user/${currentUser._id}`);
 
                 if (applicationsResponse.ok) {
-                    const { data: applicationsData } = await applicationsResponse.json();
+                    const applicationsData = await applicationsResponse.json();
                     setApplications(applicationsData || []);
                 }
 

@@ -37,4 +37,16 @@ router.patch('/:id', authenticateUser, updateApplication);
 // Delete an application
 router.delete('/:id', authenticateUser, deleteApplication);
 
+// Add route to get applications by user ID - use the controller not direct model access
+router.get('/user/:userId', authenticateUser, async (req, res) => {
+  try {
+    // Use the existing controller function but with userId from params
+    req.user = { userId: req.params.userId };
+    return await getApplications(req, res);
+  } catch (error) {
+    console.error('Error fetching user applications:', error);
+    res.status(500).json({ message: 'Error fetching applications', error: error.message });
+  }
+});
+
 export default router;
