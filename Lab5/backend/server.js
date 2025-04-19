@@ -37,7 +37,7 @@ const __dirname = path.dirname(__filename);
 
 // Modified port selection for cloud compatibility
 const getPort = async () => {
-  // For cloud environments, always prefer the environment-provided PORT
+  // For cloud environments, always use the environment-provided PORT without checking availability
   if (process.env.PORT) {
     console.log(`Using environment-provided port: ${process.env.PORT}`);
     return parseInt(process.env.PORT, 10);
@@ -140,15 +140,39 @@ const startServer = async () => {
     
     // Get the port using our cloud-compatible function
     const port = await getPort();
-    app.listen(port, () => {
+    
+    // Add an error handler for port-in-use errors, particularly important in cloud environments
+    const server = app.listen(port, '0.0.0.0', () => {
       console.log(`Server is running on port ${port}`);
+    }).on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. This is likely due to a port conflict in the deployment environment.`);
+        // In cloud environments, we'll try to use a random port as a last resort
+        if (process.env.PORT) {
+          const randomPort = Math.floor(Math.random() * (65535 - 1024) + 1024);
+          console.log(`Attempting to use alternative port ${randomPort}...`);
+          app.listen(randomPort, '0.0.0.0', () => {
+            console.log(`Server is now running on alternative port ${randomPort}`);
+          });
+        } else {
+          // For local dev, just exit
+          process.exit(1);
+        }
+      } else {
+        console.error('Server error:', err);
+        process.exit(1);
+      }
     });
     
     // Only write port to file in development environment
     try {
-      const fs = await import('fs');
-      fs.writeFileSync('./port.txt', port.toString());
-      console.log(`Port ${port} written to port.txt`);
+      if (process.env.NODE_ENV !== 'production' && !process.env.RENDER) {
+        const fs = await import('fs');
+        fs.writeFileSync('./port.txt', port.toString());
+        console.log(`Port ${port} written to port.txt for local development`);
+      } else {
+        console.log('Skipping port.txt write in production environment');
+      }
     } catch (error) {
       console.warn('Could not write port to file:', error.message);
     }

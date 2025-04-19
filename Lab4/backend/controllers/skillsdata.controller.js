@@ -3,7 +3,9 @@ import axios from 'axios';
 const fetchSkillsData = async () => {
   try {
     // Fetch the access token from the backend
-    const tokenResponse = await axios.get('http://localhost:5001/use-token');
+    const tokenResponse = await axios.get(process.env.NODE_ENV === 'production' 
+      ? '/use-token'  // In production/cloud, use relative URL
+      : 'http://localhost:5001/use-token');  // In local development, use port 5001
     const accessToken = tokenResponse.data.token2;
 
     // Use the access token to fetch skills data

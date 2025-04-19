@@ -7,8 +7,6 @@ services:
     buildCommand: npm install
     startCommand: node server.js
     envVars:
-      - key: PORT
-        value: 5001
       - key: JWT_SECRET
         value: myinternlinkjwtsecret2024
       - key: JWT_LIFETIME
