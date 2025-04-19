@@ -5,8 +5,10 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install
-    startCommand: node index.js # or your backend start file, adjust if it's app.js or server.js
+    startCommand: node server.js
     envVars:
+      - key: PORT
+        value: 5001
       - key: JWT_SECRET
         value: myinternlinkjwtsecret2024
       - key: JWT_LIFETIME
