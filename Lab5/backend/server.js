@@ -77,22 +77,28 @@ Please:
 };
 
 // Middleware
-// Configure CORS with specific origins allowed
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://internlink-n01f.onrender.com', 'https://internlink-frontend.onrender.com']  // Production domains
-    : 'http://localhost:5178',  // Development domain
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+// Configure CORS to be very permissive for troubleshooting
+app.use((req, res, next) => {
+  // Allow all origins for troubleshooting
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
+  next();
+});
+
+// Standard CORS middleware as a backup
+app.use(cors({ 
+  origin: '*',  // Allow all origins for now
   credentials: true,
-  optionsSuccessStatus: 204,
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-// Apply CORS configuration
-app.use(cors(corsOptions));
-
-// Add pre-flight OPTIONS handling for all routes
-app.options('*', cors(corsOptions));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+}));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -142,7 +148,17 @@ const startServer = async () => {
     
     // Routes
     app.get('/', (req, res) => {
-      res.send('InternLink API');
+      res.send('InternLink API is running');
+    });
+    
+    // Add a health check endpoint
+    app.get('/health', (req, res) => {
+      res.status(200).json({ 
+        status: 'ok', 
+        message: 'Backend is running', 
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toISOString()
+      });
     });
     
     app.use('/api/auth', authUserRoutes);

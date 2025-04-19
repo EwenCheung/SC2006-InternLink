@@ -6,6 +6,7 @@
 const getApiBaseUrl = () => {
   // First check if we're in production (Render.com deployment)
   if (import.meta.env.PROD) {
+    // Use the full URL without a specific port for Render.com deployments
     return 'https://internlink-backend.onrender.com';
   }
   
