@@ -33,6 +33,21 @@ export default defineConfig(async () => {
   
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Split vendor code (node_modules) into chunks by package
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-ui': ['@mui/material', '@emotion/react', '@emotion/styled', 'framer-motion'],
+            'vendor-icons': ['react-icons', 'lucide-react'],
+            'vendor-maps': ['leaflet', 'react-leaflet'],
+            'vendor-utils': ['axios', 'clsx', 'tailwind-merge']
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000, // Increased from default 500kb
+    },
     server: {
       port,
       host: true,
