@@ -1,45 +1,14 @@
 services:
   - type: web
-    name: internlink-backend
+    name: mern-app
     env: node
     plan: free
-    rootDir: backend
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: |
+      npm install
+      cd frontend && npm install
+      cd ../backend && npm install
+    startCommand: npm run dev
+    rootDir: .
     envVars:
-      - key: JWT_SECRET
-        value: myinternlinkjwtsecret2024
-      - key: JWT_LIFETIME
-        value: 1d
-      - key: ONEMAP_EMAIL
-        value: lolblackapple@gmail.com
-      - key: ONEMAP_EMAIL_PASSWORD
-        value: !wzCzS$Pm7sLmmy
-      - key: MONGO_URI
-        value: mongodb+srv://yiwencheung:eM9nvJHPsMj1flko@cluster0.nbwm6.mongodb.net?retryWrites=true&w=majority&appName=Cluster0
-      - key: Client_ID
-        value: 2vd8rsuy33l3j9as
-      - key: Secret
-        value: XpfZv5eY
-      - key: Scope
-        value: emsi_open
-      # Let Render.com assign the port automatically
-      # PORT environment variable will be available at runtime
-
-  - type: web
-    name: internlink-frontend
-    env: node
-    plan: free
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run preview
-    envVars:
-      - key: VITE_API_URL
-        value: https://internlink-backend.onrender.com # Public URL for development/testing
-      - key: RENDER_INTERNAL_BACKEND_URL
-        value: http://internlink-backend:10000 # Internal service URL for Render's internal network
-      - key: VITE_PRODUCTION
-        value: "true" # Enable production mode
-    # Add dependency to ensure backend is deployed first
-    dependencies:
-      - name: internlink-backend
+      - key: NODE_VERSION
+        value: 18
