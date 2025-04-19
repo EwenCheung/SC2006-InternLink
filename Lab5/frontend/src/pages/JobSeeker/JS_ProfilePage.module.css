@@ -1,0 +1,1470 @@
+.profileContainer {
+    width: 80%; /* Changed from 90% to 80% to make sections wider */
+    margin: 2rem auto;
+    max-width: 1400px; /* Added to ensure it doesn't get too wide on large screens */
+}
+
+/* Common section styling */
+.profileSection,
+.additionalSection,
+.applicationsSection {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(103, 71, 224, 0.08);
+}
+
+/* Section Header */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(103, 71, 224, 0.1);
+}
+
+.sectionHeader h2 {
+    color: #6747e0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.headerButton {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancelButton {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #666;
+}
+
+.cancelButton:hover {
+    background: #e5e5e5;
+}
+
+.saveButton {
+    background: #6747e0;
+    border: 1px solid #6747e0;
+    color: white;
+}
+
+.saveButton:hover {
+    background: #5735d9;
+    /* Prevent unwanted transforms or scaling */
+    transform: none;
+    font-size: 0.9rem;
+}
+
+.editButton {
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    color: #6747e0;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.editButton:hover {
+    opacity: 1;
+}
+
+/* Profile Section */
+.profileContent {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.imageSection {
+    flex: 0 0 200px;
+}
+
+.profileImage {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profileImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #6747e0;
+}
+
+.imageOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(103, 71, 224, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.profileImage:hover .imageOverlay {
+    opacity: 1;
+}
+
+.changePhotoBtn {
+    background: white;
+    color: #6747e0;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.changePhotoBtn:hover {
+    background: #f8f7ff;
+    /* Only apply small scale to this specific button */
+    transform: scale(1.05);
+    /* Never change the height to 100% */
+    height: auto;
+    border: none;
+}
+
+.changePhotoBtn:active {
+    transform: scale(1);
+}
+
+.basicInfo {
+    flex: 1;
+}
+
+.fieldRow {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #f8f7ff;
+}
+
+.fieldRow label {
+    display: block;
+    color: #6747e0;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.fieldContent {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fieldContent input,
+.fieldContent select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.fieldContent input:focus,
+.fieldContent select:focus {
+    border-color: #6747e0;
+    outline: none;
+}
+
+.fieldContent.loading input,
+.fieldContent.loading select {
+    background: #f8f7ff;
+}
+
+.fieldLoader {
+    position: absolute;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(103, 71, 224, 0.1);
+    border-left-color: #6747e0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.fieldChanged input,
+.fieldChanged select {
+    border-color: #6747e0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fieldContent select {
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236747e0'%3E%3Cpath d='M4 6h8l-4 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Phone input specific styles */
+.phoneInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.countryCode {
+  position: absolute;
+  left: 10px;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2;
+}
+
+.phoneInput {
+  width: 100%;
+  padding: 8px 8px 8px 44px !important;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+}
+
+/* Styling for select dropdowns */
+.editInput[type="text"],
+.editInput[type="email"],
+.editInput[type="tel"],
+.editInput[type="date"],
+.editInput[type="url"],
+select.editInput {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  transition: border-color 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+select.editInput {
+  color: #333;
+}
+
+select.editInput option {
+  padding: 8px;
+}
+
+select.editInput optgroup {
+  font-weight: bold;
+  color: #555;
+}
+
+select.editInput optgroup option {
+  font-weight: normal;
+  padding-left: 15px;
+}
+
+.editInput:focus, 
+.phoneInput:focus {
+  outline: none;
+  border-color: #6f42c1;
+  box-shadow: 0 0 0 2px rgba(111, 66, 193, 0.2);
+}
+
+/* Contacts Section */
+.contacts {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.contactsHeader h3 {
+    color: #6747e0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.addContactBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addContactBtn:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.addContactBtn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.contactsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.contactItem {
+    padding: 0.75rem;
+    background: #f8f7ff;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.contactItem:hover {
+    background: white;
+    border-color: rgba(103, 71, 224, 0.2);
+    box-shadow: 0 2px 8px rgba(103, 71, 224, 0.1);
+    transform: translateY(-1px);
+}
+
+.contactLink,
+.contactText {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6747e0;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    width: 100%;
+}
+
+.contactLink:hover {
+    opacity: 0.8;
+}
+
+.contactIcon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.contactText {
+    color: #4a5568;
+}
+
+.emptyContacts {
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    color: #718096;
+    font-style: italic;
+    background: #f8f7ff;
+    border-radius: 6px;
+}
+
+/* Contact Item Header */
+.contactItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactTitle {
+  font-weight: 500;
+  color: #6747e0;
+  font-size: 0.9rem;
+}
+
+.deleteContactBtn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  padding: 0.25rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteContactBtn:hover {
+  opacity: 1;
+  background: rgba(220, 53, 69, 0.1);
+  transform: scale(1.1);
+}
+
+.contactLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Additional Information Section */
+.additionalContent {
+    display: flex;
+    gap: 2rem;
+}
+
+.additionalTopContent {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+.additionalBottomContent {
+    width: 100%;
+}
+
+.leftColumn {
+    flex: 0 0 calc(65% - 1rem);
+    min-width: 300px; /* Ensure minimal width */
+}
+
+.rightColumn {
+    flex: 0 0 calc(35% - 1rem);
+    min-width: 250px; /* Ensure minimal width */
+}
+
+.textareaField {
+    margin-bottom: 1rem;
+}
+
+.textareaField label {
+    display: block;
+    color: #6747e0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.textareaField .fieldContent {
+    position: relative;
+}
+
+.textareaField textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    background: #f8f7ff;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.textareaField .fieldContent.loading textarea {
+    background: #f8f7ff;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.textareaField .fieldContent.fieldChanged textarea {
+    border-color: #6747e0;
+}
+
+.textareaField textarea:focus {
+    outline: none;
+    border-color: #6747e0;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.textareaField textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.textareaField .fieldLoader {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(103, 71, 224, 0.1);
+    border-left-color: #6747e0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .additionalTopContent {
+        flex-direction: column;
+    }
+    
+    .leftColumn,
+    .rightColumn {
+        flex: 1 1 100%;
+        width: 100%;
+    }
+}
+
+/* Resume Section */
+.resumeSection {
+    background: white; /* Changed from #f8f7ff to match the style */
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.resumeSection h3 {
+    color: #6747e0;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.fileInput {
+    display: none;
+}
+
+.resumeUpload {
+    margin-bottom: 1rem;
+}
+
+.uploadButton {
+    display: inline-block;
+    padding: 0.75rem 1.25rem;
+    background: #6747e0;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.uploadButton:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.uploadButton:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.resumePreview {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.resumeDownload {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.downloadButton {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #6747e0;
+    color: white;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.downloadButton:hover {
+    background-color: #5735d9;
+}
+
+.pdfEmbed {
+    width: 100%;
+    height: 300px;
+    border: none;
+}
+
+.noResume {
+    background: rgba(103, 71, 224, 0.03);
+    border: 2px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.noResume:hover {
+    background: rgba(103, 71, 224, 0.07);
+    border-color: #6747e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(103, 71, 224, 0.1);
+}
+
+.noResume:active {
+    transform: translateY(0);
+    box-shadow: none;
+    background: rgba(103, 71, 224, 0.12);
+}
+
+.uploadIcon {
+    font-size: 2rem;
+    color: #6747e0;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.noResume:hover .uploadIcon {
+    transform: scale(1.1);
+}
+
+.noResumeContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #4a5568;
+}
+
+.noResumeContent p {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.uploadNote {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.5rem;
+}
+
+/* Styling for pending resume state */
+.pendingResume {
+    background: rgba(103, 71, 224, 0.05);
+    border: 2px dashed #6747e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.pendingResumeContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Resume file display (when file is uploaded) */
+.resumeFileDisplay {
+    background: #f8f7ff;
+    border: 2px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 120px;
+    transition: all 0.3s ease;
+    word-break: break-word;
+    overflow: hidden;
+}
+
+.resumeFileDisplay:hover {
+    border-color: rgba(103, 71, 224, 0.5);
+    box-shadow: 0 2px 8px rgba(103, 71, 224, 0.1);
+}
+
+.fileNameContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.fileName {
+    color: #2d3748;
+    font-weight: 500;
+    font-size: 1.1rem;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Normal resume actions - horizontal layout for buttons */
+.resumeActions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Edit mode resume actions - vertical layout with wider buttons */
+.resumeActionsEdit {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+/* Buttons in normal mode */
+.resumeActions .downloadButton, 
+.resumeActions .deleteResumeBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 150px;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Buttons in edit mode */
+.resumeActionsEdit .downloadButton, 
+.resumeActionsEdit .deleteResumeBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 95%;
+    text-align: center;
+}
+
+.downloadButton {
+    background-color: #6747e0;
+    color: white;
+    border: none;
+    text-decoration: none;
+}
+
+.downloadButton:hover {
+    background-color: #5735d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(103, 71, 224, 0.2);
+}
+
+.downloadButton:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.deleteResumeBtn {
+    background-color: white;
+    border: 1px solid rgba(220, 53, 69, 0.7);
+    color: #dc3545;
+}
+
+.deleteResumeBtn:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
+}
+
+.deleteResumeBtn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Resume Container */
+.resumeContainer {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Work Experience and Academic History Sections */
+.experienceSection {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(103, 71, 224, 0.08);
+}
+
+.addExperienceBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.8rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addExperienceBtn:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.experienceList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.experienceItem {
+    background: #f8f7ff;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #6747e0;
+}
+
+.experienceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.experienceHeader h4 {
+    color: #2d3748;
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.experienceActions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.editBtn, .deleteBtn {
+    padding: 0.25rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.editBtn {
+    background: #6747e0;
+    color: white;
+}
+
+.editBtn:hover {
+    background: #5735d9;
+}
+
+.deleteBtn {
+    background: #f56565;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background: #e53e3e;
+}
+
+.experienceCompany {
+    color: #6747e0;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.experienceField {
+    color: #4a5568;
+    font-style: italic;
+    margin-bottom: 0.25rem;
+}
+
+.experiencePeriod {
+    color: #718096;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.experienceDescription {
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-top: 0.5rem;
+    white-space: pre-line;
+}
+
+.emptyExperience {
+    padding: 1.5rem;
+    text-align: center;
+    color: #718096;
+    background: rgba(103, 71, 224, 0.05);
+    border: 1px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+/* Sub-section headers for Academic History and Work Experience */
+.subSectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
+
+.subSectionHeader h3 {
+    font-size: 1.2rem;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.experienceSectionInner {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.2);
+}
+
+/* Dialog Form Styles */
+.experienceDialog {
+    padding: 0.5rem;
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+}
+
+.formGroup label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.formGroup input, 
+.formGroup select, 
+.formGroup textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: #f8f7ff;
+}
+
+.formGroup input:focus, 
+.formGroup select:focus, 
+.formGroup textarea:focus {
+    outline: none;
+    border-color: #6747e0;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.formGroup small {
+    display: block;
+    margin-top: 0.25rem;
+    color: #718096;
+    font-size: 0.8rem;
+}
+
+.formRow {
+    display: flex;
+    gap: 1rem;
+}
+
+.formRow .formGroup {
+    flex: 1;
+}
+
+.inputError {
+    border-color: #f56565 !important;
+}
+
+.errorText {
+    color: #f56565;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+/* Applications Section */
+.applicationGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.jobBox {
+    background: #f8f7ff;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.jobTitle {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+}
+
+.jobCompany {
+    color: #6747e0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.applicationDate {
+    color: #718096;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.applicationInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.applicationStatus {
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.statusPending {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.statusAccepted {
+    background-color: #28a745;
+    color: white;
+}
+
+.statusRejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.seeDetailsBtn {
+    padding: 0.3rem 0.6rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* Job Applications Section */
+.viewApplicationsBtn {
+    background-color: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.viewApplicationsBtn:hover {
+    background-color: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.noApplications {
+    background: rgba(103, 71, 224, 0.05);
+    border: 2px dashed rgba(103, 71, 224, 0.3);
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.noApplications:hover {
+    background: rgba(103, 71, 224, 0.1);
+    border-color: #6747e0;
+}
+
+.noApplicationsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.noApplicationsIcon {
+    font-size: 2rem;
+    color: #6747e0;
+    margin-bottom: 1rem;
+}
+
+/* Contact Dialog */
+.contactDialog {
+    padding: 1rem;
+}
+
+.contactTypeSelect {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.contactTypeBtn {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    background: white;
+    color: #6747e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.contactTypeBtn:hover {
+    background: rgba(103, 71, 224, 0.1);
+    border-color: #6747e0;
+}
+
+.contactTypeBtn.selected {
+    background: #6747e0;
+    color: white;
+    border-color: #6747e0;
+}
+
+.contactTypeBtn.selected:hover {
+    background: #5735d9;
+}
+
+.inputWrapper {
+    width: 100%;
+    position: relative;
+}
+
+.contactInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8f7ff;
+    transition: all 0.2s ease;
+}
+
+.contactInput:focus {
+    outline: none;
+    border-color: #6747e0;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.contactInput::placeholder {
+    color: #a0aec0;
+}
+
+.contactInput.inputError {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.contactInput.inputError:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+}
+
+.errorMessage {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+/* Loading State */
+.loadingContainer {
+    width: 100%;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profileContent {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .imageSection {
+        margin-bottom: 1.5rem;
+    }
+
+    .additionalContent {
+        flex-direction: column;
+    }
+
+    .leftColumn,
+    .rightColumn {
+        flex: 1;
+    }
+
+    .contactTypeSelect {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .contactTypeBtn {
+        flex: 1 1 auto;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    .contactsList {
+        grid-template-columns: 1fr;
+    }
+
+    .contactItem {
+        width: 100%;
+    }
+
+    .profileContainer {
+        width: 95%; /* Wider on mobile for better use of space */
+    }
+
+    .additionalTopContent {
+        flex-direction: column;
+    }
+
+    .leftColumn,
+    .rightColumn {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+    }
+
+    .resumeSection {
+        order: -1; /* Move resume section above skills on mobile */
+    }
+}
+
+/* Enhanced Skills Selection Styles */
+.skillsEditContainer {
+  width: 100%;
+  background: #f8f7ff;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.skillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  min-height: 40px;
+}
+
+.skillTag {
+  display: flex;
+  align-items: center;
+  background-color: #6747e0;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  gap: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.skillTag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(103, 71, 224, 0.3);
+}
+
+.emptySkillsMessage {
+  color: #718096;
+  font-style: italic;
+  padding: 0.5rem;
+  text-align: center;
+  width: 100%;
+}
+
+.removeSkill {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+.removeSkill:hover {
+  opacity: 1;
+}
+
+.skillInputContainer {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.skillInputWrapper {
+  position: relative;
+  flex-grow: 1;
+}
+
+.skillSuggestions {
+  position: absolute;
+  z-index: 10;
+  background: white;
+  border: 1px solid rgba(103, 71, 224, 0.2);
+  width: 100%;
+  margin-top: 4px;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.skillSuggestionItem {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.skillSuggestionItem:hover {
+  background: #f0ebff;
+}
+
+.skillsViewContainer {
+  width: 100%;
+}
+
+.skillsList {
+  list-style-type: decimal;
+  list-style-position: inside;
+  padding: 0.75rem 1.25rem;
+  line-height: 1.8;
+  background: #f8f7ff;
+  border-radius: 8px;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.skillsList li {
+  color: #2d3748;
+  font-weight: 400;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.skillsList li::before {
+  content: attr(data-number) ". ";
+  font-weight: 600;
+  margin-right: 0.5rem;
+  color: #6747e0;
+}
+
+.emptyField {
+  color: #718096;
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(103, 71, 224, 0.05);
+  border: 1px dashed rgba(103, 71, 224, 0.3);
+  border-radius: 8px;
+  width: 100%;
+  min-height: 100px;
+}
+
+.emptyFieldHint {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #a0aec0;
+}

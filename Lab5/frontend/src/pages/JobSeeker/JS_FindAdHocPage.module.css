@@ -1,0 +1,10 @@
+@import './JS_FindJobPage.module.css';
+
+/* Ad-hoc specific styles */
+.payInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #27ae60;
+  font-weight: 500;
+}

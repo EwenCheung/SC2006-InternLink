@@ -1,0 +1,5 @@
+/* Import shared login styles */
+@import url('../All/EmailLoginPages.module.css');
+
+
+/* Any JobSeeker-specific styles would go here */

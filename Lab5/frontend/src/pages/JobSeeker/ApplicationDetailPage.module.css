@@ -1,0 +1,356 @@
+/* Purple Theme Variables */
+:root {
+  --primary-purple: #6f42c1;
+  --primary-purple-dark: #5a379e;
+  --primary-purple-light: #9a67ea;
+  --secondary-purple: #8e44ad;
+  --secondary-purple-dark: #6a1b9a;
+  --purple-bg-light: #f5f0fa;
+  --purple-accent: #d6a2e8;
+  --purple-text: #4a1c74;
+  --purple-gradient: linear-gradient(135deg, #8e44ad, #6f42c1);
+  --error-purple: #9c27b0;
+  --white: #ffffff;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #495057;
+  --shadow-sm: 0 2px 4px rgba(111, 66, 193, 0.1);
+  --shadow-md: 0 4px 8px rgba(111, 66, 193, 0.15);
+  --shadow-lg: 0 8px 24px rgba(111, 66, 193, 0.2);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+/* Main Container */
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  border-top: 4px solid var(--primary-purple);
+}
+
+/* Back Button */
+.backButton {
+  background: none;
+  border: none;
+  color: var(--primary-purple);
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.backButton:hover {
+  color: var(--primary-purple-dark);
+  transform: translateX(-4px);
+}
+
+.backButton:before {
+  content: "←";
+  margin-right: 8px;
+}
+
+/* Form Container */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--purple-accent);
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--primary-purple);
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--secondary-purple);
+  font-weight: 400;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--purple-text);
+  letter-spacing: 0.3px;
+}
+
+.input, .fileInput {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--purple-accent);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  background-color: var(--purple-bg-light);
+  color: var(--dark-gray);
+}
+
+.input:focus, .fileInput:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.2);
+}
+
+.input::placeholder {
+  color: #a29bab;
+}
+
+.fileInput {
+  cursor: pointer;
+  padding: 0.6rem 1rem;
+}
+
+/* Buttons */
+.button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.primaryButton {
+  background-color: var(--primary-purple);
+  color: var(--white);
+  box-shadow: var(--shadow-sm);
+}
+
+.primaryButton:hover {
+  background-color: var(--primary-purple-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+}
+
+
+/* Enhanced Submit Button */
+.enhancedSubmitButton {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  background: var(--purple-gradient);
+  color: var(--white);
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  text-transform: uppercase;
+}
+
+.enhancedSubmitButton:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: 0.6s;
+}
+
+.enhancedSubmitButton:hover:before {
+  left: 100%;
+}
+
+.enhancedSubmitButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(111, 66, 193, 0.6);
+}
+
+.enhancedSubmitButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(111, 66, 193, 0.4);
+}
+
+.enhancedSubmitButton:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Dialog styling */
+.dialogOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(77, 25, 122, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+
+.dialogContent {
+  background-color: var(--white);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 420px;
+  max-width: 90vw;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(111, 66, 193, 0.1);
+  animation: dialogFadeIn 0.3s ease;
+}
+
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dialogHeader {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--secondary-purple);
+  position: relative;
+}
+
+.dialogHeader h3 {
+  margin: 0;
+  color: var(--secondary-purple-dark);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.dialogHeader:after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background-color: var(--primary-purple);
+}
+
+.dialogBody {
+  margin-bottom: 1.5rem;
+  color: var(--dark-gray);
+}
+
+.dialogBody p {
+  margin: 0.6rem 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.errorMessage {
+  color: var(--error-purple);
+  font-weight: 500;
+  padding: 1rem;
+  background-color: rgba(156, 39, 176, 0.08);
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid var(--error-purple);
+  font-size: 0.95rem;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.dialogActions button {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  border: none;
+  font-size: 1rem;
+}
+
+.dialogActions .primaryButton {
+  background-color: var(--secondary-purple);
+  color: var(--white);
+}
+
+.dialogActions .primaryButton:hover {
+  background-color: var(--secondary-purple-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.dialogActions .button:not(.primaryButton) {
+  background-color: var(--white);
+  color: var(--secondary-purple-dark);
+  border: 1px solid var(--secondary-purple);
+}
+
+.dialogActions .button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .dialogContent {
+    width: 90%;
+    padding: 1.5rem;
+  }
+  
+  .dialogActions {
+    flex-direction: column;
+  }
+  
+  .dialogActions button {
+    width: 100%;
+  }
+}

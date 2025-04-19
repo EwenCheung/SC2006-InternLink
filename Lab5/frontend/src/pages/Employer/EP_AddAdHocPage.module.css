@@ -1,0 +1,510 @@
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white; /* White card background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for card effect */
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.backButton:hover {
+  color: #333;
+}
+
+.title {
+  font-size: 1.5rem;
+  color: #6a1b9a; /* Purple text color */
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  margin-bottom: 18px;
+  width: 100%;
+}
+
+.formGroup label {
+  font-weight: 500;
+  color: #6a1b9a; /* Purple label color */
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  padding: 0.75rem;
+  border: 1px solid #ce93d8; /* Light purple border */
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #7b1fa2; /* Purple focus border */
+  box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.15);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+.formGroup input:hover,
+.formGroup select:hover,
+.formGroup textarea:hover {
+  border-color: #9c27b0;
+  transition: all 0.3s ease;
+}
+
+.error {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  background-color: #f3e5f5; /* Light purple background */
+  color: #6a1b9a; /* Purple text color */
+  border: 1px solid #ce93d8; /* Light purple border */
+}
+
+.error h4 {
+  margin: 0 0 0.5rem 0;
+}
+
+.error p {
+  margin: 0.25rem 0;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.button {
+  @apply flex justify-center items-center rounded-md px-4 py-2 text-sm font-semibold leading-6 shadow-sm 
+  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200;
+  min-height: 2.5rem;
+}
+
+.primaryButton {
+  @apply border border-gray-300 rounded-lg 
+  text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+  color: #333;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%; /* Full width */
+}
+
+.primaryButton:hover:not(:disabled) {
+  color: white;
+  background: linear-gradient(135deg, #999999 0%, #5f5f5f 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);
+  transition: all 0.3s ease;
+}
+
+.secondaryButton {
+  @apply py-2 px-4 bg-white text-[#7C3AED] ring-1 ring-inset ring-[#7C3AED] hover:bg-gray-50;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%; /* Full width */
+}
+
+.secondaryButton:hover {
+  background: linear-gradient(135deg, #a81ce8 0%, #7C3AED 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);
+  transition: all 0.3s ease;
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.note {
+  color: #6a1b9a; /* Purple note text */
+  font-size: 0.875rem;
+  margin-top: -0.5rem;
+}
+
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(123, 31, 162, 0.5); /* Semi-transparent purple */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialogContent {
+  background-color: #f3e5f5; /* Light purple background */
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.dialogContent h3 {
+  margin: 0 0 1rem 0;
+  color: #6a1b9a; /* Purple text color */
+}
+
+.dialogButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.dialogButtons button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.exitButton {
+  background-color: #4a148c; /* Darker purple exit button */
+  color: white;
+}
+
+.exitButton:hover {
+  background-color: #6a1b9a; /* Lighter purple on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.saveButton {
+  background-color: #4a148c; /* Darker purple save button */
+  color: white;
+}
+
+.saveButton:hover {
+  background-color: #6a1b9a; /* Lighter purple on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.cancelButton {
+  background-color: #4a148c; /* Darker purple cancel button */
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #6a1b9a; /* Lighter purple on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Tag input styles */
+.tagInput {
+  @apply w-full rounded-md  ;
+  box-sizing: border-box; /* Ensure padding and border are included in width */
+}
+
+.tagInput input {
+  padding: 0.75rem;
+  border: 1px solid #ce93d8;
+  border-radius: 4px;
+  font-size: 1rem;
+  width: 100%; /* Make input box take full width */
+  max-width: 100%; /* Ensure it doesn't exceed container width */
+}
+
+.tagInput input:focus {
+  outline: none;
+  border-color: #7b1fa2;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.skillTag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ede9fe; /* Light purple tag background */
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 0.875rem;
+  color: #7c3aed; /* Purple text */
+  transition: all 0.3s ease;
+}
+
+.skillTag:hover {
+  background-color: #ddd6fe;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.removeSkill {
+  background: none;
+  border: none;
+  color: #7c3aed; /* Purple icon */
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.removeSkill:hover {
+  color: #5b21b6; /* Darker purple on hover */
+}
+
+.deleteTag {
+  background: none;
+  border: none;
+  color: #6a1b9a; /* Purple delete icon */
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.deleteTag:hover {
+  color: #9c27b0; /* Darker purple on hover */
+}
+
+/* Suggestions dropdown styles */
+.suggestionsDropdown {
+  width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ce93d8; /* Light purple border */
+  border-radius: 4px;
+  font-size: 1rem;
+  padding: 0.5rem;
+  background-color: #f3e5f5; /* Light purple background */
+}
+
+.suggestionsDropdown option {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.suggestionsDropdown option:hover {
+  background-color: #e1bee7; /* Light purple hover */
+}
+
+/* Custom input field and dropdown list styles */
+.inputBox {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e1e1e1;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.inputBox:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.loadingText {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.suggestionsContainer {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 5px; /* Increased space between input and dropdown */
+  top: 100%; /* Position it at the bottom of the formGroup */
+  left: 0;
+  background-color: white;
+  border: 1px solid #ce93d8; /* Match the purple theme */
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.suggestionItem {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #f3e4f5; /* Match the purple theme */
+  transition: background-color 0.2s;
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.suggestionItem:hover {
+  background-color: #f3e5f5; /* Light purple background on hover */
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.dropdownList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ce93d8; /* Light purple border */
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #f3e5f5; /* Light purple background */
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+}
+
+.dropdownItem {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: #e1bee7; /* Light purple hover */
+}
+
+/* Single suggestion box styles */
+.singleSuggestion {
+  padding: 8px;
+  border: 1px solid #ce93d8; /* Light purple border */
+  border-radius: 4px;
+  background-color: #f3e5f5; /* Light purple background */
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.singleSuggestion:hover {
+  background-color: #e1bee7; /* Light purple hover */
+}
+
+/* Success Message Overlay */
+.successMessageOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(106, 27, 154, 0.7); /* Semi-transparent purple overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Ensure it's above everything else */
+  animation: fadeIn 0.3s ease;
+}
+
+.successMessage {
+  background-color: white;
+  padding: 30px 40px; /* Increased padding for better appearance */
+  border-radius: 12px; /* Slightly more rounded corners */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Stronger shadow for better depth */
+  text-align: center;
+  width: 90%;
+  max-width: 420px;
+  position: relative;
+  z-index: 2001;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy animation */
+  transform-origin: center;
+  transition: box-shadow 0.3s ease;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.successMessage:hover {
+  box-shadow: 0 12px 40px rgba(106, 27, 154, 0.25);
+}
+
+.successIcon {
+  margin: 0 auto 15px;
+  width: 60px;
+  height: 60px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 30px;
+  animation: scaleIn 0.5s ease;
+}
+
+.successMessage h3 {
+  margin: 0 0 10px;
+  color: #333;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.successMessage p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  70% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}

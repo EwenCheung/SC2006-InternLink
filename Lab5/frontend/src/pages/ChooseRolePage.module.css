@@ -1,0 +1,84 @@
+.container {
+    background: linear-gradient(135deg, #c0b1ff 0%, rgb(255, 187, 228) 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+        0 2px 4px -1px rgba(0, 0, 0, 0.06),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    width: 100%;
+    max-width: 500px;
+    text-align: center;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.button {
+    background: linear-gradient(135deg, rgb(138, 63, 171) 0%, rgb(155, 75, 190) 100%);
+    color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    
+}
+
+.button:hover {
+    background: linear-gradient(135deg, rgb(151, 37, 193) 0%,rgb(188, 150, 198));
+    box-shadow: 
+        0 4px 12px rgba(138, 63, 171, 0.4);   
+    transform: translateY(-2px);
+}
+
+.button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(138, 63, 171, 0.3);
+}
+
+.button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+    background-repeat: no-repeat;
+    background-position: 50%;
+    transform: scale(10, 10);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.8s;
+}
+
+.button:active::after {
+    transform: scale(0, 0);
+    opacity: 0.4;
+    transition: 0s;
+}
+
+@media (max-width: 640px) {
+    .card {
+        padding: 2rem;
+    }
+
+    .button {
+        width: 100% !important;
+    }
+}

@@ -1,0 +1,721 @@
+/* Employer Profile Page Styles */
+.profileContainer {
+    width: 80%;
+    margin: 2rem auto;
+    max-width: 1400px;
+}
+
+/* Common section styling */
+.profileSection,
+.additionalSection,
+.jobsSection {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 15px rgba(103, 71, 224, 0.08);
+}
+
+/* Section Header */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(103, 71, 224, 0.1);
+}
+
+.sectionHeader h2 {
+    color: #6747e0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.headerButton {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancelButton {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #666;
+}
+
+.cancelButton:hover {
+    background: #e5e5e5;
+}
+
+.saveButton {
+    background: #6747e0;
+    border: 1px solid #6747e0;
+    color: white;
+}
+
+.saveButton:hover {
+    background: #5735d9;
+}
+
+.addButton {
+    background: #6747e0;
+    border: 1px solid #6747e0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.addButton:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.editButton {
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    color: #6747e0;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.editButton:hover {
+    opacity: 1;
+}
+
+/* Profile Section */
+.profileContent {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.imageSection {
+    flex: 0 0 200px;
+}
+
+.profileImage {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profileImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid #6747e0;
+}
+
+.imageOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(103, 71, 224, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.profileImage:hover .imageOverlay {
+    opacity: 1;
+}
+
+.changePhotoBtn {
+    background: white;
+    color: #6747e0;
+    padding: 0.75rem 1.25rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.changePhotoBtn:hover {
+    background: #f8f7ff;
+    transform: scale(1.05);
+}
+
+.changePhotoBtn:active {
+    transform: scale(1);
+}
+
+.basicInfo {
+    flex: 1;
+}
+
+.fieldRow {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #f8f7ff;
+}
+
+.fieldRow label {
+    display: block;
+    color: #6747e0;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.fieldContent {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fieldContent input,
+.fieldContent select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.fieldContent input:focus,
+.fieldContent select:focus {
+    border-color: #6747e0;
+    outline: none;
+}
+
+.fieldContent.loading input,
+.fieldContent.loading select {
+    background: #f8f7ff;
+}
+
+.fieldLoader {
+    position: absolute;
+    right: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(103, 71, 224, 0.1);
+    border-left-color: #6747e0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.fieldChanged input,
+.fieldChanged select {
+    border-color: #6747e0;
+    background-color: #f8f7ff;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fieldContent select {
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236747e0'%3E%3Cpath d='M4 6h8l-4 4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Contacts Section */
+.contacts {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.contactsHeader h3 {
+    color: #6747e0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.addContactBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: #6747e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.addContactBtn:hover {
+    background: #5735d9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(103, 71, 224, 0.2);
+}
+
+.addContactBtn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.contactsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.contactItem {
+    padding: 0.75rem;
+    background: #f8f7ff;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.contactItem:hover {
+    background: white;
+    border-color: rgba(103, 71, 224, 0.2);
+    box-shadow: 0 2px 8px rgba(103, 71, 224, 0.1);
+    transform: translateY(-1px);
+}
+
+.contactLink,
+.contactText {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #6747e0;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    width: 100%;
+}
+
+.contactLink:hover {
+    opacity: 0.8;
+}
+
+.contactIcon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.contactText {
+    color: #4a5568;
+}
+
+.emptyContacts {
+    width: 100%;
+    padding: 1rem;
+    text-align: center;
+    color: #718096;
+    font-style: italic;
+    background: #f8f7ff;
+    border-radius: 6px;
+}
+
+.contactItemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.contactTitle {
+    font-weight: 500;
+    color: #6747e0;
+    font-size: 0.9rem;
+}
+
+.deleteContactBtn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    padding: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deleteContactBtn:hover {
+    opacity: 1;
+    background: rgba(220, 53, 69, 0.1);
+    transform: scale(1.1);
+}
+
+/* Additional Information Section */
+.additionalContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.textareaField {
+    margin-bottom: 1rem;
+}
+
+.textareaField label {
+    display: block;
+    color: #6747e0;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.textareaField .fieldContent {
+    position: relative;
+}
+
+.textareaField textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    background: #f8f7ff;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.textareaField .fieldContent.loading textarea {
+    background: #f8f7ff;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.textareaField .fieldContent.fieldChanged textarea {
+    border-color: #6747e0;
+}
+
+.textareaField textarea:focus {
+    outline: none;
+    border-color: #6747e0;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.textareaField textarea:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.textareaField .fieldLoader {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(103, 71, 224, 0.1);
+    border-left-color: #6747e0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Jobs Section */
+.jobsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+}
+
+.jobBox {
+    position: relative;
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 12px rgba(103, 71, 224, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(103, 71, 224, 0.1);
+    overflow: hidden;
+}
+
+.jobBox:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(103, 71, 224, 0.15);
+    border-color: rgba(103, 71, 224, 0.2);
+}
+
+.draftBadge, .publishedBadge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.3rem 1.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: white;
+    border-bottom-left-radius: 8px;
+}
+
+.draftBadge {
+    background: #f7c948;
+}
+
+.publishedBadge {
+    background: #4CAF50;
+}
+
+.jobDetails {
+    margin-top: 1rem;
+}
+
+.jobTitle {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.jobLocation {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.stipendInfo {
+    font-weight: 500;
+    color: #6747e0;
+}
+
+.tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    background: rgba(103, 71, 224, 0.1);
+    color: #6747e0;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.jobStats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.applicants {
+    color: #6747e0;
+    font-weight: 500;
+}
+
+.postedDate {
+    font-style: italic;
+}
+
+.deadline {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #e74c3c;
+    font-weight: 500;
+}
+
+.noJobs {
+    background: rgba(103, 71, 224, 0.05);
+    border: 2px dashed rgba(103, 71, 224, 0.2);
+    border-radius: 12px;
+    padding: 2.5rem 1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.noJobs:hover {
+    background: rgba(103, 71, 224, 0.1);
+}
+
+.noJobsContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.noJobsIcon {
+    font-size: 2rem;
+    color: #6747e0;
+}
+
+.jobSubsection {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(103, 71, 224, 0.1);
+}
+
+.jobSubsection h3 {
+    color: #6747e0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Contact Dialog */
+.contactDialog {
+    padding: 1rem;
+}
+
+.contactTypeSelect {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.contactTypeBtn {
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 6px;
+    background: white;
+    color: #6747e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.contactTypeBtn:hover {
+    background: rgba(103, 71, 224, 0.1);
+    border-color: #6747e0;
+}
+
+.contactTypeBtn.selected {
+    background: #6747e0;
+    color: white;
+    border-color: #6747e0;
+}
+
+.contactTypeBtn.selected:hover {
+    background: #5735d9;
+}
+
+.inputWrapper {
+    width: 100%;
+    position: relative;
+}
+
+.contactInput {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(103, 71, 224, 0.2);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8f7ff;
+    transition: all 0.2s ease;
+}
+
+.contactInput:focus {
+    outline: none;
+    border-color: #6747e0;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(103, 71, 224, 0.1);
+}
+
+.contactInput::placeholder {
+    color: #a0aec0;
+}
+
+.contactInput.inputError {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.contactInput.inputError:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+}
+
+.errorMessage {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+/* Loading State */
+.loadingContainer {
+    width: 100%;
+    height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profileContent {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .imageSection {
+        margin-bottom: 1.5rem;
+    }
+
+    .contactTypeSelect {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .contactTypeBtn {
+        flex: 1 1 auto;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    .contactsList {
+        grid-template-columns: 1fr;
+    }
+
+    .contactItem {
+        width: 100%;
+    }
+
+    .profileContainer {
+        width: 95%; /* Wider on mobile for better use of space */
+    }
+}

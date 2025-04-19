@@ -1,0 +1,397 @@
+.container {
+  @apply min-h-screen flex flex-col justify-center px-6 py-12;
+  background: linear-gradient(135deg, #c9bdfe 0%, #ffffff 100%);
+}
+
+.formContainer {
+  @apply mx-auto w-full bg-white rounded-xl shadow-lg p-8;
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.1), 0 2px 4px -1px rgba(124, 58, 237, 0.06);
+  transition: all 0.3s ease-in-out;
+}
+
+.formContainerStep1 {
+  max-width: calc(28rem * 1.3); /* Same as login page (30% larger than max-w-md) */
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.formContainerStep2 {
+  max-width: calc(42rem * 1.3); /* 30% larger than max-w-2xl */
+  animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.header {
+  @apply mb-8 text-center;
+}
+
+.logo {
+  @apply mx-auto h-10 w-auto;
+}
+
+.title {
+  @apply mt-6 text-2xl font-bold leading-9 tracking-tight text-gray-900;
+  background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  @apply mt-2 text-sm text-gray-600;
+}
+
+.form {
+  @apply mt-8 space-y-6;
+}
+
+.formGrid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+.inputGroup {
+  @apply space-y-2;
+}
+
+.fullWidth {
+  @apply md:col-span-2;
+}
+
+.label {
+  @apply block text-sm font-medium leading-6 text-gray-900;
+}
+
+.labelError {
+  @apply text-red-500;
+}
+
+.optional {
+  @apply text-sm text-gray-500 ml-1;
+}
+
+.input {
+  @apply block w-full rounded-md border-0 py-2 px-4 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 
+  placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#7C3AED] sm:text-sm sm:leading-6;
+  transition: all 0.2s ease-in-out;
+}
+
+.input:hover {
+  @apply ring-[#8B5CF6];
+}
+
+.inputError {
+  @apply ring-red-500 ring-2 !important;
+}
+
+.inputError:focus {
+  @apply ring-red-500 ring-2 !important;
+}
+
+.fileInput {
+  @apply block w-full text-sm text-gray-500
+    file:mr-4 file:py-2 file:px-4
+    file:rounded-md file:border-0
+    file:text-sm file:font-semibold
+    file:bg-[#7C3AED] file:text-white
+    hover:file:bg-[#8B5CF6]
+    file:cursor-pointer cursor-pointer;
+}
+
+.button {
+  @apply flex justify-center items-center rounded-md px-4 py-2 text-sm font-semibold leading-6 shadow-sm 
+  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 transition-all duration-200;
+  min-height: 2.5rem;
+}
+
+.primaryButton {
+    @apply border border-gray-300 rounded-lg 
+    text-gray-700 bg-white hover:bg-gray-50 w-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+    
+}
+
+.primaryButton:hover:not(:disabled) {
+    color:white;
+    background: linear-gradient(135deg, #9b70ff 0%, #7C3AED 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.secondaryButton {
+  @apply py-2 px-4 bg-white text-[#7C3AED] ring-1 ring-inset ring-[#7C3AED] hover:bg-gray-50;
+}
+
+.secondaryButton:hover {
+  background: linear-gradient(135deg, #a81ce8 0%, #7C3AED 100%);;
+  color:white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.buttonGroup {
+  @apply flex flex-col gap-4 mt-8;
+}
+
+.oauthButton {
+  @apply flex items-center justify-center gap-3 w-full mt-4 px-4 py-2 border border-gray-300 rounded-lg 
+  text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#7C3AED];
+  transition: all 0.2s ease-in-out;
+}
+
+.oauthButton:hover {
+  @apply border-[#8B5CF6] bg-gray-50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px -1px rgba(124, 58, 237, 0.1);
+}
+
+.googleIcon {
+  color: #333;
+}
+
+.githubIcon {
+  color: #333;
+}
+
+.dividerContainer {
+  @apply relative mt-6;
+}
+
+.divider {
+  @apply absolute inset-0 flex items-center;
+}
+
+.dividerLine {
+  @apply w-full border-t border-gray-300;
+}
+
+.dividerText {
+  @apply relative flex justify-center text-sm font-medium leading-6;
+}
+
+.dividerTextSpan {
+  @apply bg-white px-6 text-gray-500;
+}
+
+.error {
+  @apply mt-2 text-sm text-red-600 flex items-center gap-2;
+}
+
+.success {
+  @apply mt-2 text-sm text-green-600 flex items-center gap-2;
+}
+
+.navigationLinks {
+  @apply mt-10 text-center text-sm text-gray-500;
+}
+
+.link {
+  @apply font-semibold text-[#7C3AED] hover:text-[#8B5CF6];
+  transition: all 0.2s ease-in-out;
+}
+
+.backButton {
+  @apply absolute top-8 left-8 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md text-[#7C3AED] font-medium;
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.backButton:hover {
+  @apply bg-[#7C3AED] text-white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.switchRoleButton {
+  @apply absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md text-[#7C3AED] font-medium;
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+  border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+.switchRoleButton:hover {
+  @apply bg-[#7C3AED] text-white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);
+}
+
+.stepIndicator {
+  @apply flex items-center justify-center gap-2 mb-8;
+}
+
+.step {
+  @apply w-2.5 h-2.5 rounded-full transition-all duration-200;
+}
+
+.stepActive {
+  @apply bg-[#7C3AED];
+  width: 2rem;
+}
+
+.stepCompleted {
+  @apply bg-[#7C3AED];
+}
+
+.stepIncomplete {
+  @apply bg-gray-300;
+}
+
+.skillsContainer {
+  @apply flex flex-wrap gap-2 mt-2;
+}
+
+.skillTag {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ede9fe; /* Light purple tag background */
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 0.875rem;
+  color: #7c3aed; /* Purple text */
+}
+
+.removeSkill {
+  @apply p-0.5 hover:bg-purple-200 rounded-full cursor-pointer;
+}
+
+.modal {
+  @apply fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-[100];
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  @apply bg-white rounded-xl p-6 max-w-md w-full mx-4 relative;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalTitle {
+  @apply text-xl font-semibold mb-4 text-gray-900;
+  background: linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modalText {
+  @apply text-gray-600 mb-6;
+}
+
+.modalButtons {
+  @apply flex flex-col sm:flex-row gap-3 justify-end;
+}
+
+.passwordRequirements {
+  @apply mt-2 space-y-1;
+}
+
+.requirement {
+  @apply flex items-center gap-2 text-xs;
+}
+
+.requirementMet {
+  @apply text-green-600;
+}
+
+.requirementNotMet {
+  @apply text-gray-400;
+}
+
+.checkIcon {
+  @apply w-4 h-4 transition-colors duration-200;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #374151;
+}
+
+.modalText {
+  margin-bottom: 2rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+
+
+.secondaryButton {
+  background-color: white;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+.secondaryButton:hover {
+  background-color: #f3f4f6;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
