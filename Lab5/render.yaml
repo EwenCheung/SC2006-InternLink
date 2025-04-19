@@ -29,7 +29,7 @@ services:
     env: node
     plan: free
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && VITE_API_BASE_URL=https://internlink-backend.onrender.com npm run build
     startCommand: npm run preview
     envVars:
       - key: VITE_API_BASE_URL
