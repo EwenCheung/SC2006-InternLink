@@ -3,7 +3,7 @@ import axios from 'axios';
 const fetchSkillsData = async () => {
   try {
     // Fetch the access token from the backend
-    const tokenResponse = await axios.get('http://localhost:5001/use-token');
+    const tokenResponse = await axios.get(`${process.env.TOKEN_SERVER_URL}/use-token`);
     const accessToken = tokenResponse.data.token2;
 
     // Use the access token to fetch skills data

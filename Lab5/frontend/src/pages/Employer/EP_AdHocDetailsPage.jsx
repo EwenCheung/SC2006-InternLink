@@ -4,7 +4,7 @@ import styles from './EP_InternshipDetailsPage.module.css'; // Reuse the same st
 import { FaArrowLeft, FaBuilding, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, 
   FaGraduationCap, FaSearch, FaFilter, FaUser, FaUniversity, FaClock, FaFilePdf, FaExternalLinkAlt } from 'react-icons/fa';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Define the getStatusClass function to return appropriate CSS class based on status
 const getStatusClass = (status) => {

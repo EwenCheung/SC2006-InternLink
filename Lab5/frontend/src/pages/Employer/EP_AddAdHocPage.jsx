@@ -4,7 +4,7 @@ import styles from './EP_AddInternshipPage.module.css'; // Reusing the same styl
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const EP_AddAdHocPage = () => {
   const navigate = useNavigate();

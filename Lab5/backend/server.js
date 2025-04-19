@@ -37,7 +37,7 @@ const __dirname = path.dirname(__filename);
 
 // Find next available port
 const findPort = async (startPort) => {
-  const preferredPort = 5001;
+  const preferredPort = process.env.PORT;
   
   const test = (port) => {
     return new Promise((resolve) => {
@@ -51,7 +51,7 @@ const findPort = async (startPort) => {
     });
   };
 
-  // Check if preferred port 5001 is available
+  // Check if preferred port is available
   if (startPort === preferredPort && !(await test(preferredPort))) {
     console.error('\x1b[31m%s\x1b[0m', `
 =======================================================================
@@ -147,7 +147,7 @@ const startServer = async () => {
     app.use(errorHandlerMiddleware);
     
     // Start the server on the next available port
-    const port = await findPort(process.env.PORT || 5001);
+    const port = await findPort(process.env.PORT );
     app.listen(port, () => {
       console.log(`Server is running on port ${port}`);
     });

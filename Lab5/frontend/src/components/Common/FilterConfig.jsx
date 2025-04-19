@@ -241,7 +241,8 @@ const updateLocationFilter = (locations) => {
 // Shared location filter
 async function getTokenAndFetchLocation(retryCount = 0) {
   try {
-    const tokenResponse = await fetch('http://localhost:5001/use-token');
+    const tokenServerUrl = import.meta.env.VITE_API_BASE_URL;
+    const tokenResponse = await fetch(`${tokenServerUrl}/use-token`);
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error && retryCount < 3) {

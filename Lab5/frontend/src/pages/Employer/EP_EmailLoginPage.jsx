@@ -4,7 +4,7 @@ import styles from './EP_EmailLoginPage.module.css';
 import { FaGoogle, FaGithub, FaExchangeAlt, FaArrowLeft } from 'react-icons/fa';
 import AuthFactory from '../../services/AuthFactory';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const EP_EmailLoginPage = () => {
   const navigate = useNavigate();

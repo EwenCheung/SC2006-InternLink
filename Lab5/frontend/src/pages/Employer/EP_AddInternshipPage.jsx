@@ -6,7 +6,7 @@ import { FaArrowLeft, FaTimes } from 'react-icons/fa';
 import FieldCourseSelector from '../../components/Common/FieldCourseSelector';
 import { FIELDS_AND_COURSES } from '../../components/Common/FilterConfig';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
 
 const DURATION_OPTIONS = [
   'Select Duration',

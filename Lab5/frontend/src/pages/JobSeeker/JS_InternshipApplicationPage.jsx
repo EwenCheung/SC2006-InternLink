@@ -75,7 +75,7 @@ const JS_InternshipApplicationPage = () => {
   const handleSubmit = async () => {
     try {
       setIsUploading(true);
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       const token = localStorage.getItem('token');
       
       if (!token) {

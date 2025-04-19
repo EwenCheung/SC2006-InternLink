@@ -39,14 +39,14 @@ export default defineConfig(async () => {
       open: true,
       proxy: {
         '/api': {
-          target: process.env.VITE_API_URL,
+          target: process.env.VITE_API_BASE_URL,
           changeOrigin: true,
           secure: false
         }
       },
       onListening: () => {
         console.log(`Frontend running on port ${port}`);
-        console.log(`API Proxy target: ${process.env.VITE_API_URL}`);
+        console.log(`API Proxy target: ${process.env.VITE_API_BASE_URL}`);
       },
     }
   };
