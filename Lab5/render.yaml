@@ -1,14 +1,36 @@
 services:
   - type: web
-    name: mern-app
+    name: internlink-backend
     env: node
     plan: free
-    buildCommand: |
-      npm install
-      cd frontend && npm install
-      cd ../backend && npm install
-    startCommand: npm run dev
-    rootDir: .
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node index.js # or your backend start file, adjust if it's app.js or server.js
     envVars:
-      - key: NODE_VERSION
-        value: 18
+      - key: JWT_SECRET
+        value: myinternlinkjwtsecret2024
+      - key: JWT_LIFETIME
+        value: 1d
+      - key: ONEMAP_EMAIL
+        value: lolblackapple@gmail.com
+      - key: ONEMAP_EMAIL_PASSWORD
+        value: !wzCzS$Pm7sLmmy
+      - key: MONGO_URI
+        value: mongodb+srv://yiwencheung:eM9nvJHPsMj1flko@cluster0.nbwm6.mongodb.net?retryWrites=true&w=majority&appName=Cluster0
+      - key: Client_ID
+        value: 2vd8rsuy33l3j9as
+      - key: Secret
+        value: XpfZv5eY
+      - key: Scope
+        value: emsi_open
+
+  - type: web
+    name: internlink-frontend
+    env: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: VITE_API_URL
+        value: https://internlink-backend.onrender.com # Replace with the actual backend render URL
