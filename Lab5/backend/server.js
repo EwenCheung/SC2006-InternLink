@@ -76,35 +76,72 @@ Please:
   return preferredPort; // Always return 5001 for local development
 };
 
-// Middleware
-// Configure CORS to be very permissive for troubleshooting
+// CORS Configuration - placed at the very top
 app.use((req, res, next) => {
-  // Allow all origins for troubleshooting
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  console.log(`Handling request: ${req.method} ${req.path}`);
+  
+  // Allow requests from any origin
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  
+  // Allow specific methods
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  
+  // Allow specific headers
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Allow credentials
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS preflight request');
     return res.status(204).end();
   }
   
   next();
 });
 
-// Standard CORS middleware as a backup
-app.use(cors({ 
-  origin: '*',  // Allow all origins for now
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
-}));
-
+// Regular middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Routes - moved before server start
+app.get('/', (req, res) => {
+  console.log('Root endpoint accessed');
+  res.send('InternLink API is running');
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  console.log('Health check endpoint accessed');
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Backend is running', 
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// OneMap token endpoint - moved earlier
+app.get('/use-token', (req, res) => {
+  console.log('Token endpoint accessed');
+  if (!accessToken) {
+    return res.status(400).json({ error: 'Access token not available' });
+  }
+  res.json({ message: 'Access token is available', token: accessToken, token2: accessToken2 });
+});
+
+// API routes
+app.use('/api/auth', authUserRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/messages', messageRoutes);
+
+// Error handler middleware
+app.use(errorHandlerMiddleware);
 
 // Connect to MongoDB and start server
 const startServer = async () => {
@@ -146,29 +183,6 @@ const startServer = async () => {
       process.exit(1);
     }
     
-    // Routes
-    app.get('/', (req, res) => {
-      res.send('InternLink API is running');
-    });
-    
-    // Add a health check endpoint
-    app.get('/health', (req, res) => {
-      res.status(200).json({ 
-        status: 'ok', 
-        message: 'Backend is running', 
-        environment: process.env.NODE_ENV || 'development',
-        timestamp: new Date().toISOString()
-      });
-    });
-    
-    app.use('/api/auth', authUserRoutes);
-    app.use('/api/jobs', jobRoutes);
-    app.use('/api/applications', applicationRoutes);
-    app.use('/api/messages', messageRoutes);
-    
-    // Error handler middleware
-    app.use(errorHandlerMiddleware);
-    
     // Get the port using our cloud-compatible function
     const port = await getPort();
     
@@ -209,22 +223,12 @@ const startServer = async () => {
     }
     
     console.log('Server initialization complete');
-    
-    // OneMap token endpoint
-    app.get('/use-token', (req, res) => {
-      if (!accessToken) {
-        return res.status(400).json({ error: 'Access token not available' });
-      }
-      res.json({ message: 'Access token is available', token: accessToken, token2: accessToken2 });
-    });
-
   } catch (error) {
     console.error('Server startup error:', error);
     process.exit(1);
   }
 };
 
-export default app;
 // Fetch EMSI token
 const fetchEmsiToken = async () => {
   try {
@@ -273,5 +277,7 @@ const fetchOneMapToken = async () => {
 Promise.all([fetchEmsiToken(), fetchOneMapToken()])
   .then(() => startServer())
   .catch(error => console.error('Startup error:', error));
+
+export default app;
 
 
