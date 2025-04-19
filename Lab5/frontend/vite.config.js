@@ -48,6 +48,12 @@ export default defineConfig(async () => {
         console.log(`Frontend running on port ${port}`);
         console.log(`API Proxy target: ${process.env.VITE_API_URL}`);
       },
+      // Add allowedHosts configuration to solve the blocked request issue
+      allowedHosts: [
+        'localhost',
+        '127.0.0.1',
+        '.onrender.com' // This wildcard allows all onrender.com subdomains
+      ]
     }
   };
 });
