@@ -1,10 +1,8 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import net from 'net';
 import dotenv from 'dotenv';
-
-dotenv.config();
 
 // Find next available port
 const findPort = async (startPort) => {
@@ -28,14 +26,25 @@ const findPort = async (startPort) => {
   return port;
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
+  // Load env file based on mode
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  console.log('Environment mode:', mode);
+  console.log('API Base URL:', env.VITE_API_BASE_URL);
+  
   const port = await findPort(Number(process.env.PORT));
   
   // Determine if we're in production mode
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = mode === 'production';
   
   return {
     plugins: [react()],
+    // Define environment variables to be replaced in the client code
+    define: {
+      // Ensure environment variables are exposed to client-side code
+      'import.meta.env.VITE_API_BASE_URL': JSON.stringify(env.VITE_API_BASE_URL)
+    },
     server: {
       port,
       host: true,
@@ -44,7 +53,7 @@ export default defineConfig(async () => {
       ...(isProduction ? {} : {
         proxy: {
           '/api': {
-            target: process.env.VITE_API_BASE_URL,
+            target: env.VITE_API_BASE_URL,
             changeOrigin: true,
             secure: false
           }
@@ -52,7 +61,7 @@ export default defineConfig(async () => {
       }),
       onListening: () => {
         console.log(`Frontend running on port ${port}`);
-        console.log(`API Proxy target: ${process.env.VITE_API_BASE_URL}`);
+        console.log(`API Base URL: ${env.VITE_API_BASE_URL}`);
       },
       // Add allowedHosts configuration to solve the blocked request issue
       allowedHosts: [
