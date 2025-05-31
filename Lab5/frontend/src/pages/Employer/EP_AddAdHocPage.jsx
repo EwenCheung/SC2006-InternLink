@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './EP_AddInternshipPage.module.css'; // Reusing the same styles
 import { FaArrowLeft, FaTimes } from 'react-icons/fa';
-import { fetchSkillsData } from '../../../../backend/controllers/skillsdata.controller.js';
+import { fetchSkillsData } from '../../services/SkillsService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const EP_AddAdHocPage = () => {
   const navigate = useNavigate();

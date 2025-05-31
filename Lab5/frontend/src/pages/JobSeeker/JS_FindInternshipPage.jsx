@@ -6,7 +6,7 @@ import SearchAndFilter from '../../components/Common/SearchAndFilter';
 import { internshipFilterOptions, defaultInternshipFilters } from '../../components/Common/FilterConfig';
 import { useSearchAndFilter } from '../../hooks/UseSearchAndFilter';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
 
 const JS_FindInternshipPage = () => {
   const navigate = useNavigate();

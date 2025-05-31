@@ -413,7 +413,7 @@ export default function EP_ProfilePage() {
                 setOriginalData(profileData);
 
                 // Fetch jobs posted by employer - using the correct endpoint like in the Post Internship page
-                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+                const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
                 
                 try {
                     // Fetch internship jobs

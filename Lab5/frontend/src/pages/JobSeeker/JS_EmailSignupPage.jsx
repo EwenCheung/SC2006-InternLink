@@ -3,7 +3,7 @@ import { fetchUniversities } from '../../../../backend/controllers/universitiesd
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './JS_EmailSignupPage.module.css';
 import { FaGoogle, FaGithub, FaArrowLeft, FaTimes, FaPlus, FaExchangeAlt } from 'react-icons/fa';
-import {fetchSkillsData} from '../../../../backend/controllers/skillsdata.controller.js';
+import {fetchSkillsData} from '../../services/SkillsService';
 import AuthFactory from '../../services/AuthFactory';
 
 // Get course fields and course list from VALID_COURSES in job.model.js plus additional options

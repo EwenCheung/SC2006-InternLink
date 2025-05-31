@@ -46,7 +46,7 @@ const JS_ViewApplicationPage = () => {
           return;
         }
 
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
         // Fix the endpoint URL - Ensure it matches your backend route exactly
         // The correct parameter name should be 'jobseekerId' not just 'id'
         const response = await fetch(`${API_BASE_URL}/api/jobs/get-all-application/${jobseekerId}`, {
@@ -104,7 +104,7 @@ const JS_ViewApplicationPage = () => {
         return;
       }
 
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ;
       
       // Make sure we're using the exact route from your backend
       const response = await fetch(`${API_BASE_URL}/api/jobs/delete-application/${applicationToWithdraw}`, {

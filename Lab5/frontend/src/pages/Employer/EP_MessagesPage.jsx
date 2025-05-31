@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const EP_MessagePage = () => {
   return (
@@ -96,6 +96,50 @@ const EP_MessagePage = () => {
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const MessageBubble = ({ message, isSender }) => {
+  const bubbleStyle = {
+    padding: '10px 15px',
+    borderRadius: '15px',
+    maxWidth: '80%',
+    marginBottom: '10px',
+    position: 'relative',
+    ...(isSender 
+      ? { 
+          backgroundColor: '#9575CD', 
+          color: 'white',
+          marginLeft: 'auto',
+          borderBottomRightRadius: '2px'
+        } 
+      : { 
+          backgroundColor: '#E6E6FA',
+          color: '#333',
+          marginRight: 'auto',
+          borderBottomLeftRadius: '2px'
+        })
+  };
+  
+  const timestampStyle = {
+    fontSize: '0.7rem',
+    color: isSender ? 'rgba(255,255,255,0.7)' : '#888',
+    display: 'block',
+    textAlign: 'right',
+    marginTop: '3px'
+  };
+
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  return (
+    <div style={bubbleStyle}>
+      <p>{message.text}</p>
+      <span style={timestampStyle}>{formatTimestamp(message.timestamp)}</span>
     </div>
   );
 };

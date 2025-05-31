@@ -4,7 +4,7 @@ import styles from './EP_PostInternshipPage.module.css';
 import { FaPlus, FaDollarSign, FaMapMarkerAlt, FaBuilding, FaCalendarAlt } from 'react-icons/fa';
 import SuccessMessageBox from '../../components/Common/SuccessMessageBox';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const EP_PostInternshipPage = () => {
   const navigate = useNavigate();
